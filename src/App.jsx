@@ -12,7 +12,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><h1>Register Page - Coming Soon</h1></div>} />
         <Route path="/dashboard" element={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><h1>Dashboard - Coming Soon</h1></div>} />
-        <Route path="/crews" element={<CrewForm />} />
+        <Route path="/crew" element={<CrewForm />} />
       </Routes>
     </BrowserRouter>
   );
