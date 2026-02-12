@@ -1,38 +1,42 @@
+
 import "./createCrew.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Error Notification Component
+
 function ErrorNotification({ message, type = "error", onClose }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
-        }, 5000); // Auto-dismiss after 5 seconds
-
+        }, 5000);
         return () => clearTimeout(timer);
     }, [onClose]);
 
     return (
         <div className={`error-notification ${type}`}>
             <div className="error-notification-text">{message}</div>
-            <button className="error-notification-close" onClick={onClose}>
-                ×
-            </button>
+            <button className="error-notification-close" onClick={onClose}>×</button>
         </div>
     );
 }
 
 export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCancel }) {
+   
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [activity, setActivity] = useState("");
     const [SubActivity, setSubActivity] = useState("");
     const [imageUrl, setImageUrl] = useState("");
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-   // const navigate = useNavigate();
+    const fileInputRef = useRef(null);
+    const navigate = useNavigate();
 
+   
     useEffect(() => {
         if (editCrew) {
             setName(editCrew.name || "");
@@ -40,10 +44,43 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
             setActivity(editCrew.activity || "");
             setSubActivity(editCrew.SubActivity || "");
             setImageUrl(editCrew.imageUrl || "");
+            setImagePreview(editCrew.imageUrl || "");
         }
     }, [editCrew]);
 
-    // Validation function
+ 
+    const uploadImageToBackend = async (file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Upload failed');
+            }
+
+            const data = await response.json();
+            
+           
+            return data.imageUrl; 
+            
+        } catch (error) {
+            console.error('Upload error:', error);
+            throw new Error(error.message || 'Failed to upload image. Please try again.');
+        }
+    };
+
+   
+    const showNotification = (message, type = "error") => {
+        setNotification({ message, type });
+    };
+
+   
     const validateForm = () => {
         const newErrors = {};
 
@@ -67,38 +104,59 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
             newErrors.SubActivity = "Sub Activity is required";
         }
 
-        if (!imageUrl.trim()) {
-            newErrors.imageUrl = "Image URL is required";
-        } else if (!isValidUrl(imageUrl)) {
-            newErrors.imageUrl = "Please enter a valid URL";
+        if (!imageUrl && !imagePreview) {
+            newErrors.image = "Please upload an image or provide an image URL";
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    // URL validation helper
-    const isValidUrl = (string) => {
-        try {
-            new URL(string);
-            return true;
-        // eslint-disable-next-line no-unused-vars
-        } catch (_) {
-            return false;
+    
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        
+        if (!file) return;
+
+       
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            showNotification("Please upload a valid image file (JPEG, PNG, GIF, or WebP)", "error");
+            return;
+        }
+
+        
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            showNotification("Image size must be less than 5MB", "error");
+            return;
+        }
+
+        setImageFile(file);
+        
+        
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+ 
+        setImageUrl("");
+
+       
+        if (errors.image) {
+            setErrors({ ...errors, image: null });
         }
     };
 
-    const showNotification = (message, type = "error") => {
-        setNotification({ message, type });
-    };
-
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Clear previous errors
+       
         setErrors({});
 
-        // Validate form
+        
         if (!validateForm()) {
             const errorMessages = Object.values(errors);
             showNotification(
@@ -113,47 +171,78 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
         setIsSubmitting(true);
 
         try {
+            let finalImageUrl = imageUrl;
+
+          
+            if (imageFile) {
+                setIsUploading(true);
+                try {
+                    finalImageUrl = await uploadImageToBackend(imageFile);
+                    console.log('Image uploaded successfully:', finalImageUrl);
+                } catch (uploadError) {
+                    setIsUploading(false);
+                    throw uploadError;
+                }
+                setIsUploading(false);
+            }
+
+           
+            const crewData = {
+                name,
+                description,
+                activity,
+                SubActivity,
+                imageUrl: finalImageUrl
+            };
+
+          
             if (editCrew) {
                 console.log('Editing crew with ID:', editCrew._id);
-                await onEditCrew(editCrew._id, {
-                    name,
-                    description,
-                    activity,
-                    SubActivity,
-                    imageUrl
-                });
+                await onEditCrew(editCrew._id, crewData);
                 showNotification("Crew updated successfully!", "success");
             } else {
-                await onCreateCrew({
-                    name,
-                    description,
-                    activity,
-                    SubActivity,
-                    imageUrl
-                });
+                await onCreateCrew(crewData);
                 showNotification("Crew created successfully!", "success");
             }
 
-            // Clear form after successful submission
+           
             setTimeout(() => {
                 setName("");
                 setDescription("");
                 setActivity("");
                 setSubActivity("");
                 setImageUrl("");
+                setImageFile(null);
+                setImagePreview("");
                 setErrors({});
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
             }, 1500);
 
         } catch (error) {
+            console.error('Submission error:', error);
             showNotification(
                 error.message || "An error occurred. Please try again.",
                 "error"
             );
         } finally {
             setIsSubmitting(false);
+            setIsUploading(false);
         }
     };
 
+   
+    const handleRemoveImage = () => {
+        setImageFile(null);
+        setImagePreview("");
+        setImageUrl("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+   
     return (
         <>
             {notification && (
@@ -166,6 +255,7 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
 
             <div className="create-crews-container">
                 <form onSubmit={handleSubmit}>
+                  
                     <ul>
                         <label>Crew Name</label>
                         <input
@@ -179,10 +269,12 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                                 }
                             }}
                             className={errors.name ? "error" : ""}
+                            disabled={isSubmitting || isUploading}
                         />
                         {errors.name && <div className="field-error">{errors.name}</div>}
                     </ul>
 
+                
                     <ul>
                         <label>Crew Description</label>
                         <textarea
@@ -195,10 +287,12 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                                 }
                             }}
                             className={errors.description ? "error" : ""}
+                            disabled={isSubmitting || isUploading}
                         />
                         {errors.description && <div className="field-error">{errors.description}</div>}
                     </ul>
 
+                    
                     <ul>
                         <label>Activity</label>
                         <input
@@ -212,10 +306,12 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                                 }
                             }}
                             className={errors.activity ? "error" : ""}
+                            disabled={isSubmitting || isUploading}
                         />
                         {errors.activity && <div className="field-error">{errors.activity}</div>}
                     </ul>
 
+                   
                     <ul>
                         <label>Sub Activity</label>
                         <input
@@ -229,34 +325,95 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                                 }
                             }}
                             className={errors.SubActivity ? "error" : ""}
+                            disabled={isSubmitting || isUploading}
                         />
                         {errors.SubActivity && <div className="field-error">{errors.SubActivity}</div>}
                     </ul>
 
+                 
                     <ul>
-                        <label>Upload Image</label>
+                        <label>Crew Image</label>
+                        
+                      
+                        <div className="image-upload-container">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                onChange={handleFileChange}
+                                className="file-input"
+                                id="image-upload"
+                                disabled={isSubmitting || isUploading}
+                            />
+                            <label htmlFor="image-upload" className="file-input-label">
+                                <span className="upload-icon">📁</span>
+                                <span>Choose Image</span>
+                            </label>
+                            <span className="file-input-info">
+                                {imageFile ? imageFile.name : "JPEG, PNG, GIF, WebP (Max 5MB)"}
+                            </span>
+                        </div>
+
+                
+                        <div className="separator">
+                            <span>OR</span>
+                        </div>
+
+                    
                         <input
-                            type="file"
-                            accept="image/*"
-                            placeholder="Kindly upload an image representing your crew"
+                            type="text"
+                            placeholder="Paste image URL here"
                             value={imageUrl}
                             onChange={(e) => {
-                                setImageUrl(e.target.files[0]);
-                                if (errors.imageUrl) {
-                                    setErrors({ ...errors, imageUrl: null });
+                                setImageUrl(e.target.value);
+                                setImagePreview(e.target.value);
+                                setImageFile(null); 
+                                if (errors.image) {
+                                    setErrors({ ...errors, image: null });
                                 }
                             }}
-                            className={errors.imageUrl ? "error" : ""}
+                            className={errors.image ? "error" : ""}
+                            disabled={isSubmitting || isUploading}
                         />
-                        {errors.imageUrl && <div className="field-error">{errors.imageUrl}</div>}
+                        
+                        {errors.image && <div className="field-error">{errors.image}</div>}
+
+                      
+                        {imagePreview && (
+                            <div className="image-preview-container">
+                                <img src={imagePreview} alt="Preview" className="image-preview" />
+                                <button 
+                                    type="button" 
+                                    className="remove-image-btn"
+                                    onClick={handleRemoveImage}
+                                    disabled={isSubmitting || isUploading}
+                                >
+                                    ✕ Remove
+                                </button>
+                            </div>
+                        )}
+
+                        
+                        {isUploading && (
+                            <div className="upload-progress">
+                                <div className="upload-progress-bar"></div>
+                                <span>Uploading image...</span>
+                            </div>
+                        )}
                     </ul>
 
+                   
                     <button 
                         type="submit" 
-                        disabled={isSubmitting}
-                        className={isSubmitting ? "loading" : ""}
+                        disabled={isSubmitting || isUploading}
+                        className={isSubmitting || isUploading ? "loading" : ""}
                     >
-                        {isSubmitting ? "" : (editCrew ? "Update Crew" : "Create Crew")}
+                        {isUploading 
+                            ? "Uploading..." 
+                            : isSubmitting 
+                                ? "Saving..." 
+                                : (editCrew ? "Update Crew" : "Create Crew")
+                        }
                     </button>
 
                     {editCrew && (
@@ -264,7 +421,7 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                             type="button" 
                             onClick={handleCancel} 
                             style={{ marginLeft: "10px" }}
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isUploading}
                         >
                             Cancel Edit
                         </button>
