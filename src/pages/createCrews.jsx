@@ -20,8 +20,12 @@ function ErrorNotification({ message, type = "error", onClose }) {
     );
 }
 
-export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCancel }) {
-   
+function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
+    
+    console.log("CrewForm Props:", { onSubmit, editCrew, isSubmitting, handleCancel }); 
+    console.log('onSubmit type:', typeof onSubmit); 
+
+
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [activity, setActivity] = useState("");
@@ -32,7 +36,6 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
     const [isUploading, setIsUploading] = useState(false);
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -45,16 +48,24 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
             setSubActivity(editCrew.SubActivity || "");
             setImageUrl(editCrew.imageUrl || "");
             setImagePreview(editCrew.imageUrl || "");
+        } else {
+            setName("");
+            setDescription("");
+            setActivity("");
+            setSubActivity("");
+            setImageUrl("");
+            setImagePreview("");
         }
     }, [editCrew]);
 
  
     const uploadImageToBackend = async (file) => {
+        try {
+
         const formData = new FormData();
         formData.append('image', file);
-
-        try {
-            const response = await fetch('http://localhost:3000/api/upload', {
+        
+            const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
             });
@@ -64,10 +75,8 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                 throw new Error(errorData.error || 'Upload failed');
             }
 
-            const data = await response.json();
-            
-           
-            return data.imageUrl; 
+            const data = await response.json();          
+            return data.filePath; 
             
         } catch (error) {
             console.error('Upload error:', error);
@@ -140,8 +149,7 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
             setImagePreview(reader.result);
         };
         reader.readAsDataURL(file);
- 
-        setImageUrl("");
+         setImageUrl("");
 
        
         if (errors.image) {
@@ -152,10 +160,7 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-       
-        setErrors({});
-
+                setErrors({});
         
         if (!validateForm()) {
             const errorMessages = Object.values(errors);
@@ -167,8 +172,6 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
             );
             return;
         }
-
-        setIsSubmitting(true);
 
         try {
             let finalImageUrl = imageUrl;
@@ -195,24 +198,16 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                 imageUrl: finalImageUrl
             };
 
-          
-            if (editCrew) {
-                console.log('Editing crew with ID:', editCrew._id);
-                await onEditCrew(editCrew._id, crewData);
-                showNotification("Crew updated successfully!", "success");
-            } else {
-                await onCreateCrew(crewData);
-                showNotification("Crew created successfully!", "success");
-            }
-
-           
+            await onSubmit(crewData);
+            showNotification(editCrew ? "Crew updated successfully!" : "Crew created successfully!", "success");
+     
+            // Reset form after successful submission
             setTimeout(() => {
                 setName("");
                 setDescription("");
                 setActivity("");
                 setSubActivity("");
                 setImageUrl("");
-                setImageFile(null);
                 setImagePreview("");
                 setErrors({});
                 if (fileInputRef.current) {
@@ -227,20 +222,17 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
                 "error"
             );
         } finally {
-            setIsSubmitting(false);
             setIsUploading(false);
         }
     };
-
-   
     const handleRemoveImage = () => {
         setImageFile(null);
         setImagePreview("");
         setImageUrl("");
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
-        }
-    };
+        }  
+     };
 
    
     return (
@@ -431,3 +423,5 @@ export default function CrewForm({ onCreateCrew, editCrew, onEditCrew, handleCan
         </>
     );
 }
+
+export default CrewForm;
