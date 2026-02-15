@@ -5,8 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../schemas/loginSchema";
 import { Button } from "../../../components/ui/Button";
 import { login } from "../../../services/auth";
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
+  //React router 
+  const navigate = useNavigate();
+
   // Configuración de react-hook-form con validación de Zod
   const {
     register,
@@ -26,6 +30,7 @@ export default function LoginForm() {
     try {
       const response = await login(data.username, data.password);
       console.log("login response:", response);
+      navigate('/');
 
     } catch (error) {
       // Mostrar el error al usuario

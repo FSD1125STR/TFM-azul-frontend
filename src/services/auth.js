@@ -2,15 +2,19 @@
 
 const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
 const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
-const AUTH_BASE_URL = `${API_BASE_URL}/api/users`;
+const AUTH_BASE_URL = `${API_BASE_URL}/api/auth`;
 
 // Llamada a la API para iniciar sesion
 export const login = async (username, password) => {
   try {
-    const { data } = await axios.post(`${AUTH_BASE_URL}/login`, {
-      username,
-      password,
-    });
+    const { data } = await axios.post(
+      `${AUTH_BASE_URL}/login`, 
+      {
+        username,
+        password,
+      },
+      { withCredentials: true }
+    );
 
     return data;
 
@@ -22,6 +26,28 @@ export const login = async (username, password) => {
         : status === 401
         ? "Credenciales inválidas"
         : "Error al iniciar sesión");
+
+    // Normalizamos el error para que tenga un formato consistente
+    const normalized = new Error(message);
+    normalized.status = status;
+
+    throw normalized;
+  }
+};
+
+//Llamada a la API para saber el usuario logeado
+export const getLoggedUser = async () => {
+  try {
+    const { data } = await axios.get(
+      `${AUTH_BASE_URL}/me`,
+      { withCredentials: true }
+    );
+
+    return data;
+
+  } catch (error) {
+    const status = error.response?.status
+    const message = error.response?.data?.message
 
     // Normalizamos el error para que tenga un formato consistente
     const normalized = new Error(message);
