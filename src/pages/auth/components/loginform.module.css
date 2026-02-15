@@ -56,6 +56,13 @@
   opacity: 0.7;
 }
 
+.serverError {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #e55353;
+  text-align: center;
+}
+
 @media (max-width: 480px) {
   .form {
     margin-top: 16px;
