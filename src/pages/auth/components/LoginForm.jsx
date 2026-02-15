@@ -6,10 +6,16 @@ import { loginSchema } from "../schemas/loginSchema";
 import { Button } from "../../../components/ui/Button";
 import { login } from "../../../services/auth";
 import { useNavigate } from 'react-router-dom';
+import { useContext } from "react";
+import { AuthContext } from "../../../hooks/context/AuthContext";
+import { getLoggedUser } from "../../../services/auth";
 
 export default function LoginForm() {
   //React router 
   const navigate = useNavigate();
+
+  //Contexto de autenticación
+  const { setIsLoggedIn, setUser } = useContext(AuthContext);
 
   // Configuración de react-hook-form con validación de Zod
   const {
@@ -30,7 +36,12 @@ export default function LoginForm() {
     try {
       const response = await login(data.username, data.password);
       console.log("login response:", response);
-      navigate('/');
+
+      // Actualizar el contexto de autenticación
+      const me = await getLoggedUser();
+      setUser(me.user);
+      setIsLoggedIn(true);
+      navigate("/");
 
     } catch (error) {
       // Mostrar el error al usuario

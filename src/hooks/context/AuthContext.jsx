@@ -1,10 +1,16 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { getLoggedUser } from "../../services/auth";
 
 //Creamos un contexto para solicitar al backend el usuario logeado y guardarlo
-const AuthContext = createContext();
+const initialState = {
+    isLoggedIn: false,
+    user: null,
+};
 
-export const AuthProvider = ({ children }) => {
+const AuthContext = createContext(initialState);
+
+const AuthProvider = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(initialState.isLoggedIn);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,9 +19,12 @@ export const AuthProvider = ({ children }) => {
       try {
         const data = await getLoggedUser();
         setUser(data.user);
+        setIsLoggedIn(true);
 
       } catch (error) {
+        console.error("Error al obtener el usuario logeado:", error);
         setUser(null);
+        setIsLoggedIn(false);
 
       } finally {
         setLoading(false);
@@ -26,11 +35,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, loading, setLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-//Exportamos como un custom hook
-export const useAuth = () => useContext(AuthContext);
+export { AuthContext, AuthProvider };
