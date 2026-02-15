@@ -1,7 +1,9 @@
-
 import "./createCrew.css";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from "./Headers";
+
+
 
 
 function ErrorNotification({ message, type = "error", onClose }) {
@@ -21,10 +23,6 @@ function ErrorNotification({ message, type = "error", onClose }) {
 }
 
 function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
-    
-    console.log("CrewForm Props:", { onSubmit, editCrew, isSubmitting, handleCancel }); 
-    console.log('onSubmit type:', typeof onSubmit); 
-
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -34,10 +32,22 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState("");
     const [isUploading, setIsUploading] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+
+    // Activity categories and subcategories
+    const activityOptions = {
+        "Deportes": ["Fútbol", "Baloncesto", "Padel", "Tenis", "Running", "Ciclismo", "Gimnasio", "Balonmano", "Boxeo","Voleibol", "Natación", "Escalada", "Surf", "Skateboarding", "Esquí", "Snowboard"],
+        "Ocio": ["Juegos de mesa", "Videojuegos", "Cine", "Escape-room", "Quedadas-Sociales","Teatro"],
+        "Música": ["Rock", "Jazz", "Clásica", "Electrónica", "Pop", "Rap", "Hip-Hop", "Reggae", "Blues", "Country", "Folk", "conciertos", "DJ/Electrónica", "Producción Musical"],
+        "Estudios": ["Grupos de estudio", "Preparación de Exámenes", "Cursos", "Talleres", "Formacion-Online"],
+        "Trabajo y Proyectos": ["Proyecto académico", "Proyecto personal", "Startup/Idea", "Equipo de trabajo", "Networking", "ReUniones", "Colaboraciones"],
+        "Eventos y Comunidades": ["Eventos Puntuales", "Eventos Semanales", "Eventos Mensuales", "Comunidad local", "Asociaciones", "Voluntariado", "Grupos de Interés", "Meetups", "Conferencias", "Ferias", "Festivales"],
+        "Otros": ["Cualquier otra actividad que no encaje en las categorías anteriores"]
+    };
 
    
     useEffect(() => {
@@ -58,13 +68,22 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
         }
     }, [editCrew]);
 
+    // Get subcategories based on selected activity
+    const getSubActivityOptions = () => {
+        return activity ? activityOptions[activity] || [] : [];
+    };
+
+    // Reset subcategory when activity changes
+    useEffect(() => {
+        setSubActivity("");
+    }, [activity]);
+
  
     const uploadImageToBackend = async (file) => {
         try {
-
-        const formData = new FormData();
-        formData.append('image', file);
-        
+            const formData = new FormData();
+            formData.append('image', file);
+            
             const response = await fetch('/api/upload', {
                 method: 'POST',
                 body: formData,
@@ -121,20 +140,52 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
         return Object.keys(newErrors).length === 0;
     };
 
+    // Handle drag and drop events
+    const handleDragEnter = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            handleFileSelection(files[0]);
+        }
+    };
+
     
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        
+        if (file) {
+            handleFileSelection(file);
+        }
+    };
+
+    const handleFileSelection = (file) => {
         if (!file) return;
 
-       
         const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             showNotification("Please upload a valid image file (JPEG, PNG, GIF, or WebP)", "error");
             return;
         }
 
-        
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
             showNotification("Image size must be less than 5MB", "error");
@@ -143,15 +194,13 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
 
         setImageFile(file);
         
-        
         const reader = new FileReader();
         reader.onloadend = () => {
             setImagePreview(reader.result);
         };
         reader.readAsDataURL(file);
-         setImageUrl("");
+        setImageUrl("");
 
-       
         if (errors.image) {
             setErrors({ ...errors, image: null });
         }
@@ -160,7 +209,7 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-                setErrors({});
+        setErrors({});
         
         if (!validateForm()) {
             const errorMessages = Object.values(errors);
@@ -176,7 +225,6 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
         try {
             let finalImageUrl = imageUrl;
 
-          
             if (imageFile) {
                 setIsUploading(true);
                 try {
@@ -189,7 +237,6 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
                 setIsUploading(false);
             }
 
-           
             const crewData = {
                 name,
                 description,
@@ -225,6 +272,7 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
             setIsUploading(false);
         }
     };
+
     const handleRemoveImage = () => {
         setImageFile(null);
         setImagePreview("");
@@ -232,7 +280,7 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }  
-     };
+    };
 
    
     return (
@@ -246,178 +294,187 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
             )}
 
             <div className="create-crews-container">
-                <form onSubmit={handleSubmit}>
-                  
-                    <ul>
-                        <label>Crew Name</label>
-                        <input
-                            type="text"
-                            placeholder="Enter crew name (min. 3 characters)"
-                            value={name}
-                            onChange={(e) => {
-                                setName(e.target.value);
-                                if (errors.name) {
-                                    setErrors({ ...errors, name: null });
-                                }
-                            }}
-                            className={errors.name ? "error" : ""}
-                            disabled={isSubmitting || isUploading}
-                        />
-                        {errors.name && <div className="field-error">{errors.name}</div>}
-                    </ul>
-
+                <h1 className="form-title">Crear nueva Crew</h1>
                 
-                    <ul>
-                        <label>Crew Description</label>
-                        <textarea
-                            placeholder="Describe your crew (min. 10 characters)"
-                            value={description}
-                            onChange={(e) => {
-                                setDescription(e.target.value);
-                                if (errors.description) {
-                                    setErrors({ ...errors, description: null });
-                                }
-                            }}
-                            className={errors.description ? "error" : ""}
-                            disabled={isSubmitting || isUploading}
-                        />
-                        {errors.description && <div className="field-error">{errors.description}</div>}
-                    </ul>
-
-                    
-                    <ul>
-                        <label>Activity</label>
-                        <input
-                            type="text"
-                            placeholder="e.g., Hiking, Gaming, Photography"
-                            value={activity}
-                            onChange={(e) => {
-                                setActivity(e.target.value);
-                                if (errors.activity) {
-                                    setErrors({ ...errors, activity: null });
-                                }
-                            }}
-                            className={errors.activity ? "error" : ""}
-                            disabled={isSubmitting || isUploading}
-                        />
-                        {errors.activity && <div className="field-error">{errors.activity}</div>}
-                    </ul>
-
-                   
-                    <ul>
-                        <label>Sub Activity</label>
-                        <input
-                            type="text"
-                            placeholder="e.g., Mountain Climbing, FPS, Portrait"
-                            value={SubActivity}
-                            onChange={(e) => {
-                                setSubActivity(e.target.value);
-                                if (errors.SubActivity) {
-                                    setErrors({ ...errors, SubActivity: null });
-                                }
-                            }}
-                            className={errors.SubActivity ? "error" : ""}
-                            disabled={isSubmitting || isUploading}
-                        />
-                        {errors.SubActivity && <div className="field-error">{errors.SubActivity}</div>}
-                    </ul>
-
-                 
-                    <ul>
-                        <label>Crew Image</label>
+                <form onSubmit={handleSubmit} className="crew-form">
+                    {/* Basic Information Section */}
+                    <div className="form-section">
+                        <h2 className="section-title">Información básica</h2>
                         
-                      
-                        <div className="image-upload-container">
+                        <div className="form-field">
+                            <label>Crew name</label>
                             <input
-                                type="file"
-                                ref={fileInputRef}
-                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                                onChange={handleFileChange}
-                                className="file-input"
-                                id="image-upload"
+                                type="text"
+                                placeholder="Enter crew name (min. 3 characters)"
+                                value={name}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    if (errors.name) {
+                                        setErrors({ ...errors, name: null });
+                                    }
+                                }}
+                                className={errors.name ? "error" : ""}
                                 disabled={isSubmitting || isUploading}
                             />
-                            <label htmlFor="image-upload" className="file-input-label">
-                                <span className="upload-icon">📁</span>
-                                <span>Choose Image</span>
-                            </label>
-                            <span className="file-input-info">
-                                {imageFile ? imageFile.name : "JPEG, PNG, GIF, WebP (Max 5MB)"}
-                            </span>
+                            {errors.name && <div className="field-error">{errors.name}</div>}
                         </div>
 
-                
-                        <div className="separator">
-                            <span>OR</span>
+                        <div className="form-field">
+                            <label>Crew description</label>
+                            <textarea
+                                placeholder="Describe your crew (min. 10 characters)"
+                                value={description}
+                                onChange={(e) => {
+                                    setDescription(e.target.value);
+                                    if (errors.description) {
+                                        setErrors({ ...errors, description: null });
+                                    }
+                                }}
+                                className={errors.description ? "error" : ""}
+                                disabled={isSubmitting || isUploading}
+                                rows="4"
+                            />
+                            {errors.description && <div className="field-error">{errors.description}</div>}
                         </div>
+                    </div>
 
-                    
-                        <input
-                            type="text"
-                            placeholder="Paste image URL here"
-                            value={imageUrl}
-                            onChange={(e) => {
-                                setImageUrl(e.target.value);
-                                setImagePreview(e.target.value);
-                                setImageFile(null); 
-                                if (errors.image) {
-                                    setErrors({ ...errors, image: null });
-                                }
-                            }}
-                            className={errors.image ? "error" : ""}
-                            disabled={isSubmitting || isUploading}
-                        />
+                    {/* Activity Section */}
+                    <div className="form-section">
+                        <h2 className="section-title">Activity</h2>
                         
-                        {errors.image && <div className="field-error">{errors.image}</div>}
-
-                      
-                        {imagePreview && (
-                            <div className="image-preview-container">
-                                <img src={imagePreview} alt="Preview" className="image-preview" />
-                                <button 
-                                    type="button" 
-                                    className="remove-image-btn"
-                                    onClick={handleRemoveImage}
+                        <div className="form-row">
+                            <div className="form-field">
+                                <label>Activity Category</label>
+                                <select
+                                    value={activity}
+                                    onChange={(e) => {
+                                        setActivity(e.target.value);
+                                        if (errors.activity) {
+                                            setErrors({ ...errors, activity: null });
+                                        }
+                                    }}
+                                    className={errors.activity ? "error" : ""}
                                     disabled={isSubmitting || isUploading}
                                 >
-                                    ✕ Remove
-                                </button>
+                                    <option value="">Select category</option>
+                                    {Object.keys(activityOptions).map((category) => (
+                                        <option key={category} value={category}>
+                                            {category}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.activity && <div className="field-error">{errors.activity}</div>}
                             </div>
-                        )}
 
+                            <div className="form-field">
+                                <label>Sub-Category</label>
+                                <select
+                                    value={SubActivity}
+                                    onChange={(e) => {
+                                        setSubActivity(e.target.value);
+                                        if (errors.SubActivity) {
+                                            setErrors({ ...errors, SubActivity: null });
+                                        }
+                                    }}
+                                    className={errors.SubActivity ? "error" : ""}
+                                    disabled={!activity || isSubmitting || isUploading}
+                                >
+                                    <option value="">Select sub-category</option>
+                                    {getSubActivityOptions().map((subCategory) => (
+                                        <option key={subCategory} value={subCategory}>
+                                            {subCategory}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.SubActivity && <div className="field-error">{errors.SubActivity}</div>}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Visual Identity Section */}
+                    <div className="form-section">
+                        <h2 className="section-title">Visual identity</h2>
                         
-                        {isUploading && (
-                            <div className="upload-progress">
-                                <div className="upload-progress-bar"></div>
-                                <span>Uploading image...</span>
+                        <div className="form-field">
+                            <label>Crew cover image</label>
+                            
+                            {/* Drag and Drop Zone */}
+                            <div 
+                                className={`drop-zone ${isDragging ? 'dragging' : ''} ${imagePreview ? 'has-image' : ''}`}
+                                onDragEnter={handleDragEnter}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                                onClick={() => !imagePreview && fileInputRef.current?.click()}
+                            >
+                                {imagePreview ? (
+                                    <div className="preview-container">
+                                        <img src={imagePreview} alt="Preview" className="preview-image" />
+                                        <button 
+                                            type="button" 
+                                            className="remove-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveImage();
+                                            }}
+                                            disabled={isSubmitting || isUploading}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="drop-zone-content">
+                                        <span className="drop-zone-text">
+                                            Click to upload or drag and drop
+                                        </span>
+                                    </div>
+                                )}
+                                
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                    onChange={handleFileChange}
+                                    className="hidden-file-input"
+                                    disabled={isSubmitting || isUploading}
+                                />
                             </div>
-                        )}
-                    </ul>
+                            
+                            {errors.image && <div className="field-error">{errors.image}</div>}
+                            
+                            {isUploading && (
+                                <div className="upload-progress">
+                                    <div className="upload-progress-bar"></div>
+                                    <span>Uploading image...</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                   
-                    <button 
-                        type="submit" 
-                        disabled={isSubmitting || isUploading}
-                        className={isSubmitting || isUploading ? "loading" : ""}
-                    >
-                        {isUploading 
-                            ? "Uploading..." 
-                            : isSubmitting 
-                                ? "Saving..." 
-                                : (editCrew ? "Update Crew" : "Create Crew")
-                        }
-                    </button>
-
-                    {editCrew && (
+                    {/* Form Actions */}
+                    <div className="form-actions">
                         <button 
-                            type="button" 
-                            onClick={handleCancel} 
-                            style={{ marginLeft: "10px" }}
+                            type="button"
+                            className="btn-secondary"
+                            onClick={editCrew ? handleCancel : () => navigate("/crews")}
                             disabled={isSubmitting || isUploading}
                         >
-                            Cancel Edit
+                            Cancelar
                         </button>
-                    )}
+                        
+                        <button 
+                            type="submit" 
+                            className="btn-primary"
+                            disabled={isSubmitting || isUploading}
+                        >
+                            {isUploading 
+                                ? "Uploading..." 
+                                : isSubmitting 
+                                    ? "Saving..." 
+                                    : (editCrew ? "Update Crew" : "crear crew")
+                            }
+                        </button>
+                    </div>
                 </form>
             </div>
         </>
