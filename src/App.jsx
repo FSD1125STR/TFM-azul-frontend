@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/login.jsx";
 import './App.css'
-import CrewManager from "./components/CrewManager.jsx";
+import CrewManager from "./pages/crews/CrewManager.jsx";
 import { AuthProvider } from "./hooks/context/AuthContext.jsx";
 import { ProtectedRoute } from "./components/common/ProtectedRoute.jsx";
 import Register from "./pages/auth/register.jsx";
