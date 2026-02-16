@@ -9,6 +9,8 @@ import Dashboard from "./pages/dashboard/Dashboard.jsx";
 
 
 function App() {
+  
+  
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -20,7 +22,6 @@ function App() {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}><h1>Dashboard - Coming Soon</h1></div>} />
           <Route path="/crew" element={<CrewManager />} />
         </Routes>
       </BrowserRouter>

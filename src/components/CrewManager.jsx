@@ -3,6 +3,7 @@ import CrewForm from '../pages/createCrews.jsx';
 
 
 
+
 function ErrorNotification({ message, type = "error", onClose }) {
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -18,6 +19,7 @@ function ErrorNotification({ message, type = "error", onClose }) {
         </div>
     );
 }
+
 
 export default function CrewManager() {
     const [crews, setCrews] = useState([]);
@@ -128,8 +130,7 @@ export default function CrewManager() {
                     onClose={() => setNotification(null)}
                 />
             )}
-
-            <h1>{editingCrew ? 'Edit Crew' : 'Create New Crew'}</h1>
+      
             
             <CrewForm
                 onSubmit={editingCrew ? handleUpdateCrew : handleCreateCrew}
@@ -146,7 +147,12 @@ export default function CrewManager() {
                     <div className="crews-grid">
                         {crews.map((crew) => (
                             <div key={crew._id} className="crew-card">
-                                <img src={`http://localhost:3000${crew.imageUrl}`}/>
+                                <img 
+                                src={`http://localhost:3000${crew.imageUrl}`} 
+                                alt={crew.name}
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/400x200?text=No+Image';
+                                }}/>
                                 <h3>{crew.name}</h3>
                                 <p>{crew.description}</p>
                                 <p><strong>Activity:</strong> {crew.activity}</p>
