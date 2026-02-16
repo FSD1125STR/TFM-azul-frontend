@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/auth/Login.jsx";
+import Login from "./pages/auth/login.jsx";
 import './App.css'
 import CrewManager from "./components/CrewManager.jsx";
 import { AuthProvider } from "./hooks/context/AuthContext.jsx";
