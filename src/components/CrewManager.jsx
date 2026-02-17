@@ -34,7 +34,7 @@ export default function CrewManager() {
 
     const fetchCrews = async () => {
         try {
-            const response = await fetch('/api');
+            const response = await fetch('/api/crews');
             console.log('Fetch crews response:', response.status);
             if (!response.ok) throw new Error('Failed to fetch crews');
             const data = await response.json();
@@ -52,7 +52,7 @@ export default function CrewManager() {
     const handleCreateCrew = async (crewData) => {
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api', {
+            const response = await fetch('/api/crews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(crewData),
@@ -74,7 +74,7 @@ export default function CrewManager() {
     const handleUpdateCrew = async (crewData) => {
         setIsSubmitting(true);
         try {
-            const response = await fetch(`/api/${editingCrew._id}`, {
+            const response = await fetch(`/api/crews/${editingCrew._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(crewData),
@@ -98,7 +98,7 @@ export default function CrewManager() {
         if (!window.confirm('Are you sure you want to delete this crew?')) return;
 
         try {
-            const response = await fetch(`/api/${id}`, {
+            const response = await fetch(`/api/crews/${id}`, {
                 method: 'DELETE',
             });
 
