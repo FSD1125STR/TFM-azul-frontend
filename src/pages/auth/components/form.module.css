@@ -5,10 +5,23 @@
   margin-top: 22px;
 }
 
-.form > div {
+/* .form > div {
   display: flex;
   flex-direction: column;
   gap: 8px;
+} */
+
+.formRow {
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+}
+
+.formItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
 
 .form label {

@@ -56,3 +56,33 @@ export const getLoggedUser = async () => {
     throw normalized;
   }
 };
+
+// Llamada a la API para registar un nuevo usuario
+export const registerUser = async (userData) => {
+    try {
+
+        //Extraemos los campos necesarios para el body (se quita el repeatPassword porque no lo necesita el backend)
+        const {name, username, email, password} = userData;
+        
+        const { data } = await axios.post(
+          `${AUTH_BASE_URL}/register`, 
+          {name, username, email, password},
+          { withCredentials: true }
+        );
+
+        return data;
+
+    } catch (error) {
+        const status = error.response?.status ?? 0;
+        const message = error.response?.data?.message ||
+          (status === 409
+            ? "El usuario ya existe"
+            : "Error al registrar el usuario");
+
+        // Normalizamos el error para que tenga un formato consistente
+        const normalized = new Error(message);
+        normalized.status = status;
+
+        throw normalized;
+    }
+};

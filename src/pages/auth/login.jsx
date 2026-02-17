@@ -14,8 +14,7 @@ export default function Login() {
                     <p className={styles.subtitle}>Inicia sesión para manejar tus crews</p>
                     <LoginForm/>
                 </div>
-            </div>
-            
+            </div>            
         </main>
     );
 };

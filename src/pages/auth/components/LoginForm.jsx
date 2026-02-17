@@ -1,4 +1,4 @@
-import styles from "./loginform.module.css";
+import styles from "./form.module.css";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +41,7 @@ export default function LoginForm() {
       const me = await getLoggedUser();
       setUser(me.user);
       setIsLoggedIn(true);
-      navigate("/");
+      navigate("/"); // Redirigir al usuario a la página principal después de logearse
 
     } catch (error) {
       // Mostrar el error al usuario
@@ -53,13 +53,13 @@ export default function LoginForm() {
   return (
     <>
       <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-        <div>
+        <div className={styles.formItem}>
           <label>Username</label>
           <input {...register("username")} />
           {errors.username && <p>{errors.username.message}</p>}
         </div>
 
-        <div>
+        <div className={styles.formItem}>
           <label>Password</label>
           <input type="password" {...register("password")} />
           {errors.password && <p>{errors.password.message}</p>}
