@@ -86,3 +86,51 @@ export const registerUser = async (userData) => {
         throw normalized;
     }
 };
+
+// Llamada a la API para cerrar sesión
+export const logout = async () => {
+  try {
+    const { data } = await axios.post(
+      `${AUTH_BASE_URL}/logout`,
+      null,
+      { withCredentials: true }
+    );
+
+    return data;
+
+  } catch (error) {
+    
+    let status = 0;
+    let message = "No se pudo cerrar sesión";
+
+    if (axios.isAxiosError(error)) {
+      status = error.response?.status ?? 0;
+
+      if (!error.response) {
+        message = "No hay conexión con el servidor";
+      } else {
+        switch (status) {
+          case 401:
+            message = "Sesión ya expirada";
+            break;
+          case 403:
+            message = "No autorizado para cerrar sesión";
+            break;
+          case 500:
+            message = "Error interno del servidor";
+            break;
+          default:
+            message = error.response.data?.message || message;
+        }
+      }
+    } else {
+      message = "Error inesperado";
+    }
+
+    const normalized = new Error(message);
+    normalized.status = status;
+    normalized.originalError = error;
+
+    throw normalized;
+  }
+};
