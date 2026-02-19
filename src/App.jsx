@@ -7,6 +7,8 @@ import { ProtectedRoute } from "./components/common/ProtectedRoute.jsx";
 import Register from "./pages/auth/register.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
+import MyCrews from "./pages/crews/myCrews.jsx";
+import CrewDetail from "./pages/crews/Crewdetails.jsx";
 
 
 function App() {
@@ -18,11 +20,15 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-
+          
           {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
           <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/crews" element={<CrewManager />} />
+            <Route path="/crews" element={<MyCrews />} />
+            <Route path="/crews/:id" element={<CrewDetail />} />
+            <Route path="/crews/:id/edit" element={<CrewDetail />} />
+            <Route path="/crews/create" element={<CrewManager />} />
+            
           </Route>
 
         </Routes>
