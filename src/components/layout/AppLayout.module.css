@@ -3,6 +3,7 @@
   background-color: var(--color-background-primary);
   display: flex;
   flex-direction: column;
+  --app-header-height: 64px;
 }
 
 .header {
@@ -140,7 +141,7 @@
 
 .main {
   flex: 1;
-  padding: 24px 28px;
+  padding: 0;
 }
 
 @media (max-width: 900px) {
