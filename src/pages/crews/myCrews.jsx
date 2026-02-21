@@ -82,7 +82,8 @@ export default function MyCrews() {
         const response = await fetch('/api/crews');
         if (!response.ok) throw new Error('Failed to fetch crews');
         const data = await response.json();
-        setCrews(data);
+        console.log('Fetched crews:', data);
+        setCrews(data.crews);
       } catch (err) {
         console.error('Error fetching crews:', err);
         setError('Failed to load crews. Please try again.');
@@ -94,6 +95,7 @@ export default function MyCrews() {
   }, []);
 
   const filtered = crews.filter(c => {
+    if (!c) return false; // Handle potential null/undefined crew objects
     const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase());
     const matchActivity = activityFilter ? c.activity === activityFilter : true;
     const matchRole = roleFilter ? c.role === roleFilter : true;
