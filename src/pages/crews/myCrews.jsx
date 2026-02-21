@@ -82,7 +82,8 @@ export default function MyCrews() {
         const response = await fetch('/api/crews');
         if (!response.ok) throw new Error('Failed to fetch crews');
         const data = await response.json();
-        setCrews(data);
+        const nextCrews = Array.isArray(data) ? data : data?.crews;
+        setCrews(Array.isArray(nextCrews) ? nextCrews : []);
       } catch (err) {
         console.error('Error fetching crews:', err);
         setError('Failed to load crews. Please try again.');

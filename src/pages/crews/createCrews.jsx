@@ -241,7 +241,7 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
                 name,
                 description,
                 activity,
-                SubActivity,
+                subactivity: SubActivity,
                 imageUrl: finalImageUrl
             };
 

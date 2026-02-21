@@ -59,7 +59,7 @@ export default function CrewDetail() {
         const response = await fetch(`/api/crews/${id}`);
         if (!response.ok) throw new Error('Crew not found');
         const data = await response.json();
-        setCrew(data);
+        setCrew(data.crew || null);
       } catch (err) {
         console.error('Error fetching crew:', err);
         setError('Failed to load crew details.');
