@@ -26,12 +26,12 @@ function App() {
                 <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/crews" element={<MyCrews />} />
+                    <Route path="/crews/create" element={<CrewManager />} />
 
                     {/* Rutas dentro de una crew con su layout de navegacion */}
                     <Route element={<CrewLayout />}>
                         <Route path="/crews/:id" element={<CrewDetail />} />
                         <Route path="/crews/:id/edit" element={<CrewDetail />} />
-                        <Route path="/crews/create" element={<CrewManager />} />
                     </Route>
                 </Route>
               </Routes>

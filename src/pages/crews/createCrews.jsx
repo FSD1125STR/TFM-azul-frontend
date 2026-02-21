@@ -132,9 +132,9 @@ function CrewForm({ onSubmit, editCrew, isSubmitting, handleCancel }) {
             newErrors.SubActivity = "Sub Activity is required";
         }
 
-        if (!imageUrl && !imagePreview) {
-            newErrors.image = "Please upload an image or provide an image URL";
-        }
+        // if (!imageUrl && !imagePreview) {
+        //     newErrors.image = "Please upload an image or provide an image URL";
+        // }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
