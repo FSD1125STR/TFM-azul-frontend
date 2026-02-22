@@ -55,6 +55,11 @@ export default function AppLayout({ children }) {
                 <div className={styles.headerInner}>
                     {/* Enlace al dashboards en el logo */}
                     <Link to="/" className={styles.brand}>
+                        <img
+                            src="/crewgo_logo.svg"
+                            alt="CrewGO logo"
+                            className={styles.logoIcon}
+                        />
                         <span className={styles.brandText}>CrewGO</span>
                     </Link>
 
