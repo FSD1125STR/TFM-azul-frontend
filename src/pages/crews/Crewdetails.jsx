@@ -16,7 +16,7 @@ import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
-    const { crew, idCrew, setCrew, loading, error } = useContext(CrewContext);
+    const { crew, crewId, setCrew, loading, error } = useContext(CrewContext);
 
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
@@ -25,7 +25,7 @@ export default function CrewDetails() {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleUpdate = async (payload) => {
-        const updated = await updateCrew(idCrew, payload);
+        const updated = await updateCrew(crewId, payload);
         setCrew(updated);
         setIsEditing(false);
         setNotification({ type: "success", message: "Crew actualizada" });
@@ -36,7 +36,7 @@ export default function CrewDetails() {
         try {
             setIsDeleting(true);
             //Eliminamos la crew llamando a la api (api wrapper)
-            await deleteCrew(idCrew);
+            await deleteCrew(crewId);
             setNotification({ type: "success", message: "Crew eliminada" });
             setTimeout(() => navigate("/crews"), 1200);
 
