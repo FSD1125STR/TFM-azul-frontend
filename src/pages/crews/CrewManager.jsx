@@ -102,7 +102,7 @@ export default function CrewManager() {
             // ✅ Redirect to MyCrews after short delay
             setTimeout(() => {
                 navigate('/crews');
-            }, 1500);
+            }, 3000);
 
         } catch (error) {
             console.error('Error updating crew:', error);
