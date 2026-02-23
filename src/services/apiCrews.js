@@ -74,6 +74,25 @@ export const createCrew = async (payload) => {
     }
 };
 
+//Crear role en una crew
+export const createRoleInCrew = async (crewId, role) => {
+    try {
+        const { data } = await axios.post(`${CREW_BASE_URL}/${crewId}/roles`, 
+            {
+                name: role.name,
+                permission: role.permission
+            },
+            {
+                withCredentials: true,
+            });
+
+        return data.role;
+
+    } catch (error) {
+        throw normalizeError(error, "No se pudo crear el rol");
+    }
+}
+
 export const updateCrew = async (crewId, payload) => {
     try {
         const { data } = await axios.put(`${CREW_BASE_URL}/${crewId}`, payload, {

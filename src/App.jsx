@@ -13,7 +13,7 @@ import CrewDetails from "./pages/crews/CrewDetails.jsx";
 import CrewEvents from "./pages/events/crewEvents.jsx";
 import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
-import CrewMembers from "./pages/users/crewUsers.jsx";
+import CrewMembers from "./pages/users/CrewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 
 
