@@ -7,11 +7,14 @@ import {
     addCrewMember,
     getCrewMembers,
     removeCrewMember,
+    editCrewMember,
 } from "../../../services/apiMembers.js";
 
 export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
     const { crew, crewId, loading, error } = useContext(CrewContext);
+    const roles = crew?.roles || [];
+    
 
     const navigate = useNavigate();
 
@@ -33,6 +36,10 @@ export default function CrewMembers() {
     // Modal de confirmación de borrado
     const [memberToDelete, setMemberToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // Modal de editar miembro
+    const [memberToEdit, setMemberToEdit] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     // Cargamos los miembros de la crew cuando el crewId esté disponible
     useEffect(() => {
@@ -96,6 +103,29 @@ export default function CrewMembers() {
             });
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleEditMember = async () => {
+        if (!memberToEdit) return;
+        try {
+            setIsEditing(true);
+            await editCrewMember(crewId, memberToEdit.id, memberToEdit);
+            setMembers((prev) =>
+                prev.map((m) => (m.id === memberToEdit.id ? memberToEdit : m)),
+            );
+            setNotification({
+                type: "success",
+                message: "Miembro editado correctamente",
+            });
+            setMemberToEdit(null);
+        } catch (err) {
+            setNotification({
+                type: "error",
+                message: err.message || "No se pudo editar al miembro",
+            });
+        } finally {
+            setIsEditing(false);
         }
     };
 
@@ -174,6 +204,85 @@ export default function CrewMembers() {
                                 disabled={isDeleting}
                             >
                                 {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de editar miembro */}
+            {memberToEdit && (
+                <div className={styles.overlay}>
+                    <div className={styles.modal}>
+                        <h3>
+              Editar miembro - {memberToEdit.name || memberToEdit.username}
+                        </h3>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "12px",
+                                marginBottom: "16px",
+                            }}
+                        >
+                            <div>
+                                <label
+                                    style={{
+                                        display: "block",
+                                        marginBottom: "4px",
+                                        fontWeight: "600",
+                                    }}
+                                >
+                  Role
+                                </label>
+                                <select
+                                    className={styles.input}
+                                    value={memberToEdit.role || "member"}
+                                    onChange={(e) =>
+                                        setMemberToEdit({ ...memberToEdit, role: e.target.value })
+                                    }
+                                >
+                                    <option value="member">Member</option>
+                                    <option value="leader">Leader</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style={{
+                                        display: "block",
+                                        marginBottom: "4px",
+                                        fontWeight: "600",
+                                    }}
+                                >
+                  Grupo
+                                </label>
+                                <input
+                                    className={styles.input}
+                                    type="text"
+                                    placeholder="Grupo"
+                                    value={memberToEdit.grupo || ""}
+                                    onChange={(e) =>
+                                        setMemberToEdit({ ...memberToEdit, grupo: e.target.value })
+                                    }
+                                />
+                            </div>
+                        </div>
+                        <div className={styles.modalActions}>
+                            <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => setMemberToEdit(null)}
+                            >
+                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.primaryButton}
+                                onClick={handleEditMember}
+                                disabled={isEditing}
+                            >
+                                {isEditing ? "Guardando..." : "Guardar cambios"}
                             </button>
                         </div>
                     </div>
@@ -331,6 +440,13 @@ export default function CrewMembers() {
                                                 onClick={() => setMemberToDelete(member)}
                                             >
                         Borrar
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.dangerButton}
+                                                onClick={() => setMemberToEdit(member)}
+                                            >
+                        Edit
                                             </button>
                                         </td>
                                     </tr>

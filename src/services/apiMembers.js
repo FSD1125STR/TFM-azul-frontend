@@ -1,5 +1,3 @@
-
-
 const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
 const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
@@ -18,8 +16,9 @@ async function handleResponse(res) {
  *   { id, name, username, email, role, grupo }
  */
 export async function getCrewMembers(crewId) {
-    console.log("Fetching members for crew:", { 
-        crewId})
+    console.log("Fetching members for crew:", {
+        crewId,
+    });
     const res = await fetch(`${CREW_BASE_URL}/${crewId}/members`, {
         credentials: "include",
     });
@@ -48,12 +47,19 @@ export async function addCrewMember(crewId, payload) {
  * @param {string} memberId
  */
 export async function removeCrewMember(crewId, memberId) {
-    const res = await fetch(
-        `${CREW_BASE_URL}/${crewId}/members/${memberId}`,
-        {
-            method: "DELETE",
-            credentials: "include",
-        }
-    );
+    const res = await fetch(`${CREW_BASE_URL}/${crewId}/members/${memberId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    return handleResponse(res);
+}
+
+export async function editCrewMember(crewId, memberId, payload) {
+    const res = await fetch(`${CREW_BASE_URL}/${crewId}/members/${memberId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
     return handleResponse(res);
 }
