@@ -8,12 +8,12 @@ import Register from "./pages/auth/register.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 import CrewLayout from "./components/layout/CrewLayout.jsx";
-import MyCrews from "./pages/crews/MyCrews.jsx";
+import MyCrews from "./pages/crews/myCrews.jsx";
 import CrewDetails from "./pages/crews/CrewDetails.jsx";
 import CrewEvents from "./pages/events/crewEvents.jsx";
 import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
-import CrewMembers from "./pages/users/crewUsers.jsx";
+import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 
 
