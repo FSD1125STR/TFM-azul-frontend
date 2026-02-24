@@ -23,7 +23,9 @@ export default defineConfig([
       },
     },
     rules: {
+      indent: ['error', 4, { SwitchCase: 1 }],
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      quotes: ['error', 'double', { avoidEscape: true }],
     },
   },
 ])

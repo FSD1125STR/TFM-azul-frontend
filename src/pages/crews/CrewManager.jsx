@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import CrewForm from './createCrews';
+import React, { useState, useEffect } from "react";
+import CrewForm from "./createCrews";
 
 
 
@@ -26,6 +26,7 @@ export default function CrewManager() {
     const [editingCrew, setEditingCrew] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notification, setNotification] = useState(null);
+    //Acceder al usuario por el contexto para poder filtrar su rol en la crew
 
     // Fetch all crews on mount
     useEffect(() => {
@@ -34,14 +35,14 @@ export default function CrewManager() {
 
     const fetchCrews = async () => {
         try {
-            const response = await fetch('/api');
-            console.log('Fetch crews response:', response.status);
-            if (!response.ok) throw new Error('Failed to fetch crews');
+            const response = await fetch("/api/crews");
+            console.log("Fetch crews response:", response.status);
+            if (!response.ok) throw new Error("Failed to fetch crews");
             const data = await response.json();
             setCrews(data);
         } catch (error) {
-            console.error('Error fetching crews:', error);
-            showNotification('Failed to load crews', 'error');
+            console.error("Error fetching crews:", error);
+            showNotification("Failed to load crews", "error");
         }
     };
 
@@ -52,19 +53,19 @@ export default function CrewManager() {
     const handleCreateCrew = async (crewData) => {
         setIsSubmitting(true);
         try {
-            const response = await fetch('/api', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch("/api/crews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(crewData),
             });
 
-            if (!response.ok) throw new Error('Failed to create crew');
+            if (!response.ok) throw new Error("Failed to create crew");
             
             const newCrew = await response.json();
             setCrews([...crews, newCrew]);
-            showNotification('Crew created successfully!', 'success');
+            showNotification("Crew created successfully!", "success");
         } catch (error) {
-            console.error('Error creating crew:', error);
+            console.error("Error creating crew:", error);
             throw error;
         } finally {
             setIsSubmitting(false);
@@ -74,20 +75,20 @@ export default function CrewManager() {
     const handleUpdateCrew = async (crewData) => {
         setIsSubmitting(true);
         try {
-            const response = await fetch(`/api/${editingCrew._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch(`/api/crews/${editingCrew._id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(crewData),
             });
 
-            if (!response.ok) throw new Error('Failed to update crew');
+            if (!response.ok) throw new Error("Failed to update crew");
             
             const updatedCrew = await response.json();
             setCrews(crews.map(c => c._id === editingCrew._id ? updatedCrew : c));
             setEditingCrew(null);
-            showNotification('Crew updated successfully!', 'success');
+            showNotification("Crew updated successfully!", "success");
         } catch (error) {
-            console.error('Error updating crew:', error);
+            console.error("Error updating crew:", error);
             throw error;
         } finally {
             setIsSubmitting(false);
@@ -95,26 +96,26 @@ export default function CrewManager() {
     };
 
     const handleDeleteCrew = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this crew?')) return;
+        if (!window.confirm("Are you sure you want to delete this crew?")) return;
 
         try {
-            const response = await fetch(`/api/${id}`, {
-                method: 'DELETE',
+            const response = await fetch(`/api/crews/${id}`, {
+                method: "DELETE",
             });
 
-            if (!response.ok) throw new Error('Failed to delete crew');
+            if (!response.ok) throw new Error("Failed to delete crew");
             
             setCrews(crews.filter(c => c._id !== id));
-            showNotification('Crew deleted successfully!', 'success');
+            showNotification("Crew deleted successfully!", "success");
         } catch (error) {
-            console.error('Error deleting crew:', error);
-            showNotification('Failed to delete crew', 'error');
+            console.error("Error deleting crew:", error);
+            showNotification("Failed to delete crew", "error");
         }
     };
 
     const handleEditClick = (crew) => {
         setEditingCrew(crew);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top of the page on edit
     };
 
     const handleCancelEdit = () => {
@@ -148,11 +149,11 @@ export default function CrewManager() {
                         {crews.map((crew) => (
                             <div key={crew._id} className="crew-card">
                                 <img 
-                                src={`http://localhost:3000${crew.imageUrl}`} 
-                                alt={crew.name}
-                                onError={(e) => {
-                                    e.target.src = 'https://via.placeholder.com/400x200?text=No+Image';
-                                }}/>
+                                    src={`http://localhost:3000${crew.imageUrl}`} 
+                                    alt={crew.name}
+                                    onError={(e) => {
+                                        e.target.src = "https://via.placeholder.com/400x200?text=No+Image";
+                                    }}/>
                                 <h3>{crew.name}</h3>
                                 <p>{crew.description}</p>
                                 <p><strong>Activity:</strong> {crew.activity}</p>
