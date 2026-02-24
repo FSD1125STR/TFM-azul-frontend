@@ -10,10 +10,7 @@ export default function Header() {
 
      return (
         <header className="login-header">
-            <div className="login-brand">
-                <img src="/crewgo_logo.svg" alt="CrewGO logo" className="login-logo" />
-                <p>CrewGO</p>
-            </div>
+            <p>CrewGO</p>
 
             {/**Si estamos en login renderizamos boton de registro */}
             {location.pathname === "/login" && (

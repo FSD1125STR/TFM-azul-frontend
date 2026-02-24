@@ -10,35 +10,35 @@ const initialState = {
 const AuthContext = createContext(initialState);
 
 const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(initialState.isLoggedIn);
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialState.isLoggedIn);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const data = await getLoggedUser();
-                setUser(data.user);
-                setIsLoggedIn(true);
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const data = await getLoggedUser();
+        setUser(data.user);
+        setIsLoggedIn(true);
 
-            } catch (error) {
-                console.error("Error al obtener el usuario logeado:", error);
-                setUser(null);
-                setIsLoggedIn(false);
+      } catch (error) {
+        console.error("Error al obtener el usuario logeado:", error);
+        setUser(null);
+        setIsLoggedIn(false);
 
-            } finally {
-                setLoading(false);
-            }
-        };
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        checkAuth();
-    }, []);
+    checkAuth();
+  }, []);
 
-    return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, loading, setLoading }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, user, setUser, loading, setLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export { AuthContext, AuthProvider };
