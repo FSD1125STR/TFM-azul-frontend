@@ -14,15 +14,16 @@ import {
 } from "../../services/apiCrews.js";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 
+
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
     const { crew, crewId, setCrew, loading, error } = useContext(CrewContext);
-
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    
 
     const handleUpdate = async (payload) => {
         const updated = await updateCrew(crewId, payload);
@@ -30,6 +31,8 @@ export default function CrewDetails() {
         setIsEditing(false);
         setNotification({ type: "success", message: "Crew actualizada" });
     };
+
+
 
     //Maneja la accion al confirmar que se quiere eliminar la crew, confirmando con notificación
     const handleDelete = async () => {
@@ -183,7 +186,7 @@ export default function CrewDetails() {
                             {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
                             <div className={styles.stats}>
                                 <div>
-                                    <strong>{crew.members || 0}</strong>
+                                    <strong>{crew.members?.length || 0}</strong>
                                     <span>Miembros</span>
                                 </div>
                                 <div>
