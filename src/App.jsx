@@ -15,6 +15,7 @@ import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
+import Events from "./pages/events/Events.jsx";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/crews" element={<MyCrews />} />
                         <Route path="/crews/create" element={<CreateCrew />} />
+                        <Route path="/events" element={<Events />} />
 
                         {/* Rutas dentro de una crew con su layout de navegacion */}
                         <Route path="/crews/:idCrew" element={<CrewLayout />}>
