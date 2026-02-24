@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import CrewForm from "./components/CrewForm.jsx";
 import CrewToast from "./components/CrewToast.jsx";
 import styles from "./CrewDetails.module.css";
@@ -9,69 +9,37 @@ import {
 } from "./constants/crewActivities.js";
 import {
     deleteCrew,
-    getCrewById,
     getCrewImageUrl,
     updateCrew,
 } from "../../services/apiCrews.js";
+import { CrewContext } from "../../hooks/context/CrewContext.jsx";
+
 
 export default function CrewDetails() {
-    const { idCrew } = useParams(); //Id de la crew a partir de URL
+    //Extraemos toda la info de la crew a partir del context
+    const { crew, crewId, setCrew, loading, error } = useContext(CrewContext);
     const navigate = useNavigate();
-
-    const [crew, setCrew] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const [notification, setNotification] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-
-    // Pedimos a la api la info de la crew
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchCrew = async () => {
-            try {
-                setLoading(true);
-                // Usamos el api wrapper de Crews para solicitar info al back
-                const data = await getCrewById(idCrew);
-                if (isMounted) {
-                    setCrew(data); //Actualizamos el estado
-                    setError("");
-                }
-
-            } catch (err) {
-                if (isMounted) {
-                    setError(err.message || "No se pudo cargar la crew.");
-                }
-
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        fetchCrew();
-        return () => {
-            isMounted = false;
-        };
-
-    }, [idCrew]);
+    
 
     const handleUpdate = async (payload) => {
-        const updated = await updateCrew(idCrew, payload);
+        const updated = await updateCrew(crewId, payload);
         setCrew(updated);
         setIsEditing(false);
         setNotification({ type: "success", message: "Crew actualizada" });
     };
+
+
 
     //Maneja la accion al confirmar que se quiere eliminar la crew, confirmando con notificación
     const handleDelete = async () => {
         try {
             setIsDeleting(true);
             //Eliminamos la crew llamando a la api (api wrapper)
-            await deleteCrew(idCrew);
+            await deleteCrew(crewId);
             setNotification({ type: "success", message: "Crew eliminada" });
             setTimeout(() => navigate("/crews"), 1200);
 
@@ -218,7 +186,7 @@ export default function CrewDetails() {
                             {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
                             <div className={styles.stats}>
                                 <div>
-                                    <strong>{crew.members || 0}</strong>
+                                    <strong>{crew.members?.length || 0}</strong>
                                     <span>Miembros</span>
                                 </div>
                                 <div>
