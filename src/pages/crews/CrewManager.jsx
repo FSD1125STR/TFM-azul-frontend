@@ -26,6 +26,7 @@ export default function CrewManager() {
     const [editingCrew, setEditingCrew] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [notification, setNotification] = useState(null);
+    //Acceder al usuario por el contexto para poder filtrar su rol en la crew
 
     // Fetch all crews on mount
     useEffect(() => {
