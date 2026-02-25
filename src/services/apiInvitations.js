@@ -13,6 +13,7 @@ const normalizeError = (error, fallbackMessage) => {
     return normalized;
 };
 
+//Metodo para normalizar la extraccion de info de una invitacion
 const extractInvitation = (payload) => {
     if (!payload) return null;
     return payload.invitation ?? payload.data?.invitation ?? payload.data ?? payload;
@@ -42,5 +43,49 @@ export const joinCrewWithInvitation = async (token) => {
         return data;
     } catch (error) {
         throw normalizeError(error, "No se pudo unir a la crew.");
+    }
+};
+
+//Llama a la API para que devuelva la ultima invitación de una crew
+export const getLatestInvitation = async (crewId) => {
+    try {
+        const { data } = await axios.get(
+            `${API_BASE_URL}/api/crews/${crewId}/invitation`,
+            { withCredentials: true },
+        );
+
+        return extractInvitation(data);
+
+    } catch (error) {
+        throw normalizeError(error, "No se pudo cargar la invitacion.");
+    }
+};
+
+//Llama a la API para crear una nueva invitación
+export const createInvitation = async (crewId) => {
+    try {
+        const { data } = await axios.post(
+            `${API_BASE_URL}/api/crews/${crewId}/invitation`,
+            null,
+            { withCredentials: true },
+        );
+
+        return extractInvitation(data);
+    } catch (error) {
+        throw normalizeError(error, "No se pudo crear la invitacion.");
+    }
+};
+
+export const updateInvitationStatus = async (invitationId, status) => {
+    try {
+        const { data } = await axios.patch(
+            `${API_BASE_URL}/api/invitations/${invitationId}`,
+            { status },
+            { withCredentials: true },
+        );
+
+        return extractInvitation(data);
+    } catch (error) {
+        throw normalizeError(error, "No se pudo actualizar la invitacion.");
     }
 };

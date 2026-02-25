@@ -17,6 +17,7 @@ import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 import Events from "./pages/events/Events.jsx";
+import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
                             <Route path="polls" element={<CrewPolls />} />
                             <Route path="members" element={<CrewMembers />} />
                             <Route path="groups" element={<CrewGroups />} />
+                            <Route path="invite" element={<CrewInvitations />} />
                         </Route>
                     </Route>
                 </Routes>
