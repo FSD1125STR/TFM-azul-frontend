@@ -1,7 +1,5 @@
-<<<<<<< HEAD
-=======
 /* App Layout Styles */
-
+/* 
 * {
     margin: 0;
     padding: 0;
@@ -29,9 +27,8 @@ body {
 }
 
 /* Ensure proper spacing with sticky header */
-@media (max-width: 640px) {
+/* @media (max-width: 640px) {
     .app-main {
-        padding-bottom: 80px; /* Account for mobile bottom nav */
+        padding-bottom: 80px; /* Account for mobile bottom nav 
     }
-}
->>>>>>> feature/crew-crear
+}  */

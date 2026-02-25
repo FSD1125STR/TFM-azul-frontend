@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/login.jsx";
+import JoinCrew from "./pages/auth/JoinCrew.jsx";
 import "./App.css"
 import CreateCrew from "./pages/crews/CreateCrew.jsx";
 import { AuthProvider } from "./hooks/context/AuthContext.jsx";
@@ -27,6 +28,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/invite/:token" element={<JoinCrew />} />
                 
                     {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
                     <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
