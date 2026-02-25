@@ -48,12 +48,12 @@ const defaultNavItems = [
         to: "groups",
         icon: <IconBinaryTree2 size={18} stroke={1.8} />,
     },
-    {
-        key: "invite",
-        label: "Invitaciones",
-        to: "invite",
-        icon: <IconLink size={18} stroke={1.8} />,
-    },
+    // {
+    //     key: "invite",
+    //     label: "Invitaciones",
+    //     to: "invite",
+    //     icon: <IconLink size={18} stroke={1.8} />,
+    // },
 ];
 
 // Layout para la navegacion dentro de una crew

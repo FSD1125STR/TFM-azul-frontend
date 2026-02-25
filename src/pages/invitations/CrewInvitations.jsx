@@ -106,6 +106,7 @@ export default function CrewInvitations() {
                     });
 
                 } catch (copyError) {
+                    console.log("Error al copiar en portapapeles: ", copyError);
                     setNotification({
                         type: "error",
                         message: "Invitacion creada, pero no se pudo copiar el enlace.",
@@ -180,7 +181,8 @@ export default function CrewInvitations() {
                 message: "Enlace copiado al portapapeles.",
             });
 
-        } catch (err) {
+        } catch (copyError) {
+            console.log("Error al copiar en portapapeles: ", copyError);
             setNotification({
                 type: "error",
                 message: "No se pudo copiar el enlace.",
