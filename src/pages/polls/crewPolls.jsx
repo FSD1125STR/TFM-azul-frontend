@@ -141,6 +141,8 @@ export default function CrewPolls() {
     const [newQuestion, setNewQuestion] = useState("");
     const [newOptions, setNewOptions] = useState(["", "", ""]);
 
+    const polls = tab === "active" ? activePolls : pastPolls;
+
     const activePolls = polls.filter((p) => p.type === "active");
     const pastPolls = polls.filter((p) => p.type === "past");
 
@@ -152,14 +154,21 @@ export default function CrewPolls() {
                 <nav className={styles.breadcrumb} aria-label="breadcrumb">
                     <span
                         onClick={() => navigate("/crews")}
-                        style={{ cursor: "pointer", color: "#2196f3" }}
+                        style={{ cursor: "pointer", color: "#7c858d" }}
                     >
             / Mis Crews
                     </span>
                     <span className={styles.sep}>/</span>
                     <span
                         onClick={() => navigate(`/crews/${crewId}`)}
-                        style={{ cursor: "pointer", color: "#2196f3" }}
+                        style={{ cursor: "pointer", color: "#7c858d" }}
+                    >
+                        {loading ? "Loading..." : crew?.name || "Crew"}
+                    </span>
+                    <span className={styles.sep}>/</span>
+                    <span
+                        onClick={() => navigate(`/crews/${crewId}`)}
+                        style={{ cursor: "pointer", color: "#7c858d" }}
                     >
                         {loading ? "Loading..." : crew?.name || "Crew"}
                     </span>
