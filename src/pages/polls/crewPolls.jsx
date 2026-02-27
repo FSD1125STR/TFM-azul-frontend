@@ -141,8 +141,6 @@ export default function CrewPolls() {
     const [newQuestion, setNewQuestion] = useState("");
     const [newOptions, setNewOptions] = useState(["", "", ""]);
 
-    const polls = tab === "active" ? activePolls : pastPolls;
-
     const activePolls = polls.filter((p) => p.type === "active");
     const pastPolls = polls.filter((p) => p.type === "past");
 
