@@ -94,7 +94,8 @@ export default function MyCrews() {
     fetchCrews();
   }, []);
 
-  const filtered = crews.filter(c => {
+    const filtered = crews.filter(c => {
+    if (!c) return false;
     const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase());
     const matchActivity = activityFilter ? c.activity === activityFilter : true;
     const matchRole = roleFilter ? c.role === roleFilter : true;
