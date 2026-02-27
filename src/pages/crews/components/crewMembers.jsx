@@ -14,7 +14,6 @@ export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
     const { crew, crewId, loading, error } = useContext(CrewContext);
     const roles = crew?.roles || [];
-    
 
     const navigate = useNavigate();
 
@@ -242,9 +241,21 @@ export default function CrewMembers() {
                                         setMemberToEdit({ ...memberToEdit, role: e.target.value })
                                     }
                                 >
-                                    <option value="member">Member</option>
-                                    <option value="leader">Leader</option>
-                                    <option value="admin">Admin</option>
+                                    {roles.map((role) => {
+                                        const roleValue =
+                      typeof role === "string"
+                          ? role
+                          : role?.name || role?.value || "";
+                                        const roleLabel =
+                      typeof role === "string"
+                          ? role
+                          : role?.name || role?.value || "";
+                                        return (
+                                            <option key={roleValue} value={roleValue}>
+                                                {roleLabel.charAt(0).toUpperCase() + roleLabel.slice(1)}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             </div>
                             <div>
@@ -373,9 +384,21 @@ export default function CrewMembers() {
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
                         <option value="">Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="leader">Leader</option>
-                        <option value="member">Member</option>
+                        {roles.map((role) => {
+                            const roleValue =
+                typeof role === "string"
+                    ? role
+                    : role?.name || role?.value || "";
+                            const roleLabel =
+                typeof role === "string"
+                    ? role
+                    : role?.name || role?.value || "";
+                            return (
+                                <option key={roleValue} value={roleValue}>
+                                    {roleLabel.charAt(0).toUpperCase() + roleLabel.slice(1)}
+                                </option>
+                            );
+                        })}
                     </select>
 
                     <select
