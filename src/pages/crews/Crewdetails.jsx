@@ -1,291 +1,217 @@
-import { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import CrewForm from "./createCrews"; // ✅ Reuse existing CrewForm for editing
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CrewForm from "./components/CrewForm.jsx";
+import CrewToast from "./components/CrewToast.jsx";
+import styles from "./CrewDetails.module.css";
+import {
+    ACTIVITY_STYLES,
+    DEFAULT_ACTIVITY_STYLE,
+} from "./constants/crewActivities.js";
+import {
+    deleteCrew,
+    getCrewImageUrl,
+    updateCrew,
+} from "../../services/apiCrews.js";
+import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 
-const activityColors = {
-  "Deportes": { bg: "#e8f5e9", dot: "#4caf50" },
-  "Música": { bg: "#fce4ec", dot: "#e91e63" },
-  "Ocio": { bg: "#fff8e1", dot: "#ff9800" },
-  "Trabajo y Proyectos": { bg: "#e3f2fd", dot: "#2196f3" },
-  "Estudios": { bg: "#f3e5f5", dot: "#9c27b0" },
-  "Eventos y Comunidades": { bg: "#e0f7fa", dot: "#00bcd4" },
-  "Otros": { bg: "#f5f5f5", dot: "#999" },
-};
 
-function ErrorNotification({ message, type = "error", onClose }) {
-  useEffect(() => {
-    const timer = setTimeout(() => onClose(), 5000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
+export default function CrewDetails() {
+    //Extraemos toda la info de la crew a partir del context
+    const { crew, crewId, setCrew, loading, error } = useContext(CrewContext);
+    const navigate = useNavigate();
+    const [notification, setNotification] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    
 
-  return (
-    <div style={{
-      position: "fixed", top: "20px", right: "20px", zIndex: 1000,
-      background: type === "success" ? "#4caf50" : "#e53935",
-      color: "#fff", borderRadius: "12px", padding: "14px 20px",
-      display: "flex", alignItems: "center", gap: "12px",
-      boxShadow: "0 4px 20px rgba(0,0,0,0.15)", fontFamily: "'DM Sans', sans-serif", fontSize: "14px", fontWeight: "600"
-    }}>
-      <span>{message}</span>
-      <button onClick={onClose} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", fontSize: "18px", lineHeight: 1 }}>×</button>
-    </div>
-  );
-}
-
-export default function CrewDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  const [crew, setCrew] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // ✅ Toggle edit mode
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [notification, setNotification] = useState(null);
-
-  const handleCloseNotification = useCallback(() => setNotification(null), []);
-
-  const showNotification = (message, type = "error") => {
-    setNotification({ message, type });
-  };
-
-  // ✅ Fetch crew by ID
-  useEffect(() => {
-    const fetchCrew = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/crews/${id}`);
-        if (!response.ok) throw new Error('Crew not found');
-        const data = await response.json();
-        setCrew(data.crew || null);
-      } catch (err) {
-        console.error('Error fetching crew:', err);
-        setError('Failed to load crew details.');
-      } finally {
-        setLoading(false);
-      }
+    const handleUpdate = async (payload) => {
+        const updated = await updateCrew(crewId, payload);
+        setCrew(updated);
+        setIsEditing(false);
+        setNotification({ type: "success", message: "Crew actualizada" });
     };
-    fetchCrew();
-  }, [id]);
 
-  // ✅ Handle edit form submission - sends PUT request to update crew
-  const handleUpdateCrew = async (crewData) => {
-    setIsSubmitting(true);
-    try {
-      const response = await fetch(`/api/crews/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(crewData),
-      });
 
-      if (!response.ok) throw new Error('Failed to update crew');
 
-      const updatedCrew = await response.json();
-      setCrew(updatedCrew);         // ✅ Update local state with new data
-      setIsEditing(false);          // ✅ Exit edit mode
-      showNotification('Crew updated successfully!', 'success');
+    //Maneja la accion al confirmar que se quiere eliminar la crew, confirmando con notificación
+    const handleDelete = async () => {
+        try {
+            setIsDeleting(true);
+            //Eliminamos la crew llamando a la api (api wrapper)
+            await deleteCrew(crewId);
+            setNotification({ type: "success", message: "Crew eliminada" });
+            setTimeout(() => navigate("/crews"), 1200);
 
-    } catch (err) {
-      console.error('Error updating crew:', err);
-      showNotification('Failed to update crew. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
+        } catch (err) {
+            setNotification({ type: "error", message: err.message || "No se pudo eliminar" });
+            setIsDeleting(false);
+        }
+    };
+
+    // Miembras este cargando, se devuelve un div informando de ello
+    if (loading) {
+        return <div className={styles.state}>Cargando crew...</div>;
     }
-  };
 
-  // ✅ Handle delete
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`/api/crews/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete crew');
-      showNotification('Crew deleted successfully!', 'success');
-      setTimeout(() => navigate('/crews'), 1500);
-    } catch (err) {
-      console.error('Error deleting crew:', err);
-      showNotification('Failed to delete crew. Please try again.', 'error');
-      setIsDeleting(false);
+    // Si ocurre un error se renderiza por pantalla, con link para vovler al menu principal de crews (DEBERIAMOS CARGAR PAGINA 404 POR DEFECTO)
+    if (error) {
+        return (
+            <div className={styles.state}>
+                <p>{error}</p>
+                <button type="button" onClick={() => navigate("/crews")} className={styles.primaryButton}>Volver a mis crews</button>
+            </div>
+        );
     }
-  };
 
-  const colors = crew ? (activityColors[crew.activity] || { bg: "#f5f5f5", dot: "#999" }) : {};
+    // Si no hay crew en parametros se devuelve nada
+    if (!crew) {
+        return null;
+    }
 
-  // --- Loading ---
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f7f7f9", fontFamily: "'DM Sans', sans-serif", color: "#aaa" }}>
-      Loading crew...
-    </div>
-  );
+    // Algunas variables necesarias para estructurar la info
+    const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE;
+    const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
+    const subactivityLabel = crew.subactivity ?? "";
 
-  // --- Error ---
-  if (error) return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#f7f7f9", fontFamily: "'DM Sans', sans-serif", gap: "16px" }}>
-      <p style={{ color: "#e53935", fontSize: "15px" }}>{error}</p>
-      <button onClick={() => navigate('/crews')} style={{ background: "#1a1a2e", color: "#fff", border: "none", borderRadius: "10px", padding: "10px 24px", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: "14px" }}>
-        ← Back to My Crews
-      </button>
-    </div>
-  );
 
-  return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #f7f7f9; }
-      `}</style>
+    // Renderizamos el componente principal si no hay errores globales y si hay crew en los parametros
+    return (
+        <div className={styles.page}>
+            {/* Si hay alguna notificacion renderizamos el toast */}
+            {notification && (
+                <CrewToast
+                    message={notification.message}
+                    type={notification.type}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+            
+            {/* Mostramos la modal para confirmar la eliminación, solo si showDeleteConfirm es true */}
+            {showDeleteConfirm && (
+                <div className={styles.overlay}>
+                    <div className={styles.modal}>
+                        <h3>Eliminar crew</h3>
+                        <p>Seguro que quieres eliminar <strong>{crew.name}</strong>? Esta acción no se puede deshacer.</p>
+                        <div className={styles.modalActions}>
+                            {/** Boton para cancelar - cambia el estado y se cierra la modal */}
+                            <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => setShowDeleteConfirm(false)}
+                            >
+                                Cancelar
+                            </button>
 
-      <div style={{ minHeight: "100vh", background: "#f7f7f9", fontFamily: "'DM Sans', sans-serif" }}>
+                            {/** Boton para confirmar la eliminacion */}
+                            <button
+                                type="button"
+                                className={styles.dangerButton}
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+                            </button>
 
-        {/* Notification */}
-        {notification && (
-          <ErrorNotification
-            message={notification.message}
-            type={notification.type}
-            onClose={handleCloseNotification}
-          />
-        )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteConfirm && (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 }}>
-            <div style={{ background: "#fff", borderRadius: "16px", padding: "32px", maxWidth: "400px", width: "90%", textAlign: "center" }}>
-              <h3 style={{ fontFamily: "'Syne', sans-serif", fontSize: "20px", color: "#1a1a2e", marginBottom: "12px" }}>Delete Crew?</h3>
-              <p style={{ fontSize: "14px", color: "#666", fontFamily: "'DM Sans', sans-serif", marginBottom: "24px" }}>
-                Are you sure you want to delete <strong>{crew?.name}</strong>? This action cannot be undone.
-              </p>
-              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-                <button onClick={() => setShowDeleteConfirm(false)}
-                  style={{ padding: "10px 24px", borderRadius: "10px", border: "1.5px solid #ddd", background: "#fff", color: "#555", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: "600" }}>
-                  Cancel
+            {/* Sección principal con la info de la crew */}
+            <div className={styles.container}>
+                {/* Boton para volver atrás */}
+                <button
+                    type="button"
+                    className={styles.backButton}
+                    onClick={() => (isEditing ? setIsEditing(false) : navigate("/crews"))}
+                >
+                    {isEditing ? "Volver a detalles" : "Volver a mis crews"}
                 </button>
-                <button onClick={handleDelete} disabled={isDeleting}
-                  style={{ padding: "10px 24px", borderRadius: "10px", border: "none", background: "#e53935", color: "#fff", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", fontWeight: "600" }}>
-                  {isDeleting ? "Deleting..." : "Yes, Delete"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
-        <main style={{ maxWidth: "800px", margin: "0 auto", padding: "40px 24px" }}>
+                {/* Si se esta editando se renderiza el formulario con los valores iniciales de la crew */}
+                {isEditing ? (
+                    <CrewForm
+                        initialValues={crew}
+                        onSubmit={handleUpdate}
+                        submitLabel="Guardar cambios"
+                        onCancel={() => setIsEditing(false)}
+                    />
+                ) : (
+                    //Si no se esta editando se muestra la info de la crew
+                    <>
+                        {/**Mostramos un header con la imagen y la actividad de la crew */}
+                        <div
+                            className={styles.hero}
+                            style={{
+                                background: coverImage
+                                    ? `url(${coverImage}) center/cover`
+                                    : `linear-gradient(135deg, ${colors.bg} 0%, #e0e0e0 100%)`,
+                            }}
+                        >
+                            <div className={styles.tags}>
+                                <span className={styles.activityTag} style={{ background: colors.dot }}>
+                                    {crew.activity}
+                                </span>
+                                <span className={styles.subactivityTag}>{subactivityLabel}</span>
+                            </div>
+                        </div>
 
-          {/* Back Button */}
-          <button
-            onClick={() => isEditing ? setIsEditing(false) : navigate('/crews')}
-            style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "none", color: "#666", fontSize: "14px", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", marginBottom: "24px", padding: 0 }}
-            onMouseEnter={e => e.currentTarget.style.color = "#1a1a2e"}
-            onMouseLeave={e => e.currentTarget.style.color = "#666"}
-          >
-            ← {isEditing ? "Back to Crew Details" : "Back to My Crews"}
-          </button>
+                        {/**Mostramos una card con la info de la crew */}
+                        <div className={styles.card}>
+                            {/**Header con nombre, descripcion y boton de editar y eliminar*/}
+                            <div className={styles.cardHeader}>
+                                <div>
+                                    <h1>{crew.name}</h1>
+                                    <p>{crew.description}</p>
+                                </div>
+                                <div className={styles.actions}>
+                                    <button
+                                        type="button"
+                                        className={styles.secondaryButton}
+                                        onClick={() => setIsEditing(true)}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className={styles.dangerButton}
+                                        onClick={() => setShowDeleteConfirm(true)}
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
 
-          {/* ✅ EDIT MODE - Show CrewForm with existing crew data */}
-          {isEditing ? (
-            <div style={{ background: "#fff", borderRadius: "20px", padding: "32px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid #f0f0f0" }}>
-              <h2 style={{ fontFamily: "'Syne', sans-serif", fontSize: "22px", fontWeight: "800", color: "#1a1a2e", marginBottom: "24px" }}>
-                ✏️ Editing: {crew.name}
-              </h2>
-              {/* ✅ Pass existing crew data as editCrew prop so the form pre-fills */}
-              <CrewForm
-                onSubmit={handleUpdateCrew}
-                editCrew={crew}
-                handleCancel={() => setIsEditing(false)}
-                isSubmitting={isSubmitting}
-                showNotification={showNotification}
-              />
-            </div>
+                            {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
+                            <div className={styles.stats}>
+                                <div>
+                                    <strong>{crew.members?.length || 0}</strong>
+                                    <span>Miembros</span>
+                                </div>
+                                <div>
+                                    <strong>{crew.events || 0}</strong>
+                                    <span>Eventos</span>
+                                </div>
+                                <div>
+                                    <strong>{crew.role || "Member"}</strong>
+                                    <span>Tu rol</span>
+                                </div>
+                            </div>
 
-          ) : (
-            // ✅ VIEW MODE - Show crew details
-            <>
-              {/* Hero Image */}
-              <div style={{
-                height: "260px", borderRadius: "20px", overflow: "hidden",
-                background: crew.imageUrl
-                  ? `url(http://localhost:3000${crew.imageUrl}) center/cover`
-                  : `linear-gradient(135deg, ${colors.bg} 0%, #e0e0e0 100%)`,
-                marginBottom: "28px", position: "relative",
-              }}>
-                <div style={{ position: "absolute", bottom: "16px", left: "16px", display: "flex", gap: "8px" }}>
-                  <span style={{ background: colors.dot, color: "#fff", fontSize: "12px", fontWeight: "700", padding: "4px 12px", borderRadius: "20px", textTransform: "uppercase", fontFamily: "'DM Sans', sans-serif" }}>
-                    {crew.activity}
-                  </span>
-                  <span style={{ background: "#fff", color: "#333", fontSize: "12px", fontWeight: "600", padding: "4px 12px", borderRadius: "20px", fontFamily: "'DM Sans', sans-serif" }}>
-                    {crew.SubActivity}
-                  </span>
-                </div>
-              </div>
-
-              {/* Crew Info Card */}
-              <div style={{ background: "#fff", borderRadius: "20px", padding: "32px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", border: "1px solid #f0f0f0", marginBottom: "20px" }}>
-
-                {/* Name + Action Buttons */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", gap: "16px" }}>
-                  <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: "28px", fontWeight: "800", color: "#1a1a2e", letterSpacing: "-0.02em", lineHeight: 1.2 }}>
-                    {crew.name}
-                  </h1>
-
-                  <div style={{ display: "flex", gap: "10px", flexShrink: 0 }}>
-                    {/* ✅ Edit button - switches to edit mode, no page navigation */}
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f5f5f5", color: "#1a1a2e", border: "none", borderRadius: "10px", padding: "10px 18px", fontSize: "13px", fontWeight: "600", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", transition: "background 0.2s" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#e0e0e0"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#f5f5f5"}
-                    >
-                      ✏️ Edit
-                    </button>
-
-                    {/* ✅ Delete button - opens confirmation modal */}
-                    <button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      style={{ display: "flex", alignItems: "center", gap: "6px", background: "#fdecea", color: "#e53935", border: "none", borderRadius: "10px", padding: "10px 18px", fontSize: "13px", fontWeight: "600", fontFamily: "'DM Sans', sans-serif", cursor: "pointer", transition: "background 0.2s" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#ffcdd2"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#fdecea"}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <p style={{ fontSize: "15px", color: "#555", lineHeight: "1.7", fontFamily: "'DM Sans', sans-serif", marginBottom: "24px" }}>
-                  {crew.description}
-                </p>
-
-                {/* Stats Row */}
-                <div style={{ display: "flex", gap: "24px", padding: "20px", background: "#f7f7f9", borderRadius: "12px" }}>
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "24px", fontWeight: "800", color: "#1a1a2e" }}>{crew.members || 0}</div>
-                    <div style={{ fontSize: "12px", color: "#888", fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>Miembros</div>
-                  </div>
-                  <div style={{ width: "1px", background: "#e0e0e0" }} />
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "24px", fontWeight: "800", color: "#1a1a2e" }}>{crew.events || 0}</div>
-                    <div style={{ fontSize: "12px", color: "#888", fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>Eventos</div>
-                  </div>
-                  <div style={{ width: "1px", background: "#e0e0e0" }} />
-                  <div style={{ textAlign: "center" }}>
-                    <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "16px", fontWeight: "700", color: "#1a1a2e", paddingTop: "4px" }}>{crew.role || "Member"}</div>
-                    <div style={{ fontSize: "12px", color: "#888", fontFamily: "'DM Sans', sans-serif", marginTop: "2px" }}>Tu Rol</div>
-                  </div>
-                </div>
-
-                {/* Created At */}
-                {crew.createdAt && (
-                  <p style={{ fontSize: "12px", color: "#bbb", fontFamily: "'DM Sans', sans-serif", marginTop: "16px" }}>
-                    Created {new Date(crew.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
+                            {/**Mostramos footer de la card con info de la cuando se creo la crew */}
+                            {crew.createdAt && (
+                                <p className={styles.meta}>Creada el {new Date(crew.createdAt).toLocaleDateString("es-ES", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                })}
+                                </p>
+                            )}
+                        </div>
+                    </>
                 )}
-              </div>
-            </>
-          )}
-
-        </main>
-      </div>
-    </>
-  );
+            </div>
+        </div>
+    );
 }
