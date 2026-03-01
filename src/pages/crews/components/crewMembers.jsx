@@ -1,8 +1,10 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import CrewToast from "./CrewToast.jsx";
 import styles from "./crewMember.module.css";
 import { CrewContext } from "../../../hooks/context/CrewContext.jsx";
+import RoleManagement from "../../users/RoleManagement.jsx";
 import {
     addCrewMember,
     getCrewMembers,
@@ -14,11 +16,12 @@ export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
     const { crew, crewId, loading, error } = useContext(CrewContext);
     const roles = crew?.roles || [];
-    const canManageMembers = crew?.rolePermission === "admin";
+    const canManageMembers = crew?.userRole?.permission === "admin";
     
 
     const navigate = useNavigate();
 
+    const [showRoleManagement, setShowRoleManagement] = useState(false);
     const [members, setMembers] = useState([]);
     const [membersLoading, setMembersLoading] = useState(true);
     const [membersError, setMembersError] = useState(null);
@@ -42,17 +45,35 @@ export default function CrewMembers() {
     const [memberToEdit, setMemberToEdit] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
+    const roleByName = useMemo(
+        () =>
+            new Map(
+                (roles || []).map((role) => [
+                    role?.name,
+                    role,
+                ]),
+            ),
+        [roles],
+    );
+
+    const roleById = useMemo(
+        () =>
+            new Map(
+                (roles || []).map((role) => [
+                    String(role?._id),
+                    role,
+                ]),
+            ),
+        [roles],
+    );
+
     // Cargamos los miembros de la crew cuando el crewId esté disponible
     useEffect(() => {
         if (!crewId) return;
         setMembersLoading(true);
         getCrewMembers(crewId)
             .then((data) => {
-                // Handle both array response and object with members/data property
-                const membersList = Array.isArray(data)
-                    ? data
-                    : data?.members || data?.data || [];
-                setMembers(Array.isArray(membersList) ? membersList : []);
+                setMembers(Array.isArray(data) ? data : []);
             })
             .catch((err) =>
                 setMembersError(err.message || "Error al cargar miembros"),
@@ -112,11 +133,25 @@ export default function CrewMembers() {
     const handleEditMember = async () => {
         if (!canManageMembers) return;
         if (!memberToEdit) return;
+        if (!memberToEdit.roleId) {
+            setNotification({
+                type: "error",
+                message: "Selecciona un rol válido.",
+            });
+            return;
+        }
         try {
             setIsEditing(true);
-            await editCrewMember(crewId, memberToEdit.id, memberToEdit);
+            await editCrewMember(crewId, memberToEdit.id, {
+                roleId: memberToEdit.roleId,
+            });
+            const selectedRole = roleById.get(String(memberToEdit.roleId));
+            const updatedMember = {
+                ...memberToEdit,
+                role: selectedRole?.name ?? memberToEdit.role,
+            };
             setMembers((prev) =>
-                prev.map((m) => (m.id === memberToEdit.id ? memberToEdit : m)),
+                prev.map((m) => (m.id === memberToEdit.id ? updatedMember : m)),
             );
             setNotification({
                 type: "success",
@@ -164,13 +199,17 @@ export default function CrewMembers() {
                     onClick={() => navigate("/crews")}
                     className={styles.primaryButton}
                 >
-          Volver a mis crews
+                    Volver a mis crews
                 </button>
             </div>
         );
     }
 
     if (!crew) return null;
+
+    if (showRoleManagement) {
+        return <RoleManagement onBack={() => setShowRoleManagement(false)} />;
+    }
 
     return (
         <div className={styles.page}>
@@ -189,9 +228,9 @@ export default function CrewMembers() {
                     <div className={styles.modal}>
                         <h3>Eliminar miembro</h3>
                         <p>
-              ¿Seguro que quieres eliminar a{" "}
+                            ¿Seguro que quieres eliminar a{" "}
                             <strong>{memberToDelete.name}</strong> de la crew? Esta acción no
-              se puede deshacer.
+                            se puede deshacer.
                         </p>
                         <div className={styles.modalActions}>
                             <button
@@ -199,7 +238,7 @@ export default function CrewMembers() {
                                 className={styles.secondaryButton}
                                 onClick={() => setMemberToDelete(null)}
                             >
-                Cancelar
+                                Cancelar
                             </button>
                             <button
                                 type="button"
@@ -219,7 +258,7 @@ export default function CrewMembers() {
                 <div className={styles.overlay}>
                     <div className={styles.modal}>
                         <h3>
-              Editar miembro - {memberToEdit.name || memberToEdit.username}
+                            Editar miembro - {memberToEdit.name || memberToEdit.username}
                         </h3>
                         <div
                             style={{
@@ -237,18 +276,26 @@ export default function CrewMembers() {
                                         fontWeight: "600",
                                     }}
                                 >
-                  Role
+                                    Role
                                 </label>
                                 <select
                                     className={styles.input}
-                                    value={memberToEdit.role || "member"}
+                                    value={memberToEdit.roleId || ""}
                                     onChange={(e) =>
-                                        setMemberToEdit({ ...memberToEdit, role: e.target.value })
+                                        setMemberToEdit({
+                                            ...memberToEdit,
+                                            roleId: e.target.value,
+                                        })
                                     }
                                 >
-                                    <option value="member">Member</option>
-                                    <option value="leader">Leader</option>
-                                    <option value="admin">Admin</option>
+                                    <option value="" disabled>
+                                        Selecciona un rol
+                                    </option>
+                                    {roles.map((rol) => (
+                                        <option key={rol._id} value={rol._id}>
+                                            {rol.name}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div>
@@ -259,7 +306,7 @@ export default function CrewMembers() {
                                         fontWeight: "600",
                                     }}
                                 >
-                  Grupo
+                                    Grupo
                                 </label>
                                 <input
                                     className={styles.input}
@@ -278,7 +325,7 @@ export default function CrewMembers() {
                                 className={styles.secondaryButton}
                                 onClick={() => setMemberToEdit(null)}
                             >
-                Cancelar
+                                Cancelar
                             </button>
                             <button
                                 type="button"
@@ -316,7 +363,7 @@ export default function CrewMembers() {
                                     setNewMemberEmail("");
                                 }}
                             >
-                Cancelar
+                                Cancelar
                             </button>
                             <button
                                 type="button"
@@ -332,15 +379,12 @@ export default function CrewMembers() {
             )}
 
             <div className={styles.container}>
+                
                 {/* Breadcrumb */}
                 <nav className={styles.breadcrumb} aria-label="breadcrumb">
                     <span onClick={() => navigate("/crews")}>/ Mis Crews</span>
                     <span className={styles.sep}>/</span>
                     <span onClick={() => navigate(`/crews/${crewId}`)}>{crew.name}</span>
-                    <span className={styles.sep}>/</span>
-                    <span onClick={() => navigate(`/crews/${crewId}/groups`)}>
-            Groups
-                    </span>
                     <span className={styles.sep}>/</span>
                     <span className={styles.current}>Miembros</span>
                 </nav>
@@ -361,13 +405,22 @@ export default function CrewMembers() {
                         <strong className={styles.statValue}>{uniqueGroups.length}</strong>
                     </div>
                     {canManageMembers && (
-                        <button
-                            type="button"
-                            className={styles.primaryButton}
-                            onClick={() => setShowAddModal(true)}
-                        >
-            + Añadir miembro
-                        </button>
+                        <div className={styles.actionRow}>
+                            <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => setShowRoleManagement(true)}
+                            >
+                                Gestionar roles
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.primaryButton}
+                                onClick={() => setShowAddModal(true)}
+                            >
+                                + Añadir miembro
+                            </button>
+                        </div>
                     )}
                 </div>
 
@@ -379,9 +432,11 @@ export default function CrewMembers() {
                         onChange={(e) => setRoleFilter(e.target.value)}
                     >
                         <option value="">Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="leader">Leader</option>
-                        <option value="member">Member</option>
+                        {roles.map((rol) => (
+                            <option key={rol._id || rol.name} value={rol.name}>
+                                {rol.name}
+                            </option>
+                        ))}
                     </select>
 
                     <select
@@ -421,44 +476,61 @@ export default function CrewMembers() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredMembers.map((member) => (
-                                    <tr key={member.id}>
-                                        <td>{member.name || member.username}</td>
-                                        <td>
-                                            <span
-                                                className={`${styles.roleBadge} ${styles[member.role] || styles.member}`}
-                                            >
-                                                {member.role || "member"}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a
-                                                className={styles.mailLink}
-                                                href={`mailto:${member.email}`}
-                                            >
-                                                {member.email}
-                                            </a>
-                                        </td>
-                                        {canManageMembers && (
+                                {filteredMembers.map((member) => {
+                                    const memberRole = roleByName.get(member.role);
+                                    const rolePermission =
+                                        memberRole?.permission ?? "member";
+                                    return (
+                                        <tr key={member.id}>
+                                            <td>{member.name || member.username}</td>
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    className={styles.dangerButton}
-                                                    onClick={() => setMemberToDelete(member)}
+                                                <span
+                                                    className={`${styles.roleBadge} ${styles[rolePermission] || styles.member}`}
                                                 >
-                        Borrar
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className={styles.dangerButton}
-                                                    onClick={() => setMemberToEdit(member)}
-                                                >
-                        Edit
-                                                </button>
+                                                    {member.role || "member"}
+                                                </span>
                                             </td>
-                                        )}
-                                    </tr>
-                                ))}
+                                            <td>
+                                                <a
+                                                    className={styles.mailLink}
+                                                    href={`mailto:${member.email}`}
+                                                >
+                                                    {member.email}
+                                                </a>
+                                            </td>
+                                            {canManageMembers && (
+                                                <td>
+                                                    <div className={styles.actionButtons}>
+                                                        <button
+                                                            type="button"
+                                                            className={styles.iconButton}
+                                                            aria-label="Editar miembro"
+                                                            onClick={() => {
+                                                                const role = roleByName.get(
+                                                                    member.role,
+                                                                );
+                                                                setMemberToEdit({
+                                                                    ...member,
+                                                                    roleId: role?._id ?? "",
+                                                                });
+                                                            }}
+                                                        >
+                                                            <IconPencil size={16} stroke={2} />
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className={`${styles.iconButton} ${styles.iconDanger}`}
+                                                            aria-label="Eliminar miembro"
+                                                            onClick={() => setMemberToDelete(member)}
+                                                        >
+                                                            <IconTrash size={16} stroke={2} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}

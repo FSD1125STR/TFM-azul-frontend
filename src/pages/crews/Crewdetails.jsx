@@ -73,7 +73,7 @@ export default function CrewDetails() {
     const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE;
     const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const subactivityLabel = crew.subactivity ?? "";
-    const canManageCrew = crew.userRolePermission === "admin";
+    const canManageCrew = crew.userRole?.permission === "admin";
 
 
     // Renderizamos el componente principal si no hay errores globales y si hay crew en los parametros
@@ -197,7 +197,7 @@ export default function CrewDetails() {
                                     <span>Eventos</span>
                                 </div>
                                 <div>
-                                    <strong>{crew.userRole || "Member"}</strong>
+                                    <strong>{crew.userRole?.name || "Member"}</strong>
                                     <span>Tu rol</span>
                                 </div>
                             </div>

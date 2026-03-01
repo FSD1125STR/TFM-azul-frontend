@@ -22,7 +22,8 @@ export async function getCrewMembers(crewId) {
     const res = await fetch(`${CREW_BASE_URL}/${crewId}/members`, {
         credentials: "include",
     });
-    return handleResponse(res);
+    const data = await handleResponse(res);
+    return data?.members ?? data ?? [];
 }
 
 /**
@@ -38,7 +39,8 @@ export async function addCrewMember(crewId, payload) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
-    return handleResponse(res);
+    const data = await handleResponse(res);
+    return data?.member ?? data;
 }
 
 /**

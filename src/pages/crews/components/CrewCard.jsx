@@ -9,8 +9,7 @@ import { getCrewImageUrl } from "../../../services/apiCrews.js";
 export default function CrewCard({ crew, onView }) {
     const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE; //Definimos los colores de la actividad
     const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
-
-    const isAdmin = crew.rolePermission === "admin";
+    const isAdmin = crew.userRole?.permission === "admin";
 
     return (
         <>
@@ -33,7 +32,7 @@ export default function CrewCard({ crew, onView }) {
                         className={styles.roleTag}
                         data-variant={isAdmin ? "primary" : "neutral"}
                     >
-                        {crew.role || "Member"}
+                        {crew.userRole?.name || "Member"}
                     </span>
                 </div>
 

@@ -66,7 +66,7 @@ export default function MyCrews() {
                     ? crew.activity === activityFilter
                     : true;
                 const matchRole = roleFilter
-                    ? crew.userRolePermission === roleFilter
+                    ? crew.userRole?.permission === roleFilter
                     : true;
                 return matchSearch && matchActivity && matchRole;
             });

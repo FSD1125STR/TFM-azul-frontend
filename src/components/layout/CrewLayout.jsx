@@ -81,7 +81,7 @@ function CrewLayoutContent({ children }) {
     //const imageUrl = crew?.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const initial = name.charAt(0).toUpperCase() || "C";
     const items = defaultNavItems;
-    const canManageCrew = crew?.userRolePermission === "admin";
+    const canManageCrew = crew?.userRole?.permission === "admin";
 
     return (
         <div className={styles.crewLayout}>
