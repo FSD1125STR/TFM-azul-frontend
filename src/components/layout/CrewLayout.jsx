@@ -73,6 +73,7 @@ function CrewLayoutContent({ children }) {
     //const imageUrl = crew?.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const initial = name.charAt(0).toUpperCase() || "C";
     const items = defaultNavItems;
+    const canManageCrew = crew?.userRolePermission === "admin";
 
     return (
         <div className={styles.crewLayout}>
@@ -87,7 +88,7 @@ function CrewLayoutContent({ children }) {
                     {/** Nombre e info de la crew */}
                     <div className={styles.crewInfo}>
                         <p className={styles.crewName}>{name}</p>
-                        <a href="">Editar</a>
+                        {canManageCrew && <a href="">Editar</a>}
                     </div>
                 </div>
             
@@ -117,14 +118,16 @@ function CrewLayoutContent({ children }) {
                 </nav>
             
                 {/** Footer de la barra lateral con acciones adicionales */}
-                <div className={styles.sidebarFooter}>
-                    <button type="button" className={styles.inviteButton}>
-                        <span className={styles.inviteIcon} aria-hidden="true">
-                            <IconUserPlus size={18} stroke={1.8} />
-                        </span>
-                        Invite Members
-                    </button>
-                </div>
+                {canManageCrew && (
+                    <div className={styles.sidebarFooter}>
+                        <button type="button" className={styles.inviteButton}>
+                            <span className={styles.inviteIcon} aria-hidden="true">
+                                <IconUserPlus size={18} stroke={1.8} />
+                            </span>
+                            Invite Members
+                        </button>
+                    </div>
+                )}
             </aside>
         
             {/** Contenido principal de la crew */}

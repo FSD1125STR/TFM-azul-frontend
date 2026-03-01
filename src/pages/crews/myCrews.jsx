@@ -65,7 +65,9 @@ export default function MyCrews() {
                 const matchActivity = activityFilter
                     ? crew.activity === activityFilter
                     : true;
-                const matchRole = roleFilter ? crew.role === roleFilter : true;
+                const matchRole = roleFilter
+                    ? crew.userRolePermission === roleFilter
+                    : true;
                 return matchSearch && matchActivity && matchRole;
             });
     }, [activityFilter, crews, roleFilter, search]);

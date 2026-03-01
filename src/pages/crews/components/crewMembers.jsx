@@ -14,6 +14,7 @@ export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
     const { crew, crewId, loading, error } = useContext(CrewContext);
     const roles = crew?.roles || [];
+    const canManageMembers = crew?.rolePermission === "admin";
     
 
     const navigate = useNavigate();
@@ -61,6 +62,7 @@ export default function CrewMembers() {
 
     // Añade un nuevo miembro por email
     const handleAddMember = async () => {
+        if (!canManageMembers) return;
         if (!newMemberEmail.trim()) return;
         try {
             setIsAdding(true);
@@ -86,6 +88,7 @@ export default function CrewMembers() {
 
     // Elimina un miembro de la crew confirmando primero
     const handleDeleteMember = async () => {
+        if (!canManageMembers) return;
         if (!memberToDelete) return;
         try {
             setIsDeleting(true);
@@ -107,6 +110,7 @@ export default function CrewMembers() {
     };
 
     const handleEditMember = async () => {
+        if (!canManageMembers) return;
         if (!memberToEdit) return;
         try {
             setIsEditing(true);
@@ -180,7 +184,7 @@ export default function CrewMembers() {
             )}
 
             {/* Modal de confirmación de borrado */}
-            {memberToDelete && (
+            {canManageMembers && memberToDelete && (
                 <div className={styles.overlay}>
                     <div className={styles.modal}>
                         <h3>Eliminar miembro</h3>
@@ -211,7 +215,7 @@ export default function CrewMembers() {
             )}
 
             {/* Modal de editar miembro */}
-            {memberToEdit && (
+            {canManageMembers && memberToEdit && (
                 <div className={styles.overlay}>
                     <div className={styles.modal}>
                         <h3>
@@ -290,7 +294,7 @@ export default function CrewMembers() {
             )}
 
             {/* Modal de añadir miembro */}
-            {showAddModal && (
+            {canManageMembers && showAddModal && (
                 <div className={styles.overlay}>
                     <div className={styles.modal}>
                         <h3>Añadir miembro</h3>
@@ -356,13 +360,15 @@ export default function CrewMembers() {
                         <span className={styles.statLabel}>Sub grupos</span>
                         <strong className={styles.statValue}>{uniqueGroups.length}</strong>
                     </div>
-                    <button
-                        type="button"
-                        className={styles.primaryButton}
-                        onClick={() => setShowAddModal(true)}
-                    >
+                    {canManageMembers && (
+                        <button
+                            type="button"
+                            className={styles.primaryButton}
+                            onClick={() => setShowAddModal(true)}
+                        >
             + Añadir miembro
-                    </button>
+                        </button>
+                    )}
                 </div>
 
                 {/* Filtros */}
@@ -411,7 +417,7 @@ export default function CrewMembers() {
                                     <th>Miembro</th>
                                     <th>Role</th>
                                     <th>Mail</th>
-                                    <th>Actions</th>
+                                    {canManageMembers && <th>Actions</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -433,22 +439,24 @@ export default function CrewMembers() {
                                                 {member.email}
                                             </a>
                                         </td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className={styles.dangerButton}
-                                                onClick={() => setMemberToDelete(member)}
-                                            >
+                                        {canManageMembers && (
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className={styles.dangerButton}
+                                                    onClick={() => setMemberToDelete(member)}
+                                                >
                         Borrar
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={styles.dangerButton}
-                                                onClick={() => setMemberToEdit(member)}
-                                            >
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={styles.dangerButton}
+                                                    onClick={() => setMemberToEdit(member)}
+                                                >
                         Edit
-                                            </button>
-                                        </td>
+                                                </button>
+                                            </td>
+                                        )}
                                     </tr>
                                 ))}
                             </tbody>

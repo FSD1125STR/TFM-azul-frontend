@@ -10,6 +10,8 @@ export default function CrewCard({ crew, onView }) {
     const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE; //Definimos los colores de la actividad
     const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
 
+    const isAdmin = crew.rolePermission === "admin";
+
     return (
         <>
             {/** Render de la card de Crew */}
@@ -29,7 +31,7 @@ export default function CrewCard({ crew, onView }) {
                     </span>
                     <span
                         className={styles.roleTag}
-                        data-variant={crew.role === "Admin" ? "primary" : "neutral"}
+                        data-variant={isAdmin ? "primary" : "neutral"}
                     >
                         {crew.role || "Member"}
                     </span>
