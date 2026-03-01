@@ -8,7 +8,7 @@ import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import RoleForm from "./components/RoleForm.jsx";
 import RoleRow from "./components/RoleRow.jsx";
 
-export default function RoleManagement() {
+export default function RoleManagement({ onBack }) {
     const { crew, crewId, setCrew } = useContext(CrewContext);
     const [isSavingRole, setIsSavingRole] = useState(false);
     const [createError, setCreateError] = useState("");
@@ -112,6 +112,15 @@ export default function RoleManagement() {
         <div className={styles.page}>
             <div className={styles.container}>
                 <header className={styles.header}>
+                    {onBack && (
+                        <button
+                            type="button"
+                            className={styles.backButton}
+                            onClick={onBack}
+                        >
+                            Volver a miembros
+                        </button>
+                    )}
                     <div className={styles.headerText}>
                         <p className={styles.eyebrow}>Roles de la crew</p>
                         <h1 className={styles.title}>

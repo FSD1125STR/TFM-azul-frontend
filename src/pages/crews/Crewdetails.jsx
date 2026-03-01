@@ -73,6 +73,7 @@ export default function CrewDetails() {
     const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE;
     const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const subactivityLabel = crew.subactivity ?? "";
+    const canManageCrew = crew.userRole?.permission === "admin";
 
 
     // Renderizamos el componente principal si no hay errores globales y si hay crew en los parametros
@@ -165,22 +166,24 @@ export default function CrewDetails() {
                                     <h1>{crew.name}</h1>
                                     <p>{crew.description}</p>
                                 </div>
-                                <div className={styles.actions}>
-                                    <button
-                                        type="button"
-                                        className={styles.secondaryButton}
-                                        onClick={() => setIsEditing(true)}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={styles.dangerButton}
-                                        onClick={() => setShowDeleteConfirm(true)}
-                                    >
-                                        Eliminar
-                                    </button>
-                                </div>
+                                {canManageCrew && (
+                                    <div className={styles.actions}>
+                                        <button
+                                            type="button"
+                                            className={styles.secondaryButton}
+                                            onClick={() => setIsEditing(true)}
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={styles.dangerButton}
+                                            onClick={() => setShowDeleteConfirm(true)}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
@@ -194,7 +197,7 @@ export default function CrewDetails() {
                                     <span>Eventos</span>
                                 </div>
                                 <div>
-                                    <strong>{crew.role || "Member"}</strong>
+                                    <strong>{crew.userRole?.name || "Member"}</strong>
                                     <span>Tu rol</span>
                                 </div>
                             </div>
