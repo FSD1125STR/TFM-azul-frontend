@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { CrewContext, CrewProvider } from "../../hooks/context/CrewContext.jsx";
-import { IconUserPlus, IconLayoutDashboard, IconCalendarEventFilled, IconFolderFilled, IconChartBar, IconUsers, IconBinaryTree2 } from "@tabler/icons-react";
+import { IconUserPlus, IconLayoutDashboard, IconCalendarEventFilled, IconFolderFilled, IconChartBar, IconUsers, IconBinaryTree2, IconLink } from "@tabler/icons-react";
 import styles from "./CrewLayout.module.css";
 
 /* Definimos los elementos del menu de navegacion
@@ -48,6 +48,12 @@ const defaultNavItems = [
         to: "groups",
         icon: <IconBinaryTree2 size={18} stroke={1.8} />,
     },
+    // {
+    //     key: "invite",
+    //     label: "Invitaciones",
+    //     to: "invite",
+    //     icon: <IconLink size={18} stroke={1.8} />,
+    // },
 ];
 
 // Layout para la navegacion dentro de una crew
@@ -68,6 +74,8 @@ export default function CrewLayout({ children }) {
 function CrewLayoutContent({ children }) {
     // Utilizamos el CrewContext para poder acceder a toda la info de la Crew
     const { crew } = useContext(CrewContext);
+    const navigate = useNavigate();
+    const { idCrew } = useParams();
 
     const name = crew?.name?.trim() || "Crew Name";
     //const imageUrl = crew?.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
@@ -120,11 +128,15 @@ function CrewLayoutContent({ children }) {
                 {/** Footer de la barra lateral con acciones adicionales */}
                 {canManageCrew && (
                     <div className={styles.sidebarFooter}>
-                        <button type="button" className={styles.inviteButton}>
+                        <button
+                            type="button"
+                            className={styles.inviteButton}
+                            onClick={() => navigate(`/crews/${idCrew}/invite`)}
+                        >
                             <span className={styles.inviteIcon} aria-hidden="true">
                                 <IconUserPlus size={18} stroke={1.8} />
                             </span>
-                            Invite Members
+                        Invite Members
                         </button>
                     </div>
                 )}
