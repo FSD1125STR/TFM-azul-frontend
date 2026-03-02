@@ -10,6 +10,7 @@ export const ProtectedRoute = ({ children }) => {
     if(loading) return null;
 
     if(!user || !isLoggedIn) {
+        //Guardamos la url original para saber a donde redireccionar despues del login y la metemos como parametro next
         const next = `${location.pathname}${location.search}`;
         return <Navigate to={`/login?next=${encodeURIComponent(next)}`} replace />;
     }
