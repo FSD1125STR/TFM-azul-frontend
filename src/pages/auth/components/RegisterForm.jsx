@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "../../../components/ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../schemas/registerSchema";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../../hooks/context/AuthContext";
 import { registerUser, login, getLoggedUser } from "../../../services/auth";
@@ -19,6 +19,7 @@ export default function RegisterForm() {
 
     //React router 
     const navigate = useNavigate();
+    const location = useLocation();
 
     //Contexto de autenticación
     const { setIsLoggedIn, setUser } = useContext(AuthContext);
@@ -42,7 +43,13 @@ export default function RegisterForm() {
             const me = await getLoggedUser();
             setUser(me.user);
             setIsLoggedIn(true);
-            navigate("/"); // Redirigir al usuario a la página principal después de registrarse y logearse
+
+            //Extraemos el next param para saber la url que renderizar despues de registrarnos
+            const nextParam = new URLSearchParams(location.search).get("next");
+            const nextSafe = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") && !nextParam.startsWith("/\\")
+                ? nextParam
+                : "/";
+            navigate(nextSafe); // Redirigir al usuario a la página de destino después de registrarse y logearse
     
         } catch (error) {
             // Mostrar el error al usuario
@@ -56,15 +63,15 @@ export default function RegisterForm() {
             <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
                 <div className={styles.formRow}>
                     <div className={styles.formItem}>
-                    <label>Nombre</label>
-                    <input {...register("name")} />
-                    {errors.name && <p>{errors.name.message}</p>}
+                        <label>Nombre</label>
+                        <input {...register("name")} />
+                        {errors.name && <p>{errors.name.message}</p>}
                     </div>
 
                     <div className={styles.formItem}>
-                    <label>username</label>
-                    <input {...register("username")} />
-                    {errors.username && <p>{errors.username.message}</p>}
+                        <label>username</label>
+                        <input {...register("username")} />
+                        {errors.username && <p>{errors.username.message}</p>}
                     </div>
                 </div>
 

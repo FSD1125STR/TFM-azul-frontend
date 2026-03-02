@@ -17,7 +17,6 @@ export default function CrewMembers() {
     const { crew, crewId, loading, error } = useContext(CrewContext);
     const roles = crew?.roles || [];
     const canManageMembers = crew?.userRole?.permission === "admin";
-    
 
     const navigate = useNavigate();
 
@@ -378,6 +377,7 @@ export default function CrewMembers() {
                 </div>
             )}
 
+            {/* Render principal */}
             <div className={styles.container}>
                 
                 {/* Breadcrumb */}

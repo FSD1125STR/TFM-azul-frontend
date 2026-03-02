@@ -29,7 +29,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/invite/:token" element={<JoinCrew />} />
+                    <Route path="/invite/:token" element={<ProtectedRoute><JoinCrew /></ProtectedRoute>} />
                 
                     {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
                     <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
