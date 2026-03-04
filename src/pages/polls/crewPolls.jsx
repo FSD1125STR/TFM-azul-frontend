@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import styles from "../crews/CrewDetails.module.css";
 import CrewToast from "../crews/components/CrewToast";
 import { CrewContext } from "../../hooks/context/CrewContext";
+import { addCrewMember } from "../../services/apiMembers";
 
 const polls = [
     {
@@ -140,9 +141,40 @@ export default function CrewPolls() {
     const [showModal, setShowModal] = useState(false);
     const [newQuestion, setNewQuestion] = useState("");
     const [newOptions, setNewOptions] = useState(["", "", ""]);
+    const [Polls, setPolls] = useState([]);
+    const [isAdding, setIsAdding] = useState(false);
+    const [notification, setNotification] = useState(null);
+    
 
     const activePolls = polls.filter((p) => p.type === "active");
     const pastPolls = polls.filter((p) => p.type === "past");
+
+
+     const handleCreatePoll = async () => {
+        if (!newQuestion.trim()) return;
+        try {
+            setIsAdding(true);
+            const added = await addCrewMember(crewId, {
+                question: newQuestion.trim(),
+                options: newOptions.filter((opt) => opt.trim()),
+            });
+            setPolls((prev) => [...prev, added]);
+            setNewQuestion("");
+            setNewOptions(["", "", ""]);
+            setShowModal(false);
+            setNotification({
+                type: "success",
+                message: "Encuesta creada correctamente",
+            });
+        } catch (err) {
+            setNotification({
+                type: "error",
+                message: err.message || "No se pudo crear la encuesta",
+            });
+        } finally {
+            setIsAdding(false);
+        }
+    };
 
     return (
         <>
@@ -250,7 +282,8 @@ export default function CrewPolls() {
                                 </button>
                                 <button
                                     className="btn-primary"
-                                    onClick={() => setShowModal(false)}
+                                    onClick={() => handleCreatePoll()}
+                                    disabled={isAdding || !newQuestion.trim() || newOptions.filter((o) => o.trim()).length < 2}
                                 >
                   Create
                                 </button>
