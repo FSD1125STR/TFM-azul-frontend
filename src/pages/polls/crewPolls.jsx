@@ -18,16 +18,6 @@ const polls = [
         ],
     },
     {
-        id: 2,
-        question: "Best day for weekly sync?",
-        type: "active",
-        options: [
-            { id: "a", label: "Monday", votes: null },
-            { id: "b", label: "Wednesday", votes: null },
-            { id: "c", label: "Friday", votes: null },
-        ],
-    },
-    {
         id: 3,
         question: "Preferred project management tool?",
         type: "past",
@@ -37,16 +27,7 @@ const polls = [
             { id: "c", label: "Trello", votes: 7, percent: 16 },
         ],
     },
-    {
-        id: 4,
-        question: "Team lunch cuisine preference?",
-        type: "past",
-        options: [
-            { id: "a", label: "Italian", votes: 15, percent: 33 },
-            { id: "b", label: "Japanese", votes: 22, percent: 49 },
-            { id: "c", label: "Mexican", votes: 8, percent: 18 },
-        ],
-    },
+   
 ];
 
 function ActivePollCard({ poll }) {
@@ -150,7 +131,7 @@ export default function CrewPolls() {
     const pastPolls = polls.filter((p) => p.type === "past");
 
 
-     const handleCreatePoll = async () => {
+    const handleCreatePoll = async () => {
         if (!newQuestion.trim()) return;
         try {
             setIsAdding(true);
