@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/login.jsx";
+import JoinCrew from "./pages/auth/JoinCrew.jsx";
 import "./App.css"
 import CreateCrew from "./pages/crews/CreateCrew.jsx";
 import { AuthProvider } from "./hooks/context/AuthContext.jsx";
@@ -16,6 +17,7 @@ import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 import Events from "./pages/events/Events.jsx";
+import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 
 
 function App() {
@@ -27,6 +29,7 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/invite/:token" element={<ProtectedRoute><JoinCrew /></ProtectedRoute>} />
                 
                     {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
                     <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -45,6 +48,7 @@ function App() {
                             <Route path="polls" element={<CrewPolls />} />
                             <Route path="members" element={<CrewMembers />} />
                             <Route path="groups" element={<CrewGroups />} />
+                            <Route path="invite" element={<CrewInvitations />} />
                         </Route>
                     </Route>
                 </Routes>
