@@ -2,14 +2,16 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import styles from "./AppLayout.module.css";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
-import { logout } from "../../services/auth.js";
+import { logout, updateAvatar } from "../../services/auth.js";
+import { uploadToCloudinary, API_BASE_URL } from "../../services/cloudinaryUpload.js";
 import { useNavigate } from "react-router-dom";
 
 export default function AppLayout({ children }) {
-    const { user } = useContext(AuthContext);
+    const { user, setUser } = useContext(AuthContext);
     const username = user?.username ?? user?.name ?? "Username";
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null); //Referencia al boton del usuario en el html
+    const avatarInputRef = useRef(null);
 
     //Navegacion
     const navigate = useNavigate();
@@ -32,6 +34,22 @@ export default function AppLayout({ children }) {
     // Muestra u oculta el menú de usuario al hacer clic en el botón del avatar
     const handleToggleMenu = () => {
         setIsMenuOpen((prev) => !prev);
+    };
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        e.target.value = "";
+        try {
+            const { secureUrl } = await uploadToCloudinary({
+                file,
+                signatureEndpoint: `${API_BASE_URL}/api/upload/avatar-signature`,
+            });
+            const updatedUser = await updateAvatar(secureUrl);
+            setUser(updatedUser);
+        } catch (err) {
+            console.error("Error al actualizar el avatar:", err);
+        }
     };
 
     // Maneja el clic en la opción de logout del menú de usuario
@@ -78,6 +96,13 @@ export default function AppLayout({ children }) {
 
                     {/* Area clickable del usuario para acceder a su perfil o cerrar sesion */}
                     <div className={styles.userArea} ref={menuRef}>
+                        <input
+                            ref={avatarInputRef}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            onChange={handleAvatarChange}
+                        />
                         <button
                             type="button"
                             className={styles.userButton}
@@ -86,7 +111,22 @@ export default function AppLayout({ children }) {
                             aria-controls="user-menu"
                         >
                             <span className={styles.username}>{username}</span>
-                            <span className={styles.avatar} aria-hidden="true" />
+                            {user?.image ? (
+                                <img
+                                    src={user.image}
+                                    alt="Avatar"
+                                    className={styles.avatar}
+                                    onClick={(e) => { e.stopPropagation(); avatarInputRef.current?.click(); }}
+                                    style={{ cursor: "pointer", borderRadius: "50%", width: 32, height: 32, objectFit: "cover" }}
+                                />
+                            ) : (
+                                <span
+                                    className={styles.avatar}
+                                    aria-hidden="true"
+                                    onClick={(e) => { e.stopPropagation(); avatarInputRef.current?.click(); }}
+                                    style={{ cursor: "pointer" }}
+                                />
+                            )}
                         </button>
 
                         {/* Menu de usuario que se muestra solo cuando isMenuOpen es true */}

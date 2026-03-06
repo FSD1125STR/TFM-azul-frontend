@@ -2,9 +2,8 @@
 //API WRAPPER DE CREWS
 
 import axios from "axios";
+import { uploadToCloudinary, API_BASE_URL } from "./cloudinaryUpload.js";
 
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
 
 export const getCrewImageUrl = (path) => {
@@ -93,6 +92,7 @@ export const createRoleInCrew = async (crewId, role) => {
     }
 }
 
+//Llama a la API para actualiza una crew
 export const updateCrew = async (crewId, payload) => {
     try {
         const { data } = await axios.put(`${CREW_BASE_URL}/${crewId}`, payload, {
@@ -117,21 +117,15 @@ export const deleteCrew = async (crewId) => {
     }
 };
 
-export const uploadCrewImage = async (file) => {
+//Sube la imagen a cloudinary, firmando con el endpoint adecuado
+export const uploadCrewImage = async (file, crewId) => {
     try {
-        const formData = new FormData();
-        formData.append("image", file);
-
-        const { data } = await axios.post(`${CREW_BASE_URL}/upload`, formData, {
-            withCredentials: true,
-            headers: { "Content-Type": "multipart/form-data" },
+        const { secureUrl } = await uploadToCloudinary({
+            file,
+            signatureEndpoint: `${CREW_BASE_URL}/${crewId}/upload-cover-signature`,
         });
-
-        if (!data?.filePath) {
-            throw new Error("Respuesta de subida inv�lida");
-        }
-
-        return data.filePath;
+        return secureUrl;
+        
     } catch (error) {
         throw normalizeError(error, "No se pudo subir la imagen");
     }

@@ -5,7 +5,7 @@ import {
     ACTIVITY_OPTIONS,
     getSubactivitiesFor,
 } from "../constants/crewActivities.js";
-import { getCrewImageUrl, uploadCrewImage } from "../../../services/apiCrews.js";
+import { createCrew, getCrewImageUrl, updateCrew, uploadCrewImage } from "../../../services/apiCrews.js";
 
 // Valores por defecto, util para diferenciar entre crear y actualizar
 const DEFAULT_VALUES = {
@@ -18,6 +18,7 @@ const DEFAULT_VALUES = {
 
 export default function CrewForm({
     initialValues,
+    crewId,
     onSubmit,
     onCancel,
     submitLabel,
@@ -93,7 +94,7 @@ export default function CrewForm({
 
         //Valida el tipo de archivo 
         if (!validTypes.includes(file.type)) {
-            showFileError("Formato inválido. Usa JPG, PNG, GIF o WebP.");
+            showFileError("Formato inválido. Usa JPG, PNG o WebP.");
             return;
         }
 
@@ -143,22 +144,38 @@ export default function CrewForm({
         setSubmitError("");
 
         try {
-            let finalImageUrl = values.imageUrl?.trim() || "";
+            if (crewId) {
+                // Flujo de edición: subir imagen si la hay, luego llamar onSubmit con el payload final
+                let finalImageUrl = values.imageUrl?.trim() || "";
+                if (imageFile) {
+                    setIsUploading(true);
+                    //Subimos la imagen a Cloudinary
+                    finalImageUrl = await uploadCrewImage(imageFile, crewId);
+                    setIsUploading(false);
+                }
 
-            if (imageFile) {
-                setIsUploading(true);
-                finalImageUrl = await uploadCrewImage(imageFile);
-            }
+                //Guardamos la crew con los valores y la nueva URL de la imagen
+                await onSubmit({ ...values, imageUrl: finalImageUrl });
 
-            const payload = {
-                ...values,
-                imageUrl: finalImageUrl,
-            };
+            } else {
+                // Flujo de creación en dos pasos para evitar archivos huérfanos en Cloudinary
+                const created = await createCrew({ ...values, imageUrl: "" });
 
-            await onSubmit(payload);
-            setIsUploading(false);
+                let finalImageUrl = "";
+                if (imageFile) {
+                    setIsUploading(true);
 
-            if (!initialValues) {
+                    //Subimos la imagen a cloudinary
+                    finalImageUrl = await uploadCrewImage(imageFile, created._id);
+
+                    //Actualizamos la crew con la url de la imagen
+                    await updateCrew(created._id, { imageUrl: finalImageUrl });
+                    setIsUploading(false);
+                }
+
+                //Guardamos la crew con los valores y la nueva URL de la imagen
+                await onSubmit({ ...created, imageUrl: finalImageUrl });
+
                 reset(DEFAULT_VALUES);
                 setImageFile(null);
                 setImagePreview("");
@@ -340,7 +357,7 @@ export default function CrewForm({
                     <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
                         className={styles.hiddenInput}
                         onChange={(event) => handleFileSelection(event.target.files?.[0])}
                         disabled={isSubmitting || isUploading}
