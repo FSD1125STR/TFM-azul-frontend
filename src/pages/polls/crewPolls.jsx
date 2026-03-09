@@ -6,31 +6,34 @@ import CrewToast from "../crews/components/CrewToast.jsx";
 import { CrewContext } from "../../hooks/context/CrewContext";
 import { createPoll, getCrewPolls, votePoll } from "../../services/apiPolls";
 
-function ActivePollCard({ poll, onVoteSuccess}) {
-    const {idCrew} = useParams();
+function ActivePollCard({ poll, onVoteSuccess }) {
+    const { idCrew } = useParams();
     const [selected, setSelected] = useState(null);
     const [voted, setVoted] = useState(false);
     const [isVoting, setIsVoting] = useState(false);
     const [voteError, setVoteError] = useState(null);
-    const [voteCounts, setVoteCounts] = useState(() => {
-    // Initialize vote counts from poll options
-        return poll.options.reduce(
-            (acc, o) => ({ ...acc, [o.id]: o.votes ?? 0}),
-            {},
-        );
-    });
+    const [voteCounts, setVoteCounts] = useState({});
 
-    const handleVote = async() => {
+    // Update vote counts whenever poll changes
+    useEffect(() => {
+        if (poll?.options) {
+            setVoteCounts(
+                poll.options.reduce((acc, o) => ({ ...acc, [o.id]: o.votes ?? 0 }), {}),
+            );
+        }
+    }, [poll]);
+
+    const handleVote = async () => {
         if (!selected || isVoting) return;
 
         setIsVoting(true);
         setVoteError(null);
 
-        try{
+        try {
             await votePoll(idCrew, poll._id, selected);
             setVoteCounts((prev) => ({
                 ...prev,
-                [selected]: (prev[selected] || 0) + 1
+                [selected]: (prev[selected] || 0) + 1,
             }));
             setVoted(true);
             // Refresh polls after voting to show updated counts
@@ -72,9 +75,7 @@ function ActivePollCard({ poll, onVoteSuccess}) {
                     <p>No options available</p>
                 )}
             </div>
-            {voteError && (
-                <p className="vote-error">⚠️ {voteError}</p>
-            )}
+            {voteError && <p className="vote-error">⚠️ {voteError}</p>}
             {!voted ? (
                 <button
                     className={`vote-btn ${selected ? "active" : ""}`}
@@ -92,12 +93,18 @@ function ActivePollCard({ poll, onVoteSuccess}) {
 
 function PastPollCard({ poll }) {
     // Calculate total votes and percentages
-    const totalVotes = (poll.options ?? []).reduce((sum, o) => sum + (o.votes ?? 0), 0);
+    const totalVotes = (poll.options ?? []).reduce(
+        (sum, o) => sum + (o.votes ?? 0),
+        0,
+    );
     const optionsWithPercent = (poll.options ?? []).map((o) => ({
         ...o,
-        percent: totalVotes > 0 ? Math.round(((o.votes ?? 0) / totalVotes) * 100) : 0,
+        percent:
+      totalVotes > 0 ? Math.round(((o.votes ?? 0) / totalVotes) * 100) : 0,
     }));
-    const validPercents = optionsWithPercent.map((o) => o.percent).filter((p) => p > 0);
+    const validPercents = optionsWithPercent
+        .map((o) => o.percent)
+        .filter((p) => p > 0);
     const max = validPercents.length > 0 ? Math.max(...validPercents) : 0;
 
     return (
@@ -148,7 +155,7 @@ export default function CrewPolls() {
     const [notification, setNotification] = useState(null);
 
     useEffect(() => {
-        // Fetch polls from API when component mounts
+    // Fetch polls from API when component mounts
         const fetchPolls = async () => {
             try {
                 const updatedPolls = await getCrewPolls(idCrew);
@@ -263,7 +270,13 @@ export default function CrewPolls() {
                 {/* Polls */}
                 <div className="polls-grid">
                     {tab === "active"
-                        ? activePolls.map((p) => <ActivePollCard key={p._id} poll={p} onVoteSuccess={refreshPolls} />)
+                        ? activePolls.map((p) => (
+                            <ActivePollCard
+                                key={p._id}
+                                poll={p}
+                                onVoteSuccess={refreshPolls}
+                            />
+                        ))
                         : pastPolls.map((p) => <PastPollCard key={p._id} poll={p} />)}
                 </div>
 
