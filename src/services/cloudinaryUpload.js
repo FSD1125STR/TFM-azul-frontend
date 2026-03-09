@@ -16,7 +16,7 @@ export const uploadToCloudinary = async ({ file, signatureEndpoint }) => {
     // 1. Obtenemos la firma del backend, utilizando el endpoint correspondiente
     const { data: sig } = await axios.post(signatureEndpoint, {}, { withCredentials: true });
 
-    const resourceType = sig.resource_type ?? "image";
+    const resourceType = sig.resource_type;
     const cloudName = sig.cloudName;
 
     // 2. Construimos el FormData para enviar un archivo
@@ -25,6 +25,7 @@ export const uploadToCloudinary = async ({ file, signatureEndpoint }) => {
     formData.append("api_key", sig.apiKey);
     formData.append("timestamp", sig.timestamp);
     formData.append("signature", sig.signature);
+    formData.append("type", sig.type);
 
     if (sig.folder) formData.append("folder", sig.folder); //Carpeta donde se guardará en Cloudinary
     if (sig.public_id) formData.append("public_id", sig.public_id);
