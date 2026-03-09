@@ -8,9 +8,6 @@ import { getCrewImageUrl } from "../../../services/apiCrews.js";
 
 
 
-
-
-
 // Definimos el componente CrewCard
   
 // Componente para renderizar una CrewCard, con los datos de la crew y un handler para el boton de acceder a la crew
