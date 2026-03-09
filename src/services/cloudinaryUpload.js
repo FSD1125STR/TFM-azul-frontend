@@ -11,7 +11,7 @@ export const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
  * @returns {Promise<{ secureUrl: string, publicId: string }>}
  */
 
-//Sube archivo a cloduinary, indicando el endpoit para obtener la firma
+//Sube archivo a cloudinary, indicando el endpoit para obtener la firma
 export const uploadToCloudinary = async ({ file, signatureEndpoint }) => {
     // 1. Obtenemos la firma del backend, utilizando el endpoint correspondiente
     const { data: sig } = await axios.post(signatureEndpoint, {}, { withCredentials: true });
@@ -26,7 +26,7 @@ export const uploadToCloudinary = async ({ file, signatureEndpoint }) => {
     formData.append("timestamp", sig.timestamp);
     formData.append("signature", sig.signature);
 
-    if (sig.folder) formData.append("folder", sig.folder);
+    if (sig.folder) formData.append("folder", sig.folder); //Carpeta donde se guardará en Cloudinary
     if (sig.public_id) formData.append("public_id", sig.public_id);
     if (sig.allowed_formats) formData.append("allowed_formats", sig.allowed_formats);
 
@@ -42,5 +42,6 @@ export const uploadToCloudinary = async ({ file, signatureEndpoint }) => {
     }
 
     const data = await uploadRes.json();
+    //Devolvemos el id y la url
     return { secureUrl: data.secure_url, publicId: data.public_id };
 };

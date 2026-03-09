@@ -105,6 +105,19 @@ export const updateCrew = async (crewId, payload) => {
     }
 };
 
+//Llama a la API para actualiza un campo de una crew
+export const patchCrew = async (crewId, payload) => {
+    try {
+        const { data } = await axios.patch(`${CREW_BASE_URL}/${crewId}`, payload, {
+            withCredentials: true,
+        });
+
+        return normalizeCrew(data);
+    } catch (error) {
+        throw normalizeError(error, "No se pudo actualizar la crew");
+    }
+};
+
 export const deleteCrew = async (crewId) => {
     try {
         const { data } = await axios.delete(`${CREW_BASE_URL}/${crewId}`, {

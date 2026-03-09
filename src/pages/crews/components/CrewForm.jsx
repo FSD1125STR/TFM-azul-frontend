@@ -5,7 +5,7 @@ import {
     ACTIVITY_OPTIONS,
     getSubactivitiesFor,
 } from "../constants/crewActivities.js";
-import { createCrew, getCrewImageUrl, updateCrew, uploadCrewImage } from "../../../services/apiCrews.js";
+import { createCrew, getCrewImageUrl, patchCrew, uploadCrewImage } from "../../../services/apiCrews.js";
 
 // Valores por defecto, util para diferenciar entre crear y actualizar
 const DEFAULT_VALUES = {
@@ -169,7 +169,7 @@ export default function CrewForm({
                     finalImageUrl = await uploadCrewImage(imageFile, created._id);
 
                     //Actualizamos la crew con la url de la imagen
-                    await updateCrew(created._id, { imageUrl: finalImageUrl });
+                    await patchCrew(created._id, { imageUrl: finalImageUrl });
                     setIsUploading(false);
                 }
 
