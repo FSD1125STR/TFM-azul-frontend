@@ -28,16 +28,15 @@ export default function CrewCard({ crew, onView }) {
                         background: coverImage
                             ? `url(${coverImage}) center/cover`
                             : `linear-gradient(135deg, ${colors.bg} 0%, #e0e0e0 100%)`,
-                    }}
-                >
+                    }}>
+
                     {/* Tags de actividad y de rol */}
                     <span className={styles.activityTag} style={{ background: colors.dot }}>
                         {crew.activity}
                     </span>
                     <span
                         className={styles.roleTag}
-                        data-variant={isAdmin ? "primary" : "neutral"}
-                    >
+                        data-variant={isAdmin ? "primary" : "neutral"}>
                         {crew.userRole?.name || "Member"}
                     </span>
                 </div>
