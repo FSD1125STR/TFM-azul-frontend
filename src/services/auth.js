@@ -85,6 +85,24 @@ export const registerUser = async (userData) => {
   }
 };
 
+// Llamada a la API para actualizar el avatar del usuario
+export const updateAvatar = async (imageUrl) => {
+  try {
+    const { data } = await axios.patch(
+      `${AUTH_BASE_URL}/me/avatar`,
+      { imageUrl },
+      { withCredentials: true }
+    );
+    return data.user;
+  } catch (error) {
+    const status = error.response?.status ?? 0;
+    const message = error.response?.data?.message || "No se pudo actualizar el avatar";
+    const normalized = new Error(message);
+    normalized.status = status;
+    throw normalized;
+  }
+};
+
 // Llamada a la API para cerrar sesión
 export const logout = async () => {
   try {
