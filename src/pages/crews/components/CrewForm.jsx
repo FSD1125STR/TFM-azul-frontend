@@ -88,7 +88,6 @@ export default function CrewForm({
             "image/jpeg",
             "image/jpg",
             "image/png",
-            "image/gif",
             "image/webp",
         ];
 

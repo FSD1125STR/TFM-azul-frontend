@@ -44,13 +44,11 @@
 }
 
 .uploadButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(19, 164, 236, 0.4);
+  background: var(--color-button-hover);
 }
 
 .uploadButton:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(19, 164, 236, 0.3);
+  background: var(--color-button-hover);
 }
 
 .uploadButton:disabled {
