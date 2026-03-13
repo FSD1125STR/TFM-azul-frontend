@@ -93,9 +93,14 @@ export default function AppLayout({ children }) {
                         {isMenuOpen && (
                             <div className={styles.userMenu} id="user-menu" role="menu">
                                 {/* Link para ver el perfil del usuario */}
-                                <button type="button" className={styles.menuItem} role="menuitem">
-                                  Ver Perfil
-                                </button>
+                                <Link
+                                    to="/account-settings"
+                                    className={styles.menuItem}
+                                    role="menuitem"
+                                    onClick={() => setIsMenuOpen(false)}
+                                >
+                                    Ver Perfil
+                                </Link>
                                 {/* Boton para cerrar sesion */}
                                 <button
                                     type="button"
