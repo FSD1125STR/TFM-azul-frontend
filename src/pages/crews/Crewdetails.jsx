@@ -134,6 +134,7 @@ export default function CrewDetails() {
                 {isEditing ? (
                     <CrewForm
                         initialValues={crew}
+                        crewId={crewId}
                         onSubmit={handleUpdate}
                         submitLabel="Guardar cambios"
                         onCancel={() => setIsEditing(false)}
