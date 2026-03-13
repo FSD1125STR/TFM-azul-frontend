@@ -190,11 +190,11 @@
 }
 
 .calendarContainer{
-  width: 60%;
+  width: 40%;
 }
 
 .activityContainer{
-  width: 40%;
+  width: 60%;
 }
 
 @media (max-width: 900px) {
