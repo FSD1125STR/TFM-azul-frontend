@@ -49,24 +49,24 @@ function App() {
                         <Route path="/crews/create" element={<CreateCrew />} />
                         <Route path="/events" element={<Events />} />
 
-            {/* Rutas dentro de una crew con su layout de navegacion */}
-            <Route path="/crews/:idCrew" element={<CrewLayout />}>
-              {/* RUTAS SIN EL CARACTER '/' PARA QUE SEAN RELATIVAS AL PADRE, PERMITIENDO LA NAVEGACION EN LA MISMA CREW */}
-              <Route index element={<CrewDetails />} />
-              <Route path="edit" element={<CrewDetails />} />
-              <Route path="events" element={<CrewEvents />} />
-              <Route path="events/create" element={<CreateEvent />} />
-              <Route path="files" element={<CrewFiles />} />
-              <Route path="polls" element={<CrewPolls />} />
-              <Route path="members" element={<CrewMembers />} />
-              <Route path="groups" element={<CrewGroups />} />
-              <Route path="invite" element={<CrewInvitations />} />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+                        {/* Rutas dentro de una crew con su layout de navegacion */}
+                        <Route path="/crews/:idCrew" element={<CrewLayout />}>
+                            {/* RUTAS SIN EL CARACTER '/' PARA QUE SEAN RELATIVAS AL PADRE, PERMITIENDO LA NAVEGACION EN LA MISMA CREW */}
+                            <Route index element={<CrewDetails />} />
+                            <Route path="edit" element={<CrewDetails />} />
+                            <Route path="events" element={<CrewEvents />} />
+                            <Route path="events/create" element={<CreateEvent />} />
+                            <Route path="files" element={<CrewFiles />} />
+                            <Route path="polls" element={<CrewPolls />} />
+                            <Route path="members" element={<CrewMembers />} />
+                            <Route path="groups" element={<CrewGroups />} />
+                            <Route path="invite" element={<CrewInvitations />} />
+                        </Route>
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
+    );
 }
 
 export default App;
