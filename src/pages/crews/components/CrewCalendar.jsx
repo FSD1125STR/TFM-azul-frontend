@@ -13,12 +13,11 @@ export default function CrewCalendar() {
     const { crewId } = useContext(CrewContext);
     const [events, setEvents] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date()); //Fecha seleccionada al pulsar un dia
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Al renderizar o cambiar la crew, se cargan todos los eventos de la crew
     useEffect(() => {
         if (!crewId) return;
-        setLoading(true);
         getCrewEvents(crewId)
             .then((data) => setEvents(data ?? []))
             .catch(() => setEvents([]))

@@ -17,6 +17,7 @@ import { Container } from "../../components/ui/Container.jsx";
 import { Button } from "../../components/ui/Button.jsx";
 import { IconUserCircle, IconUsersGroup  } from "@tabler/icons-react";
 import CrewCalendar from "./components/CrewCalendar.jsx";
+import CrewActivity from "./components/CrewActivity.jsx";
 
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
@@ -213,15 +214,23 @@ export default function CrewDetails() {
                                 </div>
                                 <span className={styles.separator}></span>
                                 <div>
-                                    <IconUserCircle stroke={2} />
+                                    <IconUserCircle stroke={1} />
                                     <strong>{crew.userRole?.name || "Member"}</strong>
                                 </div>
                             </div>
                             
-                            {/**Mostramos el calendario */}
-                            <Container className={styles.calendarContainer}>
-                                <CrewCalendar/>
-                            </Container>
+                            <div className={styles.mainInfo}>
+                                {/**Mostramos el calendario */}
+                                <Container className={styles.calendarContainer}>
+                                    <CrewCalendar/>
+                                </Container>
+
+                                {/**Mostramos el contenedor de actividad */}
+                                <Container className={styles.activityContainer}>
+                                    <CrewActivity/>
+                                </Container>
+                            </div>
+                            
                             
                             
                         </div>

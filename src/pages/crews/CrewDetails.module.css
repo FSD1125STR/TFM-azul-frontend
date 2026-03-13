@@ -184,8 +184,17 @@
   gap: 12px;
 }
 
+.mainInfo{
+  display: flex;
+  gap: 20px;
+}
+
 .calendarContainer{
   width: 60%;
+}
+
+.activityContainer{
+  width: 40%;
 }
 
 @media (max-width: 900px) {
