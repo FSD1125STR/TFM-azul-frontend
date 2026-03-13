@@ -13,6 +13,8 @@ import {
     updateCrew,
 } from "../../services/apiCrews.js";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
+import { Container } from "../../components/ui/Container.jsx";
+import { Button } from "../../components/ui/Button.jsx";
 
 
 export default function CrewDetails() {
