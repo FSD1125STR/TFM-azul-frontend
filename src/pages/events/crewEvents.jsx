@@ -1,11 +1,5 @@
-import React, { useContext } from "react";
-import { CrewContext } from "../../hooks/context/CrewContext";
-export default function CrewEvents() {
-    const { crew } = useContext(CrewContext);
+import CrewCalendar from "../crews/components/CrewCalendar";
 
-    return (
-        <div className="crew-events-container">
-            <h1>Eventos de {crew?.name || "la Crew"}</h1>
-        </div>
-    );
+export default function CrewEvents() {
+    return <CrewCalendar />;
 }

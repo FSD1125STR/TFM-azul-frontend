@@ -15,7 +15,8 @@ import {
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 import { Container } from "../../components/ui/Container.jsx";
 import { Button } from "../../components/ui/Button.jsx";
-
+import { IconUserCircle, IconUsersGroup  } from "@tabler/icons-react";
+import CrewCalendar from "./components/CrewCalendar.jsx";
 
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
@@ -162,7 +163,7 @@ export default function CrewDetails() {
                         </div>
 
                         {/**Mostramos una card con la info de la crew */}
-                        <div className={styles.card}>
+                        <div className={styles.info}>
                             {/**Header con nombre, descripcion y boton de editar y eliminar*/}
                             <div className={styles.cardHeader}>
                                 <div>
@@ -189,22 +190,6 @@ export default function CrewDetails() {
                                 )}
                             </div>
 
-                            {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
-                            <div className={styles.stats}>
-                                <div>
-                                    <strong>{crew.members?.length || 0}</strong>
-                                    <span>Miembros</span>
-                                </div>
-                                <div>
-                                    <strong>{crew.events || 0}</strong>
-                                    <span>Eventos</span>
-                                </div>
-                                <div>
-                                    <strong>{crew.userRole?.name || "Member"}</strong>
-                                    <span>Tu rol</span>
-                                </div>
-                            </div>
-
                             {/**Mostramos footer de la card con info de la cuando se creo la crew */}
                             {crew.createdAt && (
                                 <p className={styles.meta}>Creada el {new Date(crew.createdAt).toLocaleDateString("es-ES", {
@@ -214,7 +199,34 @@ export default function CrewDetails() {
                                 })}
                                 </p>
                             )}
+
+                            {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
+                            <div className={styles.stats}>
+                                <div>
+                                    <strong>{crew.members?.length || 0}</strong>
+                                    <span>Miembros</span>
+                                </div>
+                                <span className={styles.separator}></span>
+                                <div>
+                                    <strong>{crew.events || 0}</strong>
+                                    <span>Eventos</span>
+                                </div>
+                                <span className={styles.separator}></span>
+                                <div>
+                                    <IconUserCircle stroke={2} />
+                                    <strong>{crew.userRole?.name || "Member"}</strong>
+                                </div>
+                            </div>
+                            
+                            {/**Mostramos el calendario */}
+                            <Container className={styles.calendarContainer}>
+                                <CrewCalendar/>
+                            </Container>
+                            
+                            
                         </div>
+
+
                     </>
                 )}
             </div>
