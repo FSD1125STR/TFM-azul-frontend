@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import {
     IconCalendar,
     IconFile,
@@ -8,7 +8,7 @@ import {
     IconBell,
 } from "@tabler/icons-react";
 import { CrewContext } from "../../../hooks/context/CrewContext";
-import { getCrewNotifications } from "../../../services/apiNotifications.js";
+import { useNotifications } from "../../../hooks/useNotifications.js";
 import styles from "./CrewActivity.module.css";
 
 // Extrae el nombre de la entidad objeto de la notificacion
@@ -77,18 +77,8 @@ function formatRelativeTime(dateStr) {
 
 export default function CrewActivity() {
     const { crewId } = useContext(CrewContext);
-    const [notifications, setNotifications] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        if (!crewId) return;
-
-        getCrewNotifications(crewId)
-            .then(setNotifications)
-            .catch((err) => setError(err.message))
-            .finally(() => setLoading(false));
-    }, [crewId]);
+    // useNotifications gestiona el fetch inicial y las actualizaciones en tiempo real via WebSocket
+    const { notifications, loading, error } = useNotifications(crewId);
 
     return (
         <div className={styles.container}>
