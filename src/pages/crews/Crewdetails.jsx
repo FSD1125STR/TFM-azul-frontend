@@ -204,12 +204,12 @@ export default function CrewDetails() {
                             {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
                             <div className={styles.stats}>
                                 <div>
-                                    <strong>{crew.members?.length || 0}</strong>
+                                    <strong>{crew.memberships?.length || 0}</strong>
                                     <span>Miembros</span>
                                 </div>
                                 <span className={styles.separator}></span>
                                 <div>
-                                    <strong>{crew.events || 0}</strong>
+                                    <strong>{crew.events?.length || 0}</strong>
                                     <span>Eventos</span>
                                 </div>
                                 <span className={styles.separator}></span>

@@ -38,7 +38,7 @@ const normalizeError = (error, fallbackMessage) => {
     return normalized;
 };
 
-//Llama a la API para que le devuelva la lista de crews del usuario
+//Llama a la API para que le devuelva la lista de crews del usuario, las añadiremos tambien los eventos y los miembros
 export const getCrews = async () => {
     try {
         const { data } = await axios.get(CREW_BASE_URL, { withCredentials: true });
@@ -48,12 +48,15 @@ export const getCrews = async () => {
     }
 };
 
+//Llama a la API para que le devuelva info de una crew, le añadiremos tambien los eventos y los miembros
 export const getCrewById = async (crewId) => {
     try {
         const { data } = await axios.get(`${CREW_BASE_URL}/${crewId}`, {
             withCredentials: true,
         });
 
+
+        console.log(data);
         return normalizeCrew(data);
     } catch (error) {
         throw normalizeError(error, "No se pudo cargar la crew");
