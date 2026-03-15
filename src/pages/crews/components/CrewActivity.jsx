@@ -11,12 +11,16 @@ import { CrewContext } from "../../../hooks/context/CrewContext";
 import { getCrewNotifications } from "../../../services/apiNotifications.js";
 import styles from "./CrewActivity.module.css";
 
+// Extrae el nombre de la entidad objeto de la notificacion
 function extractEntityName(notification) {
     const entity = notification.entityId;
     if (!entity || typeof entity !== "object") return null;
+
+    // Devolvemos uno de esos tres campos posibles (poll, file, event), si es otra acción no devolvemos nada
     return entity.question ?? entity.originalName ?? entity.title ?? null;
 }
 
+// Contruye el mensaje de la notificacion resaltando el actor y la entidad
 function buildMessage(notification) {
     const actorName = notification.actor?.username ?? "Alguien";
     const entityName = extractEntityName(notification);
@@ -37,6 +41,7 @@ function buildMessage(notification) {
         <>
             <span className={styles.actor}>{actorName}</span>
             {template.prefix}
+            {/** Si no necesita entidad no se muestra */}
             {!template.noEntity && entityName && (
                 <span className={styles.entityName}>{entityName}</span>
             )}
@@ -53,15 +58,20 @@ const ICON_MAP = {
     COMMENT_POSTED: IconMessage,
 };
 
+// Calcula la diferencia entre la fecha actual y la de created at, devuelve un string relativo
 function formatRelativeTime(dateStr) {
     const diff = Date.now() - new Date(dateStr).getTime();
+
     const minutes = Math.floor(diff / 60000);
     if (minutes < 1) return "ahora mismo";
     if (minutes < 60) return `hace ${minutes} min`;
+
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `hace ${hours} h`;
+
     const days = Math.floor(hours / 24);
     if (days < 7) return `hace ${days} d`;
+    
     return new Date(dateStr).toLocaleDateString();
 }
 
