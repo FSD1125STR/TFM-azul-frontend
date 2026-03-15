@@ -17,7 +17,7 @@ export const getCrewEvents = async (crewId) => {
       `${API_BASE_URL}/api/crews/${crewId}/events`,
       { withCredentials: true },
     );
-    return data;
+    return data.events ?? [];
   } catch (error) {
     normalizeError(error, "Error al cargar eventos");
   }

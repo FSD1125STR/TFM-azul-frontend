@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import "./CrewPolls.css";
+import pollStyles from "./CrewPolls.module.css";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "../crews/CrewDetails.module.css";
 import CrewToast from "../crews/components/CrewToast.jsx";
@@ -54,38 +54,38 @@ function ActivePollCard({ poll, onVoteSuccess }) {
     };
 
     return (
-        <div className="poll-card active-poll">
-            <h3 className="poll-question">{poll.question}</h3>
-            <div className="options-list">
+        <div className={pollStyles.pollCard}>
+            <h3 className={pollStyles.pollQuestion}>{poll.question}</h3>
+            <div className={pollStyles.optionsList}>
                 {poll.options?.length > 0 ? (
                     poll.options.map((opt) => (
                         <label
                             key={opt.id}
-                            className={`option-row ${selected === opt.id ? "selected" : ""} ${voted ? "disabled" : ""}`}
+                            className={`${pollStyles.optionRow} ${selected === opt.id ? pollStyles.selected : ""} ${voted ? pollStyles.disabled : ""}`}
                             onClick={() => !voted && setSelected(opt.id)}
                         >
-                            <div className="radio-circle">
-                                {selected === opt.id && <div className="radio-dot" />}
+                            <div className={pollStyles.radioCircle}>
+                                {selected === opt.id && <div className={pollStyles.radioDot} />}
                             </div>
-                            <span className="option-label">{opt.label}</span>
-                            <span className="vote-count">{voteCounts[opt.id]}</span>
+                            <span className={pollStyles.optionLabel}>{opt.label}</span>
+                            <span className={pollStyles.voteCount}>{voteCounts[opt.id]}</span>
                         </label>
                     ))
                 ) : (
                     <p>No options available</p>
                 )}
             </div>
-            {voteError && <p className="vote-error">⚠️ {voteError}</p>}
+            {voteError && <p className={pollStyles.voteError}>⚠️ {voteError}</p>}
             {!voted ? (
                 <button
-                    className={`vote-btn ${selected ? "active" : ""}`}
+                    className={`${pollStyles.voteBtn} ${selected ? pollStyles.active : ""}`}
                     onClick={handleVote}
                     disabled={isVoting || !selected}
                 >
                     {isVoting ? "Votando..." : "Votar"}
                 </button>
             ) : (
-                <p className="voted-msg">✓ Voto registrado</p>
+                <p className={pollStyles.votedMsg}>✓ Voto registrado</p>
             )}
         </div>
     );
@@ -108,21 +108,21 @@ function PastPollCard({ poll }) {
     const max = validPercents.length > 0 ? Math.max(...validPercents) : 0;
 
     return (
-        <div className="poll-card past-poll">
-            <h3 className="poll-question">{poll.question}</h3>
-            <div className="results-list">
+        <div className={pollStyles.pollCard}>
+            <h3 className={pollStyles.pollQuestion}>{poll.question}</h3>
+            <div className={pollStyles.resultsList}>
                 {optionsWithPercent?.length > 0 ? (
                     optionsWithPercent.map((opt) => (
-                        <div key={opt.id} className="result-row">
-                            <div className="result-header">
-                                <span className="option-label">{opt.label}</span>
-                                <span className="result-meta">
+                        <div key={opt.id} className={pollStyles.resultRow}>
+                            <div className={pollStyles.resultHeader}>
+                                <span className={pollStyles.optionLabel}>{opt.label}</span>
+                                <span className={pollStyles.resultMeta}>
                                     {opt.votes ?? 0} votos ({opt.percent}%)
                                 </span>
                             </div>
-                            <div className="bar-track">
+                            <div className={pollStyles.barTrack}>
                                 <div
-                                    className={`bar-fill ${opt.percent === max ? "bar-winner" : ""}`}
+                                    className={`${pollStyles.barFill} ${opt.percent === max ? pollStyles.barWinner : ""}`}
                                     style={{ width: `${opt.percent}%` }}
                                 />
                             </div>
@@ -239,28 +239,27 @@ export default function CrewPolls() {
                 </nav>
 
                 {/* Page Header */}
-                <div className="page-header">
-                    {/* Título */}
+                <div className={pollStyles.pageHeader}>
                     <h1 className={styles.title}>
                         {loading ? "Loading..." : crew?.name || "Crew"}{" "}
                         <span>Members Polls</span>
                     </h1>
 
-                    <button className="btn-primary" onClick={() => setShowModal(true)}>
+                    <button className={pollStyles.btnPrimary} onClick={() => setShowModal(true)}>
             + Create Poll
                     </button>
                 </div>
 
                 {/* Tabs */}
-                <div className="tabs">
+                <div className={pollStyles.tabs}>
                     <button
-                        className={`tab-btn ${tab === "active" ? "active" : ""}`}
+                        className={`${pollStyles.tabBtn} ${tab === "active" ? pollStyles.active : ""}`}
                         onClick={() => setTab("active")}
                     >
             Active
                     </button>
                     <button
-                        className={`tab-btn ${tab === "past" ? "active" : ""}`}
+                        className={`${pollStyles.tabBtn} ${tab === "past" ? pollStyles.active : ""}`}
                         onClick={() => setTab("past")}
                     >
             Past
@@ -268,7 +267,7 @@ export default function CrewPolls() {
                 </div>
 
                 {/* Polls */}
-                <div className="polls-grid">
+                <div className={pollStyles.pollsGrid}>
                     {tab === "active"
                         ? activePolls.map((p) => (
                             <ActivePollCard
@@ -282,24 +281,24 @@ export default function CrewPolls() {
 
                 {/* CREATE POLL MODAL */}
                 {showModal && (
-                    <div className="modal-overlay" onClick={() => setShowModal(false)}>
-                        <div className="modal" onClick={(e) => e.stopPropagation()}>
-                            <h2 className="modal-title">Create Poll</h2>
-                            <div className="form-group">
-                                <label className="form-label">Question</label>
+                    <div className={pollStyles.modalOverlay} onClick={() => setShowModal(false)}>
+                        <div className={pollStyles.modal} onClick={(e) => e.stopPropagation()}>
+                            <h2 className={pollStyles.modalTitle}>Create Poll</h2>
+                            <div className={pollStyles.formGroup}>
+                                <label className={pollStyles.formLabel}>Question</label>
                                 <input
-                                    className="form-input"
+                                    className={pollStyles.formInput}
                                     placeholder="What is your question?"
                                     value={newQuestion}
                                     onChange={(e) => setNewQuestion(e.target.value)}
                                 />
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Options</label>
+                            <div className={pollStyles.formGroup}>
+                                <label className={pollStyles.formLabel}>Options</label>
                                 {newOptions.map((opt, i) => (
                                     <input
                                         key={i}
-                                        className="form-input"
+                                        className={pollStyles.formInput}
                                         style={{ marginBottom: 8 }}
                                         placeholder={`Option ${i + 1}`}
                                         value={opt}
@@ -311,15 +310,15 @@ export default function CrewPolls() {
                                     />
                                 ))}
                             </div>
-                            <div className="modal-actions">
+                            <div className={pollStyles.modalActions}>
                                 <button
-                                    className="btn-secondary"
+                                    className={pollStyles.btnSecondary}
                                     onClick={() => setShowModal(false)}
                                 >
                   Cancel
                                 </button>
                                 <button
-                                    className="btn-primary"
+                                    className={pollStyles.btnPrimary}
                                     onClick={() => handleCreatePoll()}
                                     disabled={
                                         isAdding ||

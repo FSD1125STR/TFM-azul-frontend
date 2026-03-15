@@ -47,7 +47,7 @@ export default function CrewCard({ crew, onView }) {
                         <h3 className={styles.title}>{crew.name}</h3>
                         <p className={styles.description}>{crew.description}</p>
                         <div className={styles.meta}>
-                            <span>{crew.length || 0} miembros</span>
+                            <span>{crew.members || 0} miembros</span>
                             <span>{crew.events || 0} eventos</span>
                         </div>
                     </div>
