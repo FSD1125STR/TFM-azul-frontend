@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import styles from "./AppLayout.module.css";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
@@ -8,6 +8,15 @@ import { useNavigate } from "react-router-dom";
 export default function AppLayout({ children }) {
     const { user } = useContext(AuthContext);
     const username = user?.username ?? user?.name ?? "Username";
+    const avatarUrl = user?.image ?? "";
+    const initials = useMemo(() => {
+        const base = (user?.name ?? user?.username ?? "").trim();
+        if (!base) return "U";
+        const parts = base.split(/\s+/).filter(Boolean);
+        const first = parts[0]?.[0] ?? "U";
+        const second = (parts[1]?.[0] ?? parts[0]?.[1] ?? "").trim();
+        return (first + second).toUpperCase();
+    }, [user]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null); //Referencia al boton del usuario en el html
 
@@ -86,7 +95,13 @@ export default function AppLayout({ children }) {
                             aria-controls="user-menu"
                         >
                             <span className={styles.username}>{username}</span>
-                            <span className={styles.avatar} aria-hidden="true" />
+                            <span className={styles.avatar} aria-hidden="true">
+                                {avatarUrl ? (
+                                    <img className={styles.avatarImg} src={avatarUrl} alt="" />
+                                ) : (
+                                    <span className={styles.avatarFallback}>{initials}</span>
+                                )}
+                            </span>
                         </button>
 
                         {/* Menu de usuario que se muestra solo cuando isMenuOpen es true */}

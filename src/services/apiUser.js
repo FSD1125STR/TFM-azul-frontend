@@ -22,6 +22,17 @@ export const updateUser = async (payload) => {
     }
 };
 
+export const updateUserImage = async (payload) => {
+    try {
+        const { data } = await axios.put(`${API_BASE_URL}/api/users/me/image`, payload, {
+            withCredentials: true,
+        });
+        return data;
+    } catch (error) {
+        throw normalizeError(error, "No se pudo actualizar la imagen de perfil");
+    }
+};
+
 export const deleteUser = async () => {
     try {
         const { data } = await axios.delete(`${API_BASE_URL}/api/users/me`, {
