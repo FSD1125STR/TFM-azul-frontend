@@ -2,28 +2,35 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./AccountSettings.module.css";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
-import { updateUser, updateUserImage, deleteUser } from "../../services/apiUser.js";
+import {
+    updateUser,
+    getUserImageUploadSignature,
+    updateUserImage,
+    deleteUser,
+} from "../../services/apiUser.js";
 
-const readFileAsDataURL = (file) =>
+const loadImageFromBlob = (blob) =>
     new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result ?? ""));
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-
-const loadImage = (src) =>
-    new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(blob);
         const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            resolve(img);
+        };
+        img.onerror = (e) => {
+            URL.revokeObjectURL(url);
+            reject(e);
+        };
+        img.src = url;
     });
 
-const fileToOptimizedDataURL = async (file, { maxSize = 256, quality = 0.85 } = {}) => {
-    const originalDataUrl = await readFileAsDataURL(file);
-    const img = await loadImage(originalDataUrl);
+const canvasToBlob = (canvas, type, quality) =>
+    new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), type, quality);
+    });
 
+const fileToOptimizedBlob = async (file, { maxSize = 512, quality = 0.85 } = {}) => {
+    const img = await loadImageFromBlob(file);
     const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
     const width = Math.max(1, Math.round(img.width * ratio));
     const height = Math.max(1, Math.round(img.height * ratio));
@@ -32,17 +39,49 @@ const fileToOptimizedDataURL = async (file, { maxSize = 256, quality = 0.85 } = 
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return originalDataUrl;
+    if (!ctx) return file;
 
     ctx.drawImage(img, 0, 0, width, height);
 
-    const webp = canvas.toDataURL("image/webp", quality);
-    if (webp && webp.startsWith("data:image/webp")) return webp;
+    const webp = await canvasToBlob(canvas, "image/webp", quality);
+    if (webp && webp.size > 0) return webp;
 
-    const jpeg = canvas.toDataURL("image/jpeg", quality);
-    if (jpeg && jpeg.startsWith("data:image/jpeg")) return jpeg;
+    const jpeg = await canvasToBlob(canvas, "image/jpeg", quality);
+    if (jpeg && jpeg.size > 0) return jpeg;
 
-    return originalDataUrl;
+    return file;
+};
+
+const uploadToCloudinary = async (file, signatureData) => {
+    const cloudName = signatureData?.cloudName;
+    const apiKey = signatureData?.apiKey;
+    const timestamp = signatureData?.timestamp;
+    const signature = signatureData?.signature;
+    const folder = signatureData?.folder;
+    const allowed_formats = signatureData?.allowed_formats;
+    const type = signatureData?.type;
+
+    if (!cloudName || !apiKey || !timestamp || !signature) {
+        throw new Error("Faltan datos para subir la imagen");
+    }
+
+    const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const form = new FormData();
+    form.append("file", file);
+    form.append("api_key", apiKey);
+    form.append("timestamp", String(timestamp));
+    form.append("signature", signature);
+    if (folder) form.append("folder", folder);
+    if (allowed_formats) form.append("allowed_formats", allowed_formats);
+    if (type) form.append("type", type);
+
+    const response = await fetch(endpoint, { method: "POST", body: form });
+    if (!response.ok) {
+        throw new Error("No se pudo subir la imagen a Cloudinary");
+    }
+
+    const data = await response.json();
+    return data?.secure_url ?? data?.url ?? "";
 };
 
 export default function AccountSettings() {
@@ -73,7 +112,9 @@ export default function AccountSettings() {
         newPassword: "",
         confirmPassword: "",
     });
-    const [avatarDraft, setAvatarDraft] = useState(null); // null = sin cambios, "" = quitar, "data:*" = nueva imagen
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreviewUrl, setAvatarPreviewUrl] = useState("");
+    const [avatarRemove, setAvatarRemove] = useState(false);
     const [avatarBusy, setAvatarBusy] = useState(false);
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
@@ -95,7 +136,20 @@ export default function AccountSettings() {
         }
     }, [passwordChangeActive, passwords.currentPassword]);
 
-    const avatarPreview = avatarDraft !== null ? avatarDraft : (user?.image ?? "");
+    useEffect(() => {
+        return () => {
+            if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+        };
+    }, [avatarPreviewUrl]);
+
+    const avatarPreview = avatarRemove ? "" : (avatarPreviewUrl || user?.image || "");
+
+    const resetAvatarDraft = () => {
+        if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+        setAvatarPreviewUrl("");
+        setAvatarFile(null);
+        setAvatarRemove(false);
+    };
 
     const handleAvatarChange = async (event) => {
         const file = event.target.files?.[0];
@@ -105,24 +159,36 @@ export default function AccountSettings() {
         setNotice("");
 
         if (!file.type?.startsWith("image/")) {
-            setError("Selecciona un archivo de imagen vÃ¡lido.");
+            setError("Selecciona un archivo de imagen válido.");
             return;
         }
         if (file.size > 5 * 1024 * 1024) {
-            setError("La imagen es demasiado grande (mÃ¡ximo 5MB).");
+            setError("La imagen es demasiado grande (máximo 5MB).");
             return;
         }
 
         setAvatarBusy(true);
         try {
-            const optimized = await fileToOptimizedDataURL(file);
-            setAvatarDraft(optimized);
+            const optimizedBlob = await fileToOptimizedBlob(file);
+            const nextPreviewUrl = URL.createObjectURL(optimizedBlob);
+
+            if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+            setAvatarPreviewUrl(nextPreviewUrl);
+            setAvatarFile(optimizedBlob);
+            setAvatarRemove(false);
         } catch {
             setError("No se pudo cargar la imagen. Intenta con otro archivo.");
         } finally {
             setAvatarBusy(false);
             event.target.value = "";
         }
+    };
+
+    const handleAvatarRemove = () => {
+        if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+        setAvatarPreviewUrl("");
+        setAvatarFile(null);
+        setAvatarRemove(true);
     };
 
     const handleSubmit = async (event) => {
@@ -167,12 +233,24 @@ export default function AccountSettings() {
                     email: profile.email,
                 };
 
-            if (avatarDraft !== null) {
-                const imagePayload = { imageUrl: avatarDraft || "" };
-                const imageResult = await updateUserImage(imagePayload);
-                const imageUser = imageResult?.user ?? imageResult?.data?.user;
-                nextUser = imageUser ?? { ...nextUser, image: avatarDraft || "" };
-                setAvatarDraft(null);
+            if (avatarRemove || avatarFile) {
+                setAvatarBusy(true);
+                try {
+                    let imageUrl = "";
+                    if (!avatarRemove && avatarFile) {
+                        const signatureData = await getUserImageUploadSignature();
+                        imageUrl = await uploadToCloudinary(avatarFile, signatureData);
+                        if (!imageUrl) throw new Error("No se pudo obtener la URL de la imagen");
+                    }
+
+                    const imagePayload = { imageUrl };
+                    const imageResult = await updateUserImage(imagePayload);
+                    const imageUser = imageResult?.user ?? imageResult?.data?.user;
+                    nextUser = imageUser ?? { ...nextUser, image: imageUrl };
+                    resetAvatarDraft();
+                } finally {
+                    setAvatarBusy(false);
+                }
             }
 
             setUser?.(nextUser);
@@ -241,7 +319,7 @@ export default function AccountSettings() {
                             <button
                                 type="button"
                                 className={styles.avatarRemove}
-                                onClick={() => setAvatarDraft("")}
+                                onClick={handleAvatarRemove}
                                 disabled={avatarBusy || !avatarPreview}
                             >
                                 Quitar

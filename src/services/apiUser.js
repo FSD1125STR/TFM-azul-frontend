@@ -22,6 +22,19 @@ export const updateUser = async (payload) => {
     }
 };
 
+export const getUserImageUploadSignature = async () => {
+    try {
+        const { data } = await axios.post(
+            `${API_BASE_URL}/api/upload/user-image-signature`,
+            {},
+            { withCredentials: true },
+        );
+        return data;
+    } catch (error) {
+        throw normalizeError(error, "No se pudo generar la firma para la imagen de perfil");
+    }
+};
+
 export const updateUserImage = async (payload) => {
     try {
         const { data } = await axios.put(`${API_BASE_URL}/api/users/me/image`, payload, {
