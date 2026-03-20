@@ -22,26 +22,33 @@ import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 
 function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/invite/:token" element={<JoinCrew />} />
+    return (
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                        path="/invite/:token"
+                        element={
+                            <ProtectedRoute>
+                                <JoinCrew />
+                            </ProtectedRoute>
+                        }
+                    />
 
-          {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/crews" element={<MyCrews />} />
-            <Route path="/crews/create" element={<CreateCrew />} />
-            <Route path="/events" element={<Events />} />
+                    {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
+                    <Route
+                        element={
+                            <ProtectedRoute>
+                                <AppLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/crews" element={<MyCrews />} />
+                        <Route path="/crews/create" element={<CreateCrew />} />
+                        <Route path="/events" element={<Events />} />
 
             {/* Rutas dentro de una crew con su layout de navegacion */}
             <Route path="/crews/:idCrew" element={<CrewLayout />}>

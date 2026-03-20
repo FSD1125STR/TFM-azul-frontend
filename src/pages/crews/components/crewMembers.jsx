@@ -6,7 +6,6 @@ import styles from "./crewMember.module.css";
 import { CrewContext } from "../../../hooks/context/CrewContext.jsx";
 import RoleManagement from "../../users/RoleManagement.jsx";
 import {
-    addCrewMember,
     getCrewMembers,
     removeCrewMember,
     editCrewMember,
@@ -17,7 +16,6 @@ export default function CrewMembers() {
     const { crew, crewId, loading, error } = useContext(CrewContext);
     const roles = crew?.roles || [];
     const canManageMembers = crew?.userRole?.permission === "admin";
-    
 
     const navigate = useNavigate();
 
@@ -31,11 +29,6 @@ export default function CrewMembers() {
     const [roleFilter, setRoleFilter] = useState("");
     const [groupFilter, setGroupFilter] = useState("");
     const [search, setSearch] = useState("");
-
-    // Modal de añadir miembro
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [newMemberEmail, setNewMemberEmail] = useState("");
-    const [isAdding, setIsAdding] = useState(false);
 
     // Modal de confirmación de borrado
     const [memberToDelete, setMemberToDelete] = useState(null);
@@ -80,32 +73,6 @@ export default function CrewMembers() {
             )
             .finally(() => setMembersLoading(false));
     }, [crewId]);
-
-    // Añade un nuevo miembro por email
-    const handleAddMember = async () => {
-        if (!canManageMembers) return;
-        if (!newMemberEmail.trim()) return;
-        try {
-            setIsAdding(true);
-            const added = await addCrewMember(crewId, {
-                email: newMemberEmail.trim(),
-            });
-            setMembers((prev) => [...prev, added]);
-            setNewMemberEmail("");
-            setShowAddModal(false);
-            setNotification({
-                type: "success",
-                message: "Miembro añadido correctamente",
-            });
-        } catch (err) {
-            setNotification({
-                type: "error",
-                message: err.message || "No se pudo añadir al miembro",
-            });
-        } finally {
-            setIsAdding(false);
-        }
-    };
 
     // Elimina un miembro de la crew confirmando primero
     const handleDeleteMember = async () => {
@@ -340,44 +307,7 @@ export default function CrewMembers() {
                 </div>
             )}
 
-            {/* Modal de añadir miembro */}
-            {canManageMembers && showAddModal && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <h3>Añadir miembro</h3>
-                        <p>Introduce el email del usuario que quieres añadir a la crew.</p>
-                        <input
-                            className={styles.input}
-                            type="email"
-                            placeholder="usuario@email.com"
-                            value={newMemberEmail}
-                            onChange={(e) => setNewMemberEmail(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
-                        />
-                        <div className={styles.modalActions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={() => {
-                                    setShowAddModal(false);
-                                    setNewMemberEmail("");
-                                }}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.primaryButton}
-                                onClick={handleAddMember}
-                                disabled={isAdding || !newMemberEmail.trim()}
-                            >
-                                {isAdding ? "Añadiendo..." : "Añadir"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
+            {/* Render principal */}
             <div className={styles.container}>
                 
                 {/* Breadcrumb */}
@@ -412,13 +342,6 @@ export default function CrewMembers() {
                                 onClick={() => setShowRoleManagement(true)}
                             >
                                 Gestionar roles
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.primaryButton}
-                                onClick={() => setShowAddModal(true)}
-                            >
-                                + Añadir miembro
                             </button>
                         </div>
                     )}

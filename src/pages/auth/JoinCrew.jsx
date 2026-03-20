@@ -18,9 +18,14 @@ export default function JoinCrew() {
     const { token } = useParams();
     const navigate = useNavigate();
 
+    // //Construimos el next query param y la función para redirigir al login con el next query param
+    // const nextPath = token ? `/invite/${token}` : "/invite";
+    // const redirectToLogin = useCallback(() => {
+    //     navigate(`/login?next=${encodeURIComponent(nextPath)}`, { replace: true });
+    // }, [navigate, nextPath]);
+
     const [loading, setLoading] = useState(true); //Para renderizar mientras carga la peticion
     const [error, setError] = useState(""); //Maneja errores globales
-    const [errorStatus, setErrorStatus] = useState(null);
     const [invitation, setInvitation] = useState(null); //Datos de la invitacion (Crew)
     const [isJoining, setIsJoining] = useState(false);
     const [notification, setNotification] = useState(null);
@@ -33,7 +38,6 @@ export default function JoinCrew() {
             if (!token) {
                 if (isMounted) {
                     setError("Token de invitacion invalido.");
-                    setErrorStatus(400);
                     setLoading(false);
                 }
                 return;
@@ -42,7 +46,6 @@ export default function JoinCrew() {
             try {
                 setLoading(true);
                 setError("");
-                setErrorStatus(null);
 
                 //Hacemos la peticion al backend
                 const data = await validateInvitation(token);
@@ -54,8 +57,11 @@ export default function JoinCrew() {
 
                 if (isMounted) {
                     setError(err.message || "No se pudo validar la invitacion.");
-                    setErrorStatus(err.status ?? null);
                 }
+                // //Si no esta autorizado redirigir al usuario
+                // if (err?.status === 401) {
+                //     redirectToLogin();
+                // }
 
             } finally {
                 if (isMounted) {
@@ -98,6 +104,11 @@ export default function JoinCrew() {
             }
 
         } catch (err) {
+            // //Si no esta autorizado redirigir al usuario
+            // if (err?.status === 401) {
+            //     redirectToLogin();
+            //     return;
+            // }
             setNotification({
                 type: "error",
                 message: err.message || "No se pudo unir a la crew.",
@@ -136,15 +147,6 @@ export default function JoinCrew() {
                     {!loading && error && (
                         <div className={styles.state}>
                             <p>{error}</p>
-                            {errorStatus === 401 && (
-                                <button
-                                    type="button"
-                                    className={styles.secondaryButton}
-                                    onClick={() => navigate("/login")}
-                                >
-                                    Iniciar sesion
-                                </button>
-                            )}
                         </div>
                     )}
 

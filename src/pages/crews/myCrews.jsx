@@ -76,6 +76,14 @@ export default function MyCrews() {
         navigate(`/crews/${crew._id}`);
     };
 
+    // eslint-disable-next-line no-unused-vars
+    const filtered = crews.filter(c => {
+        if (!c) return false;
+        const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase());
+        const matchActivity = activityFilter ? c.activity === activityFilter : true;
+        const matchRole = roleFilter ? c.role === roleFilter : true;
+        return matchSearch && matchActivity && matchRole;
+    });
     return (
         <>
             {/* Pagina principal de Crews del usuario */}
@@ -99,7 +107,7 @@ export default function MyCrews() {
                             Crear crew
                         </Link>
                     </header>
-
+                    
                     {/* Sección para manejar los filtos con su propio componente y estados */}
                     <CrewFilters
                         search={search}

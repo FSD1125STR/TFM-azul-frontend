@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/Button";
 import { useLocation } from "react-router-dom";
-import './header.css';
+import "./header.css";
 
 
 export default function Header() {
     const navigate = useNavigate();
     const location = useLocation();
 
-     return (
+    return (
         <header className="login-header">
             <div className="login-brand">
                 <img src="/crewgo_logo.svg" alt="CrewGO logo" className="login-logo" />
@@ -20,7 +20,8 @@ export default function Header() {
                 <div className="register-button">
                     <Button
                         className="register-btn"
-                        onClick={() => navigate("/register")}
+                        //Navegamos a register conservando la query string que puede tener info de la proxima ruta despues de registarse
+                        onClick={() => navigate(`/register${location.search}`)}
                     >
                         Register
                     </Button>
@@ -32,7 +33,8 @@ export default function Header() {
                 <div className="login-button">
                     <Button
                         className="login-btn"
-                        onClick={() => navigate("/login")}
+                        //Navegamos a register conservando la query string que puede tener info de la proxima ruta despues de logearse
+                        onClick={() => navigate(`/login${location.search}`)}
                     >
                         Login
                     </Button>
