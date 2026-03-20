@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CrewForm from "./components/CrewForm.jsx";
 import CrewToast from "./components/CrewToast.jsx";
-import { createCrew } from "../../services/apiCrews.js";
 import styles from "./CreateCrew.module.css";
 
 // Componente para renderizar la pagina de crear Crew
@@ -10,12 +9,10 @@ export default function CreateCrew() {
     const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
 
-    // Maneja el submit del formulario, usa la api para crear una crew, si tiene exito navega a la ventana de crews
-    const handleCreate = async (payload) => {
-        const created = await createCrew(payload);
-        
+    // Maneja el submit del formulario: el formulario ya creó la crew, aquí solo navegamos
+    const handleCreate = async (crew) => {
         setNotification({ type: "success", message: "Crew creada con exito" });
-        setTimeout(() => navigate(`/crews/${created._id}`), 1200);
+        setTimeout(() => navigate(`/crews/${crew._id}`), 1200);
     };
 
     // Renderizamos el componente
