@@ -58,8 +58,6 @@ const uploadToCloudinary = async (file, signatureData) => {
     const timestamp = signatureData?.timestamp;
     const signature = signatureData?.signature;
     const folder = signatureData?.folder;
-    const allowed_formats = signatureData?.allowed_formats;
-    const type = signatureData?.type;
 
     if (!cloudName || !apiKey || !timestamp || !signature) {
         throw new Error("Faltan datos para subir la imagen");
@@ -72,12 +70,23 @@ const uploadToCloudinary = async (file, signatureData) => {
     form.append("timestamp", String(timestamp));
     form.append("signature", signature);
     if (folder) form.append("folder", folder);
-    if (allowed_formats) form.append("allowed_formats", allowed_formats);
-    if (type) form.append("type", type);
 
     const response = await fetch(endpoint, { method: "POST", body: form });
     if (!response.ok) {
-        throw new Error("No se pudo subir la imagen a Cloudinary");
+        let extra = "";
+        try {
+            const body = await response.json();
+            const message = body?.error?.message ?? body?.message;
+            if (message) extra = `: ${message}`;
+        } catch {
+            try {
+                const text = await response.text();
+                if (text) extra = `: ${text}`;
+            } catch {
+                // ignore
+            }
+        }
+        throw new Error(`No se pudo subir la imagen a Cloudinary${extra}`);
     }
 
     const data = await response.json();
