@@ -13,6 +13,7 @@ import MyCrews from "./pages/crews/myCrews.jsx";
 import CrewDetails from "./pages/crews/CrewDetails.jsx";
 import CrewEvents from "./pages/events/crewEvents.jsx";
 import CreateEvent from "./pages/events/CreateEvent.jsx";
+import EventDetail from "./pages/events/EventDetail.jsx";
 import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
@@ -49,6 +50,7 @@ function App() {
               <Route path="edit" element={<CrewDetails />} />
               <Route path="events" element={<CrewEvents />} />
               <Route path="events/create" element={<CreateEvent />} />
+              <Route path="events/:eventId" element={<EventDetail />} />
               <Route path="files" element={<CrewFiles />} />
               <Route path="polls" element={<CrewPolls />} />
               <Route path="members" element={<CrewMembers />} />
