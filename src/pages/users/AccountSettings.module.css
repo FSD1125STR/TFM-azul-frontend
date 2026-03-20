@@ -1,41 +1,54 @@
 .page {
   min-height: calc(100vh - 64px);
-  padding: 36px 16px 56px;
-  display: grid;
-  justify-items: center;
+  padding: 32px 24px 56px;
   background: var(--color-background-primary);
 }
 
+.container {
+  max-width: 740px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
 .title {
-  width: min(740px, 100%);
-  text-align: center;
   font-size: 28px;
   font-weight: 700;
-  margin: 0 0 18px;
+  margin: 0;
   color: var(--color-text-primary);
 }
 
-.card {
-  width: min(740px, 100%);
+.form {
+  display: grid;
+  gap: 24px;
+}
+
+/* ── Sections ─────────────────────────────────────── */
+
+.section {
   background: var(--color-background-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: 22px 22px 18px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
   display: grid;
   gap: 16px;
 }
 
-.cardHeader {
-  padding-bottom: 4px;
-}
-
-.sectionTitle {
+.sectionHeader h2 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
+
+.sectionHeader p {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* ── Avatar / profile row ─────────────────────────── */
 
 .profileRow {
   display: grid;
@@ -53,6 +66,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .avatarImg {
@@ -72,7 +86,7 @@
 }
 
 .profileName {
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-text-primary);
 }
 
@@ -100,11 +114,17 @@
 
 .fileLabelText {
   border: 1px solid var(--color-border);
-  background: transparent;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
   border-radius: 10px;
   padding: 8px 12px;
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 150ms ease;
+}
+
+.fileLabel:hover .fileLabelText:not(.fileLabelTextDisabled) {
+  background: var(--color-background-primary);
 }
 
 .fileInput {
@@ -116,53 +136,61 @@
 
 .avatarRemove {
   border: 1px solid var(--color-border);
-  background: transparent;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
   border-radius: 10px;
   padding: 8px 12px;
   cursor: pointer;
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 150ms ease;
+}
+
+.avatarRemove:hover:not(:disabled) {
+  background: var(--color-background-primary);
 }
 
 .fileLabelTextDisabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .avatarRemove:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Fields / inputs ──────────────────────────────── */
 
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;
+  gap: 12px 16px;
 }
 
 .stack {
   display: grid;
   gap: 12px;
-  max-width: 360px;
 }
 
 .field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
 }
 
 .input {
   width: 100%;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 12px;
-  background: #fff;
+  font-size: 14px;
+  background: var(--color-background-primary);
   outline: none;
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
@@ -172,15 +200,16 @@
   box-shadow: 0 0 0 3px rgba(19, 164, 236, 0.18);
 }
 
+.input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .fullRow {
   grid-column: 1 / -1;
 }
 
-.divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: 4px 0;
-}
+/* ── Messages ─────────────────────────────────────── */
 
 .message {
   border-radius: 10px;
@@ -201,51 +230,75 @@
   color: #065f46;
 }
 
-.footer {
+/* ── Actions ──────────────────────────────────────── */
+
+.actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
-  padding-top: 6px;
 }
 
-.cancel {
+.secondaryButton {
   border: 1px solid var(--color-border);
-  background: transparent;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  font-weight: 700;
+  transition: background-color 150ms ease;
 }
 
-.save {
+.secondaryButton:hover:not(:disabled) {
+  background: var(--color-background-primary);
+}
+
+.primaryButton {
   border: none;
   background: var(--color-button);
   color: var(--color-button-text);
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  font-weight: 800;
   transition: background-color 150ms ease;
 }
 
-.delete {
+.primaryButton:hover:not(:disabled),
+.primaryButton:focus-visible {
+  background: var(--color-button-hover);
+}
+
+.primaryButton:active {
+  background: var(--color-button-active);
+}
+
+.dangerButton {
   border: none;
   background: rgba(220, 38, 38, 0.08);
   color: #991b1b;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  font-weight: 800;
   transition: background-color 150ms ease;
 }
 
-.save:hover,
-.save:focus-visible {
-  background: var(--color-button-hover);
+.dangerButton:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.15);
 }
 
+/* ── Responsive ───────────────────────────────────── */
+
 @media (max-width: 520px) {
+  .page {
+    padding: 24px 16px 48px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
   }
@@ -258,5 +311,14 @@
     width: 64px;
     height: 64px;
   }
-}
 
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .secondaryButton,
+  .primaryButton,
+  .dangerButton {
+    width: 100%;
+  }
+}

@@ -11,6 +11,7 @@ const normalizeError = (error, fallbackMessage) => {
     return normalized;
 };
 
+//Llama a la api para modificar la info del usuario logeado
 export const updateUser = async (payload) => {
     try {
         const { data } = await axios.put(`${API_BASE_URL}/api/users/me`, payload, {
@@ -22,6 +23,7 @@ export const updateUser = async (payload) => {
     }
 };
 
+//Llama a la api para pedir la firma para subir al imagen del usuario a cloudinary
 export const getUserImageUploadSignature = async () => {
     try {
         const { data } = await axios.post(
@@ -35,6 +37,7 @@ export const getUserImageUploadSignature = async () => {
     }
 };
 
+//Llama a la API para actualizar la url de la imagen del usuario
 export const updateUserImage = async (payload) => {
     try {
         const { data } = await axios.put(`${API_BASE_URL}/api/users/me/image`, payload, {
@@ -46,6 +49,7 @@ export const updateUserImage = async (payload) => {
     }
 };
 
+//Llama a la API para borrar el usuario autenticado de la BD
 export const deleteUser = async () => {
     try {
         const { data } = await axios.delete(`${API_BASE_URL}/api/users/me`, {
