@@ -196,6 +196,44 @@
   gap: 12px;
 }
 
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-background-primary);
+}
+
+.filterField {
+  display: grid;
+  gap: 8px;
+}
+
+.filterField label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.filterField input,
+.filterField select {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+}
+
+.filterField input:focus,
+.filterField select:focus {
+  outline: none;
+  border-color: var(--color-button);
+  box-shadow: 0 0 0 3px rgba(19, 164, 236, 0.18);
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -208,13 +246,143 @@
   padding: 16px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardBadges {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.datePill {
+  background: #fff3e0;
+  color: #e65100;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.timePill {
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+}
+
+.cardContent {
+  flex: 1;
   display: grid;
-  gap: 16px;
+  gap: 6px;
+}
+
+.cardFooter {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cardActionPrimary {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--color-text-primary);
+  color: var(--color-background-secondary);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.cardActionPrimary:hover {
+  opacity: 0.85;
+}
+
+.cardActionDanger {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #b91c1c;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cardActionDanger:hover {
+  background: #fee2e2;
+}
+
+.cardMain {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.cardBody {
+  display: grid;
+  gap: 4px;
+}
+
+.dateBadge {
+  min-width: 64px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-primary);
+  display: grid;
+  justify-items: center;
+  line-height: 1;
+}
+
+.dateDay {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.dateMonth {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+}
+
+.time {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-button);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dateLabel {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
 }
 
 .card h3 {
-  font-size: 18px;
-  margin-bottom: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text-primary);
 }
 
 .date {
@@ -260,6 +428,31 @@
   padding: 12px 0;
 }
 
+.eventDetail {
+  display: grid;
+  gap: 16px;
+}
+
+.detailField {
+  display: grid;
+  gap: 8px;
+}
+
+.detailField label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+}
+
+.detailField p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
 @media (max-width: 960px) {
   .layout {
     grid-template-columns: 1fr;
@@ -276,6 +469,18 @@
 
   .row {
     grid-template-columns: 1fr;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .cardMain {
+    grid-template-columns: 1fr;
+  }
+
+  .dateBadge {
+    width: fit-content;
   }
 
   .actions {
