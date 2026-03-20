@@ -20,6 +20,7 @@ import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
+import AccountSettings from "./pages/users/AccountSettings.jsx";
 
 function App() {
     return (
@@ -40,18 +41,19 @@ function App() {
                             }
                         />
 
-                        {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
-                        <Route
-                            element={
-                                <ProtectedRoute>
-                                    <AppLayout />
-                                </ProtectedRoute>
-                            }
-                        >
-                            <Route path="/" element={<Dashboard />} />
-                            <Route path="/crews" element={<MyCrews />} />
-                            <Route path="/crews/create" element={<CreateCrew />} />
-                            <Route path="/events" element={<Events />} />
+                    {/* Rutas protegidas, si no esta logeado el usuario se renderiza el login*/}
+                    <Route
+                        element={
+                            <ProtectedRoute>
+                                <AppLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/crews" element={<MyCrews />} />
+                        <Route path="/crews/create" element={<CreateCrew />} />
+                        <Route path="/events" element={<Events />} />
+                        <Route path="/account-settings" element={<AccountSettings />} />
 
                             {/* Rutas dentro de una crew con su layout de navegacion */}
                             <Route path="/crews/:idCrew" element={<CrewLayout />}>
