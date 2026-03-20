@@ -30,7 +30,7 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #0f3d4f, #1f7a8c);
+  background: linear-gradient(138deg,rgba(19, 164, 236, 1) 0%, rgba(0, 115, 168, 1) 100%);
   color: #ffffff;
   display: grid;
   place-items: center;
