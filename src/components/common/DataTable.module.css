@@ -1,0 +1,62 @@
+/* ── Wrapper ─────────────────────────────────────────────── */
+/* Contiene border/radius/shadow para que border-collapse no rompa los bordes redondeados */
+.tableWrapper {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Tabla ───────────────────────────────────────────────── */
+/* border-separate con spacing 0 para que border-radius funcione correctamente */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  background: var(--color-background-secondary);
+}
+
+/* ── Cabecera ────────────────────────────────────────────── */
+.th {
+  padding: 11px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-button);
+  background: color-mix(in srgb, var(--color-button) 7%, white);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-button) 18%, var(--color-border));
+  white-space: nowrap;
+}
+
+.thCenter {
+  text-align: center;
+}
+
+/* ── Filas: alternas + hover azul ────────────────────────── */
+.table tbody tr {
+  background: var(--color-background-secondary);
+  transition: background 120ms ease;
+}
+
+.table tbody tr:nth-child(even) {
+  background: rgba(246, 247, 248, 0.7);
+}
+
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--color-button) 6%, white);
+}
+
+/* ── Celdas base ─────────────────────────────────────────── */
+.table tbody td {
+  padding: 14px 20px;
+  color: var(--color-text-primary);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}

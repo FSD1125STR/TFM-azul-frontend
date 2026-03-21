@@ -40,7 +40,7 @@ export const getUserImageUploadSignature = async () => {
 //Llama a la API para actualizar la url de la imagen del usuario
 export const updateUserImage = async (payload) => {
     try {
-        const { data } = await axios.put(`${API_BASE_URL}/api/users/me/image`, payload, {
+        const { data } = await axios.patch(`${API_BASE_URL}/api/users/me/image`, payload, {
             withCredentials: true,
         });
         return data;
