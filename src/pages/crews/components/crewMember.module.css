@@ -163,75 +163,65 @@
     color: var(--color-text-secondary);
 }
 
-/* ── Table ── */
-.tableWrap {
-    background: var(--color-background-secondary);
+/* ── Celda miembro: avatar + nombre ── */
+.memberCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.memberAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     border: 1px solid var(--color-border);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.875rem;
-}
-
-.table thead tr {
     background: var(--color-background-primary);
-}
-
-.table thead th {
-    padding: 12px 20px;
-    text-align: left;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
     color: var(--color-text-secondary);
-    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    object-fit: cover;
 }
 
-.table thead th:first-child {
-    border-top-left-radius: 12px;
+/* ── Celda centrada (role, acciones) ── */
+.tdCenter {
+    text-align: center;
 }
 
-.table thead th:last-child {
-    border-top-right-radius: 12px;
+/* ── Botones de acción (texto + icono, igual que files) ── */
+.actionButtons {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.table tbody tr {
-    transition: background 0.15s;
-    background: var(--color-background-secondary);
+.actionButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-text-secondary);
+    transition: background 150ms ease, color 150ms ease;
+    font-family: inherit;
 }
 
-.table tbody tr:nth-child(even) {
-    background: rgba(246, 247, 248, 0.6);
+.actionButton:hover {
+    background: color-mix(in srgb, var(--color-button) 8%, transparent);
+    color: var(--color-button);
 }
 
-.table tbody tr:hover {
-    background: rgba(19, 164, 236, 0.06);
-}
-
-.table td {
-    padding: 14px 20px;
-    color: var(--color-text-primary);
-    vertical-align: middle;
-    border-bottom: 1px solid var(--color-border);
-}
-
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.table td:first-child {
-    font-weight: 600;
-}
-
-.table td:last-child {
-    text-align: right;
+.actionButtonDanger:hover {
+    background: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
 }
 
 /* Role badges */
