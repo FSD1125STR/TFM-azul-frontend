@@ -310,19 +310,10 @@ export default function CrewMembers() {
 
             {/* Render principal */}
             <div className={styles.container}>
-                
-                {/* Breadcrumb */}
-                <nav className={styles.breadcrumb} aria-label="breadcrumb">
-                    <span onClick={() => navigate("/crews")}>/ Mis Crews</span>
-                    <span className={styles.sep}>/</span>
-                    <span onClick={() => navigate(`/crews/${crewId}`)}>{crew.name}</span>
-                    <span className={styles.sep}>/</span>
-                    <span className={styles.current}>Miembros</span>
-                </nav>
 
                 {/* Título */}
                 <h1 className={styles.title}>
-                    {crew.name} <span>Miembros</span>
+                    <span>Miembros</span> de {crew.name}
                 </h1>
 
                 {/* Stat cards + botón de añadir */}

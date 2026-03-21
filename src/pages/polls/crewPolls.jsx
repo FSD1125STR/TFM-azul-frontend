@@ -219,24 +219,6 @@ export default function CrewPolls() {
 
             {/* MAIN */}
             <div className={styles.container}>
-                {/* Breadcrumb */}
-                <nav className={styles.breadcrumb} aria-label="breadcrumb">
-                    <span
-                        onClick={() => navigate("/crews")}
-                        style={{ cursor: "pointer", color: "#7c858d" }}
-                    >
-            / Mis Crews
-                    </span>
-                    <span className={styles.sep}>/</span>
-                    <span
-                        onClick={() => navigate(`/crews/${idCrew}`)}
-                        style={{ cursor: "pointer", color: "#7c858d" }}
-                    >
-                        {loading ? "Loading..." : crew?.name || "Crew"}
-                    </span>
-                    <span className={styles.sep}>/</span>
-                    <span className={styles.current}>Polls</span>
-                </nav>
 
                 {/* Page Header */}
                 <div className={pollStyles.pageHeader}>
@@ -246,7 +228,7 @@ export default function CrewPolls() {
                     </h1>
 
                     <button className={pollStyles.btnPrimary} onClick={() => setShowModal(true)}>
-            + Create Poll
+                        + Create Poll
                     </button>
                 </div>
 
@@ -256,13 +238,13 @@ export default function CrewPolls() {
                         className={`${pollStyles.tabBtn} ${tab === "active" ? pollStyles.active : ""}`}
                         onClick={() => setTab("active")}
                     >
-            Active
+                        Active
                     </button>
                     <button
                         className={`${pollStyles.tabBtn} ${tab === "past" ? pollStyles.active : ""}`}
                         onClick={() => setTab("past")}
                     >
-            Past
+                        Past
                     </button>
                 </div>
 

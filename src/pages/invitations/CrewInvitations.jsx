@@ -228,14 +228,6 @@ export default function CrewInvitations() {
 
 
             <div className={styles.container}>
-                {/** Breadcrumb de navegación para navegar por paginas previas */}
-                <nav className={styles.breadcrumb} aria-label="breadcrumb">
-                    <span onClick={() => navigate("/crews")}>/ Mis Crews</span>
-                    <span className={styles.sep}>/</span>
-                    <span onClick={() => navigate(`/crews/${crewId}`)}>{crew.name}</span>
-                    <span className={styles.sep}>/</span>
-                    <span className={styles.current}>Invitaciones</span>
-                </nav>
                 
                 {/** Sección de invitaciones */}
                 <header className={styles.header}>
