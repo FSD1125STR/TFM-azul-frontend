@@ -1,7 +1,7 @@
 import { useContext } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
 import { CrewContext, CrewProvider } from "../../hooks/context/CrewContext.jsx";
-import { IconUserPlus, IconLayoutDashboard, IconCalendarEventFilled, IconFolderFilled, IconChartBar, IconUsers, IconBinaryTree2 } from "@tabler/icons-react";
+import { IconUserPlus, IconLayoutDashboard, IconCalendarEventFilled, IconFolderFilled, IconChartBar, IconUsers, IconBinaryTree2, IconLink } from "@tabler/icons-react";
 import styles from "./CrewLayout.module.css";
 
 /* Definimos los elementos del menu de navegacion
@@ -48,6 +48,12 @@ const defaultNavItems = [
         to: "groups",
         icon: <IconBinaryTree2 size={18} stroke={1.8} />,
     },
+    // {
+    //     key: "invite",
+    //     label: "Invitaciones",
+    //     to: "invite",
+    //     icon: <IconLink size={18} stroke={1.8} />,
+    // },
 ];
 
 // Layout para la navegacion dentro de una crew
@@ -68,11 +74,14 @@ export default function CrewLayout({ children }) {
 function CrewLayoutContent({ children }) {
     // Utilizamos el CrewContext para poder acceder a toda la info de la Crew
     const { crew } = useContext(CrewContext);
+    const navigate = useNavigate();
+    const { idCrew } = useParams();
 
     const name = crew?.name?.trim() || "Crew Name";
     //const imageUrl = crew?.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const initial = name.charAt(0).toUpperCase() || "C";
     const items = defaultNavItems;
+    const canManageCrew = crew?.userRole?.permission === "admin";
 
     return (
         <div className={styles.crewLayout}>
@@ -87,7 +96,7 @@ function CrewLayoutContent({ children }) {
                     {/** Nombre e info de la crew */}
                     <div className={styles.crewInfo}>
                         <p className={styles.crewName}>{name}</p>
-                        <a href="">Editar</a>
+                        {canManageCrew && <a href="">Editar</a>}
                     </div>
                 </div>
             
@@ -117,14 +126,20 @@ function CrewLayoutContent({ children }) {
                 </nav>
             
                 {/** Footer de la barra lateral con acciones adicionales */}
-                <div className={styles.sidebarFooter}>
-                    <button type="button" className={styles.inviteButton}>
-                        <span className={styles.inviteIcon} aria-hidden="true">
-                            <IconUserPlus size={18} stroke={1.8} />
-                        </span>
+                {canManageCrew && (
+                    <div className={styles.sidebarFooter}>
+                        <button
+                            type="button"
+                            className={styles.inviteButton}
+                            onClick={() => navigate(`/crews/${idCrew}/invite`)}
+                        >
+                            <span className={styles.inviteIcon} aria-hidden="true">
+                                <IconUserPlus size={18} stroke={1.8} />
+                            </span>
                         Invite Members
-                    </button>
-                </div>
+                        </button>
+                    </div>
+                )}
             </aside>
         
             {/** Contenido principal de la crew */}

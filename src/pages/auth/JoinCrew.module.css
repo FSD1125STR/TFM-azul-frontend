@@ -1,0 +1,138 @@
+.join-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.join-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 40px 16px;
+  background-color: var(--color-background-primary);
+}
+
+.join-container {
+  width: min(680px, 100%);
+  padding: 40px 28px;
+  background-color: var(--color-background-secondary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.state {
+  display: grid;
+  gap: 16px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.card {
+  overflow: hidden;
+  border-radius: 18px;
+  background: var(--color-background-secondary);
+  box-shadow: var(--shadow-md);
+  border: 1px solid #e6e7ea;
+}
+
+.cover {
+  position: relative;
+  min-height: 180px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.activityTag,
+.subactivityTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c1c1c;
+  background: #f3f3f3;
+}
+
+.subactivityTag {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.cardBody {
+  padding: 20px 24px 24px;
+  display: grid;
+  gap: 20px;
+}
+
+.cardContent h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  color: var(--color-text-primary);
+}
+
+.cardContent p {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primaryButton,
+.secondaryButton {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+}
+
+.primaryButton {
+  color: var(--color-button-text);
+  background-color: var(--color-button);
+}
+
+.primaryButton:hover {
+  transform: translateY(-1px);
+  background-color: var(--color-button-hover);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+}
+
+.secondaryButton {
+  color: var(--color-text-primary);
+  background-color: #f1f2f5;
+}
+
+.secondaryButton:hover {
+  transform: translateY(-1px);
+  background-color: #e4e6eb;
+}

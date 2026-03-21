@@ -26,7 +26,6 @@
 }
 
 .button:hover {
-  transform: translateY(-1px);
   background-color: var(--color-button-hover);
   box-shadow: var(--shadow-md);
 }
@@ -46,4 +45,28 @@
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
+}
+
+/* Variant: secondary — outlined, neutral */
+.secondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  box-shadow: none;
+}
+.secondary:hover:not(:disabled) {
+  background: var(--color-background-primary);
+  filter: none;
+}
+
+/* Variant: danger — soft red */
+.danger {
+  border: none;
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  box-shadow: none;
+}
+.danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.15);
+  filter: none;
 }

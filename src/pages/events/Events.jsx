@@ -1,274 +1,141 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
-import {
-    createEvent,
-    createCrewEvent,
-    deleteEvent,
-    getCrewEvents,
-    getMyEvents,
-    updateEvent,
-} from "../../services/events.js";
-import styles from "./events.module.css";
-
-const initialForm = {
-    title: "",
-    date: "",
-    description: "",
-    location: "",
-};
-
-const formatDateInput = (value) => {
-    if (!value) return "";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "";
-    const pad = (num) => String(num).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-        date.getDate(),
-    )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-};
+import { getMyEvents } from "../../services/events.js";
+import EventCalendar from "../../components/common/EventCalendar.jsx";
+import EventCard from "./components/EventCard.jsx";
+import EventFilters from "./components/EventFilters.jsx";
+import styles from "./Events.module.css";
 
 export default function Events() {
-    const { crewId } = useParams();
+    //Recuperamos el usuario logeado
     const { user } = useContext(AuthContext);
+    const navigate = useNavigate();
 
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [formData, setFormData] = useState(initialForm);
-    const [editingEvent, setEditingEvent] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
+    //Estados
+    const [events, setEvents] = useState([]); //Lista de eventos del usuario
+    const [loading, setLoading] = useState(false); //Renderizar loading
+    const [error, setError] = useState(""); //Muestra error
+    const [searchTerm, setSearchTerm] = useState(""); //Busqueda de texto
+    const [timeFilter, setTimeFilter] = useState("all"); //Filtro de tiempo
 
+    //Guarda el userId
     const userId = useMemo(() => user?._id, [user]);
 
-    const loadEvents = async () => {
-        if (!crewId && !userId) return;
-        setLoading(true);
-        setError("");
+    //Devuelve los eventos filtrados, SOLOS E CALCULA SI CAMBIAN LOS EVENTOS O ALGUNO DE LOS FILTROS
+    const filteredEvents = useMemo(() => {
+        //Guardamos la fecha actual y normalizamos la busqueda (eliminando espacios en los extremos y pasando todo a minusculas)
+        const now = Date.now();
+        const normalizedSearch = searchTerm.trim().toLowerCase();
 
-        try {
-            const data = crewId ? await getCrewEvents(crewId) : await getMyEvents(userId);
-            setEvents(data.events || []);
-        } catch (err) {
-            setError(err.message || "Error al cargar eventos");
-        } finally {
-            setLoading(false);
-        }
-    };
+        return events.filter((event) => {
+            //Extraemos la fecha del evento
+            const eventDate = new Date(event.date).getTime();
 
+            //Comprobamos si el campo de busqueda está en alguno de los campos (titulo, descripcion y localización)
+            const matchesSearch =
+                !normalizedSearch ||
+                event.title?.toLowerCase().includes(normalizedSearch) ||
+                event.description?.toLowerCase().includes(normalizedSearch) ||
+                event.location?.toLowerCase().includes(normalizedSearch);
+
+            //Comprobamos si la fecha del evento cuadra con el filtro de fecha
+            const matchesTime =
+                timeFilter === "all" ||
+                (timeFilter === "upcoming" && eventDate >= now) ||
+                (timeFilter === "past" && eventDate < now);
+
+            //Si los dos son true, pasa el filtro
+            return matchesSearch && matchesTime;
+        });
+
+    }, [events, searchTerm, timeFilter]);
+
+
+    //Carga los eventos del usuario
     useEffect(() => {
-        loadEvents();
-    }, [crewId, userId]);
-
-    const handleChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const resetForm = () => {
-        setFormData(initialForm);
-        setEditingEvent(null);
-    };
-
-    const handleSubmit = async (event) => {
-        event.preventDefault();
         if (!userId) return;
 
-        setSubmitting(true);
-        setError("");
-
-        const payload = {
-            title: formData.title.trim(),
-            date: formData.date ? new Date(formData.date).toISOString() : "",
-            description: formData.description.trim(),
-            location: formData.location.trim(),
-            createdBy: userId,
+        const fetchEvents = async () => {
+            setLoading(true);
+            setError("");
+            try {
+                //Solicitamos los eventos del usuario y guardamos en el state
+                const data = await getMyEvents(userId);
+                setEvents(data.events || []);
+            } catch (err) {
+                setError(err.message || "Error al cargar eventos");
+            } finally {
+                setLoading(false);
+            }
         };
 
-        try {
-            if (editingEvent) {
-                const data = await updateEvent(editingEvent._id, {
-                    ...payload,
-                    userId,
-                });
-                setEvents((prev) =>
-                    prev.map((item) =>
-                        item._id === editingEvent._id ? data.event : item,
-                    ),
-                );
-            } else {
-                const data = crewId
-                    ? await createCrewEvent(crewId, payload)
-                    : await createEvent(payload);
-                setEvents((prev) => [data.event, ...prev]);
-            }
-            resetForm();
-        } catch (err) {
-            setError(err.message || "No se pudo guardar el evento");
-        } finally {
-            setSubmitting(false);
-        }
-    };
+        fetchEvents();
+    }, [userId]);
 
-    const handleEdit = (event) => {
-        setEditingEvent(event);
-        setFormData({
-            title: event.title || "",
-            date: formatDateInput(event.date),
-            description: event.description || "",
-            location: event.location || "",
-        });
-    };
-
-    const handleDelete = async (eventId) => {
-        if (!userId) return;
-        setSubmitting(true);
-        setError("");
-
-        try {
-            await deleteEvent(eventId, userId);
-            setEvents((prev) => prev.filter((item) => item._id !== eventId));
-        } catch (err) {
-            setError(err.message || "No se pudo eliminar el evento");
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     return (
         <section className={styles.page}>
             <header className={styles.header}>
                 <div>
-                    <p className={styles.kicker}>Crew Events</p>
-                    <h1 className={styles.title}>Agenda de la crew</h1>
+                    <h1 className={styles.title}>Mis eventos</h1>
                     <p className={styles.subtitle}>
-            Crea, ajusta y elimina eventos sin salir de la vista principal.
+                        Vista general de todos tus eventos.
                     </p>
                 </div>
             </header>
 
-            <div className={styles.layout}>
-                <form className={styles.form} onSubmit={handleSubmit}>
-                    <div className={styles.formHeader}>
-                        <h2>{editingEvent ? "Editar evento" : "Nuevo evento"}</h2>
-                        {editingEvent && (
-                            <button
-                                type="button"
-                                className={styles.ghostButton}
-                                onClick={resetForm}
-                                disabled={submitting}
-                            >
-                Cancelar
-                            </button>
-                        )}
-                    </div>
+            {/**Layout de dos columnas: calendario a la izquierda, lista a la derecha */}
+            <div className={styles.content}>
 
-                    <label className={styles.label}>
-            Titulo
-                        <input
-                            name="title"
-                            value={formData.title}
-                            onChange={handleChange}
-                            placeholder="Entreno del sabado"
-                            required
-                        />
-                    </label>
+                {/**Columna izquierda: calendario con todos los eventos (sin filtrar) */}
+                <div className={styles.calendarSection}>
+                    <EventCalendar
+                        events={events}
+                        loading={loading}
+                        onEventClick={(event) =>
+                            navigate(`/crews/${event.crew?._id}/events/${event._id}`)
+                        }
+                    />
+                </div>
 
-                    <label className={styles.label}>
-            Fecha y hora
-                        <input
-                            type="datetime-local"
-                            name="date"
-                            value={formData.date}
-                            onChange={handleChange}
-                            required
-                        />
-                    </label>
+                {/**Columna derecha: filtros y lista de eventos */}
+                <section className={styles.section}>
 
-                    <label className={styles.label}>
-            Lugar
-                        <input
-                            name="location"
-                            value={formData.location}
-                            onChange={handleChange}
-                            placeholder="Parque Central"
-                        />
-                    </label>
-
-                    <label className={styles.label}>
-            Descripcion
-                        <textarea
-                            name="description"
-                            rows={4}
-                            value={formData.description}
-                            onChange={handleChange}
-                            placeholder="Detalles importantes del evento"
-                        />
-                    </label>
+                    <EventFilters
+                        search={searchTerm} //Se le pasa el parametro que se esta buscando para rellenar el input
+                        onSearchChange={setSearchTerm} //Setter para cambiar el texto de búsqueda
+                        timeFilter={timeFilter} //Permite saber el filtro de tiempo aplicado
+                        onTimeFilterChange={setTimeFilter} //Permite cambiar el filtro de tiempo
+                    />
 
                     {error && <p className={styles.error}>{error}</p>}
-
-                    <button className={styles.primaryButton} disabled={submitting}>
-                        {editingEvent ? "Guardar cambios" : "Crear evento"}
-                    </button>
-                </form>
-
-                <div className={styles.list}>
-                    <div className={styles.listHeader}>
-                        <h2>Eventos programados</h2>
-                        <button
-                            type="button"
-                            className={styles.ghostButton}
-                            onClick={loadEvents}
-                            disabled={loading}
-                        >
-              Actualizar
-                        </button>
-                    </div>
 
                     {loading ? (
                         <p className={styles.empty}>Cargando eventos...</p>
                     ) : events.length === 0 ? (
-                        <p className={styles.empty}>No hay eventos todavia.</p>
+                        <p className={styles.empty}>No hay eventos todavía.</p>
+                    ) : filteredEvents.length === 0 ? (
+                        <p className={styles.empty}>
+                            No hay eventos que coincidan con los filtros.
+                        </p>
                     ) : (
-                        <div className={styles.grid}>
-                            {events.map((event) => (
-                                <article key={event._id} className={styles.card}>
-                                    <div>
-                                        <p className={styles.date}>
-                                            {new Date(event.date).toLocaleString()}
-                                        </p>
-                                        <h3>{event.title}</h3>
-                                        {event.location && (
-                                            <p className={styles.meta}>{event.location}</p>
-                                        )}
-                                        {event.description && (
-                                            <p className={styles.description}>{event.description}</p>
-                                        )}
-                                    </div>
-                                    <div className={styles.cardActions}>
-                                        <button
-                                            type="button"
-                                            className={styles.secondaryButton}
-                                            onClick={() => handleEdit(event)}
-                                            disabled={submitting}
-                                        >
-                      Editar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={styles.dangerButton}
-                                            onClick={() => handleDelete(event._id)}
-                                            disabled={submitting}
-                                        >
-                      Eliminar
-                                        </button>
-                                    </div>
-                                </article>
+                        <div className={styles.list}>
+                            {filteredEvents.map((event) => (
+                                <EventCard
+                                    key={event._id}
+                                    event={event}
+                                    crewName={event.crew?.name}
+                                    onClick={() =>
+                                        navigate(
+                                            `/crews/${event.crew?._id}/events/${event._id}`,
+                                        )
+                                    }
+                                />
                             ))}
                         </div>
                     )}
-                </div>
+                </section>
             </div>
         </section>
     );

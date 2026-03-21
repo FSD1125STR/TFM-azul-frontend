@@ -13,7 +13,11 @@ import {
     updateCrew,
 } from "../../services/apiCrews.js";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
-
+import { Container } from "../../components/ui/Container.jsx";
+import { Button } from "../../components/ui/Button.jsx";
+import { IconUserCircle, IconUsersGroup  } from "@tabler/icons-react";
+import CrewCalendar from "./components/CrewCalendar.jsx";
+import CrewActivity from "./components/CrewActivity.jsx";
 
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
@@ -73,6 +77,7 @@ export default function CrewDetails() {
     const colors = ACTIVITY_STYLES[crew.activity] || DEFAULT_ACTIVITY_STYLE;
     const coverImage = crew.imageUrl ? getCrewImageUrl(crew.imageUrl) : "";
     const subactivityLabel = crew.subactivity ?? "";
+    const canManageCrew = crew.userRole?.permission === "admin";
 
 
     // Renderizamos el componente principal si no hay errores globales y si hay crew en los parametros
@@ -133,6 +138,7 @@ export default function CrewDetails() {
                 {isEditing ? (
                     <CrewForm
                         initialValues={crew}
+                        crewId={crewId}
                         onSubmit={handleUpdate}
                         submitLabel="Guardar cambios"
                         onCancel={() => setIsEditing(false)}
@@ -158,45 +164,31 @@ export default function CrewDetails() {
                         </div>
 
                         {/**Mostramos una card con la info de la crew */}
-                        <div className={styles.card}>
+                        <div className={styles.info}>
                             {/**Header con nombre, descripcion y boton de editar y eliminar*/}
                             <div className={styles.cardHeader}>
                                 <div>
                                     <h1>{crew.name}</h1>
                                     <p>{crew.description}</p>
                                 </div>
-                                <div className={styles.actions}>
-                                    <button
-                                        type="button"
-                                        className={styles.secondaryButton}
-                                        onClick={() => setIsEditing(true)}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={styles.dangerButton}
-                                        onClick={() => setShowDeleteConfirm(true)}
-                                    >
-                                        Eliminar
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
-                            <div className={styles.stats}>
-                                <div>
-                                    <strong>{crew.members?.length || 0}</strong>
-                                    <span>Miembros</span>
-                                </div>
-                                <div>
-                                    <strong>{crew.events || 0}</strong>
-                                    <span>Eventos</span>
-                                </div>
-                                <div>
-                                    <strong>{crew.role || "Member"}</strong>
-                                    <span>Tu rol</span>
-                                </div>
+                                {canManageCrew && (
+                                    <div className={styles.actions}>
+                                        <button
+                                            type="button"
+                                            className={styles.secondaryButton}
+                                            onClick={() => setIsEditing(true)}
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={styles.dangerButton}
+                                            onClick={() => setShowDeleteConfirm(true)}
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/**Mostramos footer de la card con info de la cuando se creo la crew */}
@@ -208,7 +200,42 @@ export default function CrewDetails() {
                                 })}
                                 </p>
                             )}
+
+                            {/**Mostramos infomacion adicional de la crew, miembros, eventos y tu rol */}
+                            <div className={styles.stats}>
+                                <div>
+                                    <strong>{crew.memberships?.length || 0}</strong>
+                                    <span>Miembros</span>
+                                </div>
+                                <span className={styles.separator}></span>
+                                <div>
+                                    <strong>{crew.events?.length || 0}</strong>
+                                    <span>Eventos</span>
+                                </div>
+                                <span className={styles.separator}></span>
+                                <div>
+                                    <IconUserCircle stroke={1} />
+                                    <strong>{crew.userRole?.name || "Member"}</strong>
+                                </div>
+                            </div>
+                            
+                            <div className={styles.mainInfo}>
+                                {/**Mostramos el calendario */}
+                                <Container className={styles.calendarContainer}>
+                                    <CrewCalendar/>
+                                </Container>
+
+                                {/**Mostramos el contenedor de actividad */}
+                                <Container className={styles.activityContainer}>
+                                    <CrewActivity/>
+                                </Container>
+                            </div>
+                            
+                            
+                            
                         </div>
+
+
                     </>
                 )}
             </div>
