@@ -1,6 +1,7 @@
 import { IconSearch } from "@tabler/icons-react";
 import styles from "./EventFilters.module.css";
 
+//Valores del filtro de tiempo que se guardarán en el state timeFilter
 const TIME_OPTIONS = [
     { value: "all", label: "Todos" },
     { value: "upcoming", label: "Próximos" },
@@ -15,6 +16,7 @@ export default function EventFilters({
 }) {
     return (
         <div className={styles.bar}>
+            {/** Muestra los botones para filtrar por tiempo */}
             <div className={styles.tabs}>
                 {TIME_OPTIONS.map((opt) => (
                     <button
@@ -25,13 +27,14 @@ export default function EventFilters({
                                 ? `${styles.tab} ${styles.tabActive}`
                                 : styles.tab
                         }
-                        onClick={() => onTimeFilterChange(opt.value)}
+                        onClick={() => onTimeFilterChange(opt.value)} //Cambia el filtro de tiempo
                     >
                         {opt.label}
                     </button>
                 ))}
             </div>
-
+            
+            {/** Muestra el input para filtrar por busqueda */}
             <div className={styles.searchWrapper}>
                 <IconSearch size={15} stroke={2} className={styles.searchIcon} />
                 <input

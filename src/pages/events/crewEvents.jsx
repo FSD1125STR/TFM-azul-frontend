@@ -78,17 +78,6 @@ export default function CrewEvents() {
 
             <div className={styles.content}>
                 <section className={styles.section}>
-                    <div className={styles.listHeader}>
-                        <h2>Eventos programados</h2>
-                        <button
-                            type="button"
-                            className={styles.ghostButton}
-                            onClick={loadEvents}
-                            disabled={loading}
-                        >
-                            Actualizar
-                        </button>
-                    </div>
 
                     <EventFilters
                         search={searchTerm}
