@@ -1,0 +1,148 @@
+.page {
+    min-height: 100%;
+    background: var(--color-background-primary);
+}
+
+.header {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.title {
+    margin: 0;
+    font-size: 28px;
+    color: var(--color-text-primary);
+}
+
+.subtitle {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+}
+
+.content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 24px 48px;
+    display: grid;
+    gap: 20px;
+}
+
+.eventForm {
+    display: grid;
+    gap: 20px;
+}
+
+.section {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg, 16px);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    gap: 16px;
+}
+
+.sectionHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text-primary);
+}
+
+.sectionHeader p {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.primaryButton {
+    background: var(--color-button);
+    color: #ffffff;
+}
+
+.primaryButton:hover {
+    background: var(--color-button-hover);
+}
+
+.secondaryButton {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+.dangerButton {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.error {
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.empty {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    padding: 12px 0;
+}
+
+.eventDetail {
+    display: grid;
+    gap: 16px;
+}
+
+.detailField {
+    display: grid;
+    gap: 8px;
+}
+
+.detailField label {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-secondary);
+}
+
+.detailField p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    line-height: 1.5;
+}
+
+@media (max-width: 960px) {
+    .content {
+        padding-top: 16px;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
+    }
+}

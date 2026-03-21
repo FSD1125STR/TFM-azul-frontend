@@ -4,7 +4,7 @@
 }
 
 .header {
-    max-width: 80dvw;
+    max-width: 960px;
     margin: 0 auto;
     padding: 32px 24px 0;
     display: flex;
@@ -25,26 +25,17 @@
 }
 
 .content {
-    max-width: 80dvw;
+    max-width: 960px;
     margin: 0 auto;
     padding: 24px 24px 48px;
     display: grid;
-    grid-template-columns: 500px 1fr;
-    align-items: start;
     gap: 20px;
 }
 
-/* ── Sección del calendario (columna izquierda) ── */
-
-.calendarSection {
-    background: var(--color-background-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg, 16px);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
+.eventForm {
+    display: grid;
+    gap: 20px;
 }
-
-/* ── Sección de lista de eventos (columna derecha) ── */
 
 .section {
     background: var(--color-background-secondary);
@@ -56,34 +47,44 @@
     gap: 16px;
 }
 
-.listHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+.sectionHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text-primary);
 }
 
-.ghostButton {
-    border: 1px solid var(--color-border);
+.sectionHeader p {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.primaryButton,
+.secondaryButton {
+    border: none;
     border-radius: 10px;
     padding: 10px 16px;
     font-weight: 600;
     cursor: pointer;
-    background: transparent;
-    color: var(--color-text-primary);
     transition:
         transform 0.2s ease,
         box-shadow 0.2s ease,
         background 0.2s ease;
 }
 
-.list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 520px;
-    overflow-y: auto;
-    padding-right: 4px;
+.primaryButton {
+    background: var(--color-button);
+    color: #ffffff;
+}
+
+.primaryButton:hover {
+    background: var(--color-button-hover);
+}
+
+.secondaryButton {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
 }
 
 .error {
@@ -93,17 +94,18 @@
     border-radius: 8px;
 }
 
-.empty {
-    color: var(--color-text-secondary);
-    font-size: 14px;
-    padding: 12px 0;
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
 }
 
-/* ── Responsive: columna única en móvil ── */
-
-@media (max-width: 768px) {
+@media (max-width: 960px) {
     .content {
-        grid-template-columns: 1fr;
         padding-top: 16px;
+    }
+
+    .actions {
+        flex-direction: column-reverse;
     }
 }

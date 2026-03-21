@@ -96,7 +96,7 @@ export default function AppLayout({ children }) {
                         Dashboards
                         </Link>
                         <Link className={styles.navLink} to="/crews">
-                        MyCrews
+                        Crews
                         </Link>
                         <Link className={styles.navLink} to="/events">
                         Events

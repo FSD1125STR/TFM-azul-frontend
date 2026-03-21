@@ -72,6 +72,10 @@ export default function LoginForm() {
                     {errors.password && <p>{errors.password.message}</p>}
                 </div>
 
+                <div className={styles.forgotPassword}>
+                    <a href="#">Forgot password?</a>
+                </div>
+
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? "Logging in..." : "Log in"}
                 </Button>

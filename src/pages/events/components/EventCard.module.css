@@ -1,0 +1,137 @@
+.row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.row:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-button);
+}
+
+/* Date badge */
+.dateBadge {
+    flex-shrink: 0;
+    width: 56px;
+    padding: 8px 4px;
+    border-radius: var(--radius-md);
+    background: var(--color-button);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+}
+
+.dateDay {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.dateMonth {
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Main info */
+.info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.metaItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.metaItem svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.crewPill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(19, 164, 236, 0.1);
+    border: 1px solid rgba(19, 164, 236, 0.25);
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-button);
+    letter-spacing: 0.03em;
+}
+
+/* Actions */
+.actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detailButton {
+    padding: 7px 16px;
+    border: 1px solid var(--color-button);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-button);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+.detailButton:hover {
+    background: var(--color-button);
+    color: #ffffff;
+}
+
+@media (max-width: 640px) {
+    .row {
+        flex-wrap: wrap;
+    }
+
+    .info {
+        width: 100%;
+    }
+
+    .actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
