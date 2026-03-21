@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { getMyEvents } from "../../services/events.js";
+import EventCalendar from "../../components/common/EventCalendar.jsx";
 import EventCard from "./components/EventCard.jsx";
 import EventFilters from "./components/EventFilters.jsx";
 import styles from "./Events.module.css";
@@ -24,7 +25,7 @@ export default function Events() {
     //Devuelve los eventos filtrados, SOLOS E CALCULA SI CAMBIAN LOS EVENTOS O ALGUNO DE LOS FILTROS
     const filteredEvents = useMemo(() => {
         //Guardamos la fecha actual y normalizamos la busqueda (eliminando espacios en los extremos y pasando todo a minusculas)
-        const now = Date.now(); 
+        const now = Date.now();
         const normalizedSearch = searchTerm.trim().toLowerCase();
 
         return events.filter((event) => {
@@ -84,7 +85,21 @@ export default function Events() {
                 </div>
             </header>
 
+            {/**Layout de dos columnas: calendario a la izquierda, lista a la derecha */}
             <div className={styles.content}>
+
+                {/**Columna izquierda: calendario con todos los eventos (sin filtrar) */}
+                <div className={styles.calendarSection}>
+                    <EventCalendar
+                        events={events}
+                        loading={loading}
+                        onEventClick={(event) =>
+                            navigate(`/crews/${event.crew?._id}/events/${event._id}`)
+                        }
+                    />
+                </div>
+
+                {/**Columna derecha: filtros y lista de eventos */}
                 <section className={styles.section}>
 
                     <EventFilters

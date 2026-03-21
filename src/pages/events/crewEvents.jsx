@@ -1,5 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Button } from "../../components/ui/Button.jsx";
 import { CrewContext } from "../../hooks/context/CrewContext";
 import { getCrewEvents } from "../../services/events.js";
 import EventCard from "./components/EventCard.jsx";
@@ -10,6 +11,7 @@ export default function CrewEvents() {
     const { crew } = useContext(CrewContext);
     const { idCrew } = useParams();
     const navigate = useNavigate();
+    const canManageCrew = crew.userRole?.permission === "admin";
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -67,13 +69,15 @@ export default function CrewEvents() {
                         Gestiona los eventos asociados a esta crew.
                     </p>
                 </div>
-                <button
-                    type="button"
-                    className={styles.primaryButton}
-                    onClick={() => navigate(`/crews/${idCrew}/events/create`)}
-                >
-                    Crear evento
-                </button>
+                {/**Solo los admins pueden crear eventos */}
+                {canManageCrew && (
+                    <Button
+                        className={styles.headerButton}
+                        onClick={() => navigate(`/crews/${idCrew}/events/create`)}
+                    >
+                        Crear evento
+                    </Button>
+                )}
             </header>
 
             <div className={styles.content}>
