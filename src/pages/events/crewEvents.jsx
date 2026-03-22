@@ -11,7 +11,7 @@ export default function CrewEvents() {
     const { crew } = useContext(CrewContext);
     const { idCrew } = useParams();
     const navigate = useNavigate();
-    const canManageCrew = crew.userRole?.permission === "admin";
+    const canManageCrew = crew?.userRole?.permission === "admin";
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);

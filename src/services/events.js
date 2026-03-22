@@ -23,6 +23,31 @@ export const getCrewEvents = async (crewId) => {
     }
 };
 
+export const getCrewEventDetail = async (crewId, eventId) => {
+    try {
+        const { data } = await axios.get(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
+            { withCredentials: true },
+        );
+        return data;
+    } catch (error) {
+        normalizeError(error, "Error al cargar el evento");
+    }
+};
+
+export const setCrewEventAttendance = async (crewId, eventId, attending) => {
+    try {
+        const { data } = await axios.put(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendance`,
+            { attending },
+            { withCredentials: true },
+        );
+        return data;
+    } catch (error) {
+        normalizeError(error, "Error al actualizar asistencia");
+    }
+};
+
 export const getMyEvents = async (userId) => {
     try {
         const { data } = await axios.get(

@@ -5,7 +5,8 @@ import { CrewContext } from "../../hooks/context/CrewContext";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import {
     deleteEvent,
-    getCrewEvents,
+    getCrewEventDetail,
+    setCrewEventAttendance,
     updateEvent,
 } from "../../services/events.js";
 import EventForm from "./components/EventForm.jsx";
@@ -28,9 +29,12 @@ export default function EventDetail() {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [myAttendance, setMyAttendance] = useState(null);
+    const [attendanceSummary, setAttendanceSummary] = useState({ yes: 0, no: 0 });
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState(initialEditForm);
     const [submitting, setSubmitting] = useState(false);
+    const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const userId = useMemo(() => user?._id, [user]);
@@ -42,13 +46,10 @@ export default function EventDetail() {
             setError("");
 
             try {
-                const events = await getCrewEvents(idCrew);
-                const foundEvent = events?.find((e) => e._id === eventId);
-                if (foundEvent) {
-                    setEvent(foundEvent);
-                } else {
-                    setError("Evento no encontrado");
-                }
+                const detail = await getCrewEventDetail(idCrew, eventId);
+                setEvent(detail.event);
+                setMyAttendance(detail.myAttendance);
+                setAttendanceSummary(detail.attendance ?? { yes: 0, no: 0 });
             } catch (err) {
                 setError(err.message || "Error al cargar el evento");
             } finally {
@@ -123,6 +124,24 @@ export default function EventDetail() {
         }
     };
 
+    const handleRsvp = async (attending) => {
+        if (!userId || !idCrew || !eventId) return;
+
+        setRsvpSubmitting(true);
+        setError("");
+
+        try {
+            const detail = await setCrewEventAttendance(idCrew, eventId, attending);
+            setEvent(detail.event);
+            setMyAttendance(detail.myAttendance);
+            setAttendanceSummary(detail.attendance ?? { yes: 0, no: 0 });
+        } catch (err) {
+            setError(err.message || "No se pudo actualizar tu asistencia");
+        } finally {
+            setRsvpSubmitting(false);
+        }
+    };
+
     if (loading) {
         return (
             <section className={styles.page}>
@@ -167,6 +186,40 @@ export default function EventDetail() {
             </header>
 
             <div className={styles.content}>
+                {!isEditing && (
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <h2>Asistencia</h2>
+                            <p>Marca si vas a asistir al evento.</p>
+                        </div>
+
+                        <div className={styles.rsvpRow}>
+                            <div className={styles.rsvpButtons}>
+                                <button
+                                    type="button"
+                                    className={`${styles.rsvpButton} ${myAttendance === true ? styles.rsvpYesActive : styles.rsvpYes}`}
+                                    onClick={() => handleRsvp(true)}
+                                    disabled={rsvpSubmitting || submitting}
+                                >
+                                    Sí
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`${styles.rsvpButton} ${myAttendance === false ? styles.rsvpNoActive : styles.rsvpNo}`}
+                                    onClick={() => handleRsvp(false)}
+                                    disabled={rsvpSubmitting || submitting}
+                                >
+                                    No
+                                </button>
+                            </div>
+
+                            <div className={styles.rsvpStats}>
+                                <span>Asisten: {attendanceSummary?.yes ?? 0}</span>
+                                <span>No asisten: {attendanceSummary?.no ?? 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {isEditing ? (
                     <form className={styles.eventForm} onSubmit={handleEditSubmit}>
                         <div className={styles.section}>
