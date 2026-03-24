@@ -1,114 +1,70 @@
 .page {
-  min-height: 100vh;
-  padding: 40px clamp(16px, 4vw, 56px) 64px;
+  min-height: 100%;
   background: var(--color-background-primary);
-  color: #12161c;
 }
 
 /* ── Header ─────────────────────────────────────────────── */
 .header {
-  max-width: 900px;
-  margin: 0 auto 32px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .kicker {
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.08em;
   font-size: 11px;
-  color: #64748b;
-  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--color-button);
+  margin-bottom: 6px;
 }
 
 .title {
-  font-size: clamp(28px, 4vw, 40px);
+  margin: 0;
+  font-size: 28px;
   font-weight: 700;
-  margin-bottom: 6px;
   color: var(--color-text-primary);
 }
 
 .subtitle {
-  color: #4b5563;
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
   font-size: 15px;
-  max-width: 480px;
 }
 
 /* ── Upload button ───────────────────────────────────────── */
-.uploadButton{
-  width: 30%;
-}
-
-.uploadButton:hover {
-  background: var(--color-button-hover);
-}
-
-.uploadButton:active {
-  background: var(--color-button-hover);
-}
-
-.uploadButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-  box-shadow: none;
-  transform: none;
+.uploadButton {
+  width: fit-content;
+  flex-shrink: 0;
 }
 
 /* ── Main container ──────────────────────────────────────── */
 .container {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
+  padding: 24px 24px 48px;
 }
 
-/* ── File list ───────────────────────────────────────────── */
-.fileList {
-  display: grid;
+/* ── Celda nombre ────────────────────────────────────────── */
+.nameCell {
+  display: flex;
+  align-items: center;
   gap: 10px;
-  animation: fadeUp 0.35s ease both;
-}
-
-.fileRow {
-  background: #ffffff;
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.07);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  transition: box-shadow 150ms ease, transform 150ms ease;
-}
-
-.fileRow:hover {
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.1);
-  transform: translateY(-1px);
-}
-
-.fileIcon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  background: #eff6ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #13a4ec;
-}
-
-.fileInfo {
-  flex: 1;
   min-width: 0;
 }
 
+.fileIcon {
+  color: var(--color-button);
+  flex-shrink: 0;
+}
+
 .fileName {
-  display: block;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 14px;
   color: var(--color-text-primary);
   text-decoration: none;
   white-space: nowrap;
@@ -118,46 +74,69 @@
 }
 
 .fileName:hover {
-  color: #13a4ec;
+  color: var(--color-button);
 }
 
-.fileMeta {
+/* ── Celda owner ─────────────────────────────────────────── */
+.ownerCell {
   display: flex;
-  gap: 12px;
-  margin-top: 3px;
-  font-size: 0.8rem;
+  align-items: center;
+  gap: 8px;
+}
+
+.ownerAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-background-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.ownerName {
+  font-size: 13px;
   color: var(--color-text-secondary);
 }
 
-.fileActions {
-  flex-shrink: 0;
-  margin-left: auto;
+/* ── Celdas de fecha y tamaño (override de alineación) ──── */
+.tdMeta {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
+/* ── Celda de acciones (override de alineación) ─────────── */
+.tdCenter {
+  text-align: center;
+}
+
+/* ── Botón borrar ────────────────────────────────────────── */
 .deleteButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 7px 12px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  background: #fee2e2;
-  color: #b91c1c;
-  transition: background 150ms ease, transform 150ms ease;
+  background: transparent;
+  color: var(--color-text-secondary);
+  transition: background 150ms ease, color 150ms ease;
 }
 
 .deleteButton:hover {
-  background: #fecaca;
-  transform: translateY(-1px);
-}
-
-.deleteButton:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
 }
 
 /* ── States ──────────────────────────────────────────────── */
@@ -166,43 +145,31 @@
   color: #b91c1c;
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  font-size: 0.9rem;
+  font-size: 14px;
   margin-bottom: 16px;
 }
 
 .empty {
-  background: #ffffff;
-  border-radius: var(--radius-md);
+  background: var(--color-background-secondary);
+  border-radius: var(--radius-lg);
   padding: 48px 24px;
   text-align: center;
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  border: 1px dashed var(--color-border);
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .emptyIcon {
   margin: 0 auto 12px;
-  opacity: 0.4;
-  color: #64748b;
+  opacity: 0.35;
+  color: var(--color-text-secondary);
 }
 
 .loading {
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: 14px;
   padding: 16px 0;
-}
-
-/* ── Animation ───────────────────────────────────────────── */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
@@ -212,12 +179,11 @@
     align-items: flex-start;
   }
 
-  .fileMeta {
-    flex-direction: column;
-    gap: 2px;
+  .uploadButton {
+    width: 100%;
   }
 
-  .deleteButton span {
+  .ownerName {
     display: none;
   }
 }

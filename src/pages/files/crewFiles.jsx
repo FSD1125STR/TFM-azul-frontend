@@ -3,6 +3,7 @@ import { IconUpload, IconFile, IconTrash, IconFolderOpen } from "@tabler/icons-r
 import { CrewContext } from "../../hooks/context/CrewContext";
 import { getCrewFiles, uploadCrewFile, deleteCrewFile } from "../../services/apiFiles.js";
 import { Button } from "../../components/ui/Button.jsx";
+import DataTable from "../../components/common/DataTable.jsx";
 import styles from "./crewFiles.module.css";
 
 export default function CrewFiles() {
@@ -40,7 +41,7 @@ export default function CrewFiles() {
             //Subimos el archivo
             const newFile = await uploadCrewFile(crewId, file);
             setFiles((prev) => [newFile, ...prev]);
-            
+
         } catch (err) {
             setError(err.message);
         } finally {
@@ -69,7 +70,6 @@ export default function CrewFiles() {
             {/** Header con boton de subir archivos, solo si es administrador */}
             <header className={styles.header}>
                 <div>
-                    <p className={styles.kicker}>Crew Files</p>
                     <h1 className={styles.title}>Archivos de {crew?.name || "la Crew"}</h1>
                     <p className={styles.subtitle}>
                         Sube y gestiona los archivos compartidos de tu crew.
@@ -95,7 +95,7 @@ export default function CrewFiles() {
                     </>
                 )}
             </header>
-            
+
             {/** Sección de lista de archivos */}
             <div className={styles.container}>
                 {error && <p className={styles.error}>{error}</p>}
@@ -110,45 +110,81 @@ export default function CrewFiles() {
                     </div>
 
                 ) : (
-                    //Listar archivos
-                    <div className={styles.fileList}>
+                    //Tabla de archivos usando el componente DataTable común
+                    <DataTable
+                        columns={[
+                            { label: "Nombre" },
+                            { label: "Subido por" },
+                            { label: "Fecha", center: true },
+                            { label: "Tamaño", center: true },
+                            ...(isAdmin ? [{ label: "Acciones", center: true }] : []),
+                        ]}
+                    >
                         {files.map((file) => (
-                            <div key={file._id} className={styles.fileRow}>
-                                <div className={styles.fileIcon}>
-                                    <IconFile size={20} />
-                                </div>
-
-                                <div className={styles.fileInfo}>
-                                    <a
-                                        href={file.url ?? file.path}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        download={file.originalName}
-                                        className={styles.fileName}
-                                    >
-                                        {file.originalName}
-                                    </a>
-                                    <div className={styles.fileMeta}>
-                                        <span>{formatSize(file.size)}</span>
-                                        <span>{new Date(file.createdAt).toLocaleDateString()}</span>
+                            <tr key={file._id}>
+                                {/**Nombre con icono y link de descarga */}
+                                <td>
+                                    <div className={styles.nameCell}>
+                                        <IconFile size={16} className={styles.fileIcon} />
+                                        <a
+                                            href={file.url ?? file.path}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            download={file.originalName}
+                                            className={styles.fileName}
+                                        >
+                                            {file.originalName}
+                                        </a>
                                     </div>
-                                </div>
+                                </td>
 
-                                {/**Mostrar boton para borrar si el usuario es admin */}
+                                {/**Owner: foto de perfil si existe, sino inicial del username */}
+                                <td>
+                                    <div className={styles.ownerCell}>
+                                        {file.uploadedBy?.image ? (
+                                            <img
+                                                src={file.uploadedBy.image}
+                                                alt={file.uploadedBy.username}
+                                                className={styles.ownerAvatar}
+                                            />
+                                        ) : (
+                                            <span className={styles.ownerAvatar}>
+                                                {file.uploadedBy?.username?.[0]?.toUpperCase() ?? "?"}
+                                            </span>
+                                        )}
+                                        <span className={styles.ownerName}>
+                                            {file.uploadedBy?.username ?? "—"}
+                                        </span>
+                                    </div>
+                                </td>
+
+                                {/**Fecha de subida */}
+                                <td className={styles.tdMeta}>
+                                    {new Date(file.createdAt).toLocaleDateString("es-ES", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                    })}
+                                </td>
+
+                                {/**Tamaño del archivo */}
+                                <td className={styles.tdMeta}>{formatSize(file.size)}</td>
+
+                                {/**Boton para borrar si el usuario es admin */}
                                 {isAdmin && (
-                                    <div className={styles.fileActions}>
+                                    <td className={styles.tdCenter}>
                                         <button
                                             className={styles.deleteButton}
                                             onClick={() => handleDelete(file._id)}
                                         >
-                                            <IconTrash size={15} />
-                                            <span>Eliminar</span>
+                                            <IconTrash size={14} />
+                                            Eliminar
                                         </button>
-                                    </div>
+                                    </td>
                                 )}
-                            </div>
+                            </tr>
                         ))}
-                    </div>
+                    </DataTable>
                 )}
             </div>
         </section>

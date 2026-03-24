@@ -125,15 +125,6 @@ export default function CrewDetails() {
 
             {/* Sección principal con la info de la crew */}
             <div className={styles.container}>
-                {/* Boton para volver atrás */}
-                <button
-                    type="button"
-                    className={styles.backButton}
-                    onClick={() => (isEditing ? setIsEditing(false) : navigate("/crews"))}
-                >
-                    {isEditing ? "Volver a detalles" : "Volver a mis crews"}
-                </button>
-
                 {/* Si se esta editando se renderiza el formulario con los valores iniciales de la crew */}
                 {isEditing ? (
                     <CrewForm

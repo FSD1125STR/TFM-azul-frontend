@@ -122,7 +122,6 @@ export default function RoleManagement({ onBack }) {
                         </button>
                     )}
                     <div className={styles.headerText}>
-                        <p className={styles.eyebrow}>Roles de la crew</p>
                         <h1 className={styles.title}>
                             {crew?.name ? `Roles de ${crew.name}` : "Roles de la crew"}
                         </h1>

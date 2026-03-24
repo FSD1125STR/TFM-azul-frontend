@@ -5,6 +5,7 @@ import CrewToast from "./CrewToast.jsx";
 import styles from "./crewMember.module.css";
 import { CrewContext } from "../../../hooks/context/CrewContext.jsx";
 import RoleManagement from "../../users/RoleManagement.jsx";
+import DataTable from "../../../components/common/DataTable.jsx";
 import {
     getCrewMembers,
     removeCrewMember,
@@ -309,19 +310,10 @@ export default function CrewMembers() {
 
             {/* Render principal */}
             <div className={styles.container}>
-                
-                {/* Breadcrumb */}
-                <nav className={styles.breadcrumb} aria-label="breadcrumb">
-                    <span onClick={() => navigate("/crews")}>/ Mis Crews</span>
-                    <span className={styles.sep}>/</span>
-                    <span onClick={() => navigate(`/crews/${crewId}`)}>{crew.name}</span>
-                    <span className={styles.sep}>/</span>
-                    <span className={styles.current}>Miembros</span>
-                </nav>
 
                 {/* Título */}
                 <h1 className={styles.title}>
-                    {crew.name} <span>Miembros</span>
+                    <span>Miembros</span> de {crew.name}
                 </h1>
 
                 {/* Stat cards + botón de añadir */}
@@ -384,80 +376,90 @@ export default function CrewMembers() {
                     />
                 </div>
 
-                {/* Tabla de miembros */}
-                <div className={styles.tableWrap}>
-                    {filteredMembers.length === 0 ? (
-                        <p className={styles.empty}>No se encontraron miembros.</p>
-                    ) : (
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th>Miembro</th>
-                                    <th>Role</th>
-                                    <th>Mail</th>
-                                    {canManageMembers && <th>Actions</th>}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredMembers.map((member) => {
-                                    const memberRole = roleByName.get(member.role);
-                                    const rolePermission =
-                                        memberRole?.permission ?? "member";
-                                    return (
-                                        <tr key={member.id}>
-                                            <td>{member.name || member.username}</td>
-                                            <td>
-                                                <span
-                                                    className={`${styles.roleBadge} ${styles[rolePermission] || styles.member}`}
-                                                >
-                                                    {member.role || "member"}
+                {/* Tabla de miembros usando el componente DataTable común */}
+                {filteredMembers.length === 0 ? (
+                    <p className={styles.empty}>No se encontraron miembros.</p>
+                ) : (
+                    <DataTable
+                        columns={[
+                            { label: "Miembro" },
+                            { label: "Role", center: true },
+                            { label: "Mail" },
+                            ...(canManageMembers ? [{ label: "Acciones", center: true }] : []),
+                        ]}
+                    >
+                        {filteredMembers.map((member) => {
+                            const memberRole = roleByName.get(member.role);
+                            const rolePermission = memberRole?.permission ?? "member";
+                            return (
+                                <tr key={member.id}>
+                                    {/* Avatar (foto si existe, sino inicial) + nombre */}
+                                    <td>
+                                        <div className={styles.memberCell}>
+                                            {member.image ? (
+                                                <img
+                                                    src={member.image}
+                                                    alt={member.username}
+                                                    className={styles.memberAvatar}
+                                                />
+                                            ) : (
+                                                <span className={styles.memberAvatar}>
+                                                    {(member.name || member.username)?.[0]?.toUpperCase() ?? "?"}
                                                 </span>
-                                            </td>
-                                            <td>
-                                                <a
-                                                    className={styles.mailLink}
-                                                    href={`mailto:${member.email}`}
-                                                >
-                                                    {member.email}
-                                                </a>
-                                            </td>
-                                            {canManageMembers && (
-                                                <td>
-                                                    <div className={styles.actionButtons}>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.iconButton}
-                                                            aria-label="Editar miembro"
-                                                            onClick={() => {
-                                                                const role = roleByName.get(
-                                                                    member.role,
-                                                                );
-                                                                setMemberToEdit({
-                                                                    ...member,
-                                                                    roleId: role?._id ?? "",
-                                                                });
-                                                            }}
-                                                        >
-                                                            <IconPencil size={16} stroke={2} />
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className={`${styles.iconButton} ${styles.iconDanger}`}
-                                                            aria-label="Eliminar miembro"
-                                                            onClick={() => setMemberToDelete(member)}
-                                                        >
-                                                            <IconTrash size={16} stroke={2} />
-                                                        </button>
-                                                    </div>
-                                                </td>
                                             )}
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                            <span>{member.name || member.username}</span>
+                                        </div>
+                                    </td>
+                                    <td className={styles.tdCenter}>
+                                        <span
+                                            className={`${styles.roleBadge} ${styles[rolePermission] || styles.member}`}
+                                        >
+                                            {member.role || "member"}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a
+                                            className={styles.mailLink}
+                                            href={`mailto:${member.email}`}
+                                        >
+                                            {member.email}
+                                        </a>
+                                    </td>
+                                    {canManageMembers && (
+                                        <td className={styles.tdCenter}>
+                                            <div className={styles.actionButtons}>
+                                                <button
+                                                    type="button"
+                                                    className={styles.actionButton}
+                                                    aria-label="Editar miembro"
+                                                    onClick={() => {
+                                                        const role = roleByName.get(member.role);
+                                                        setMemberToEdit({
+                                                            ...member,
+                                                            roleId: role?._id ?? "",
+                                                        });
+                                                    }}
+                                                >
+                                                    <IconPencil size={14} stroke={2} />
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.actionButton} ${styles.actionButtonDanger}`}
+                                                    aria-label="Eliminar miembro"
+                                                    onClick={() => setMemberToDelete(member)}
+                                                >
+                                                    <IconTrash size={14} stroke={2} />
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    )}
+                                </tr>
+                            );
+                        })}
+                    </DataTable>
+                )}
             </div>
         </div>
     );
