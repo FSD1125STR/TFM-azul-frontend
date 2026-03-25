@@ -1,5 +1,4 @@
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
+import { API_BASE_URL } from "./config.js";
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
 
 async function handleResponse(res) {

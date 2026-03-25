@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
+import { API_BASE_URL } from "./config.js";
 
 const normalizeError = (error, fallbackMessage) => {
     const status = error.response?.status ?? 0;
