@@ -140,6 +140,9 @@ export default function CrewPolls() {
     const navigate = useNavigate();
     const { idCrew } = useParams();
 
+    const INITIAL_OPTIONS_COUNT = 3;
+    const MAX_OPTIONS_COUNT = INITIAL_OPTIONS_COUNT + 2;
+
     // Get crew data from context instead of managing in local state
     const { crew, loading } = useContext(CrewContext) || {
         crew: null,
@@ -149,7 +152,10 @@ export default function CrewPolls() {
     const [tab, setTab] = useState("active");
     const [showModal, setShowModal] = useState(false);
     const [newQuestion, setNewQuestion] = useState("");
-    const [newOptions, setNewOptions] = useState(["", "", ""]);
+    const [newExpiresAt, setNewExpiresAt] = useState("");
+    const [newOptions, setNewOptions] = useState(
+        Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""),
+    );
     const [polls, setpolls] = useState([]);
     const [isAdding, setIsAdding] = useState(false);
     const [notification, setNotification] = useState(null);
@@ -178,8 +184,37 @@ export default function CrewPolls() {
 
     const activePolls = polls.filter((p) => p.isActive === true);
     const pastPolls = polls.filter((p) => p.isActive === false);
+    const canCreatePoll = crew?.userRole?.permission === "admin";
 
+    useEffect(() => {
+        if (showModal && !canCreatePoll) setShowModal(false);
+    }, [showModal, canCreatePoll]);
+
+
+
+    const handleAddPoll = () => {
+        if (!canCreatePoll) {
+            setShowModal(false);
+            setNotification({
+                type: "error",
+                message: "Solo el admin puede crear encuestas",
+            });
+            return;
+        }
+
+        setNewQuestion("");
+        setNewExpiresAt("");
+        setNewOptions(Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""));
+        setShowModal(true);
+    };
     const handleCreatePoll = async () => {
+        if (!canCreatePoll) {
+            setNotification({
+                type: "error",
+                message: "Solo el admin puede crear encuestas",
+            });
+            return;
+        }
         if (!newQuestion.trim()) return;
         try {
             setIsAdding(true);
@@ -188,10 +223,12 @@ export default function CrewPolls() {
                 options: newOptions
                     .filter((opt) => opt.trim())
                     .map((opt) => opt.trim()),
+                expiresAt: newExpiresAt ? new Date(newExpiresAt).toISOString() : null,
             });
             setpolls((prev) => [...prev, added]);
             setNewQuestion("");
-            setNewOptions(["", "", ""]);
+            setNewExpiresAt("");
+            setNewOptions(Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""));
             setShowModal(false);
             setNotification({
                 type: "success",
@@ -219,7 +256,6 @@ export default function CrewPolls() {
 
             {/* MAIN */}
             <div className={styles.container}>
-
                 {/* Page Header */}
                 <div className={pollStyles.pageHeader}>
                     <h1 className={styles.title}>
@@ -227,8 +263,12 @@ export default function CrewPolls() {
                         <span>Members Polls</span>
                     </h1>
 
-                    <button className={pollStyles.btnPrimary} onClick={() => setShowModal(true)}>
-                        + Create Poll
+                    <button
+                        className={pollStyles.btnPrimary}
+                        disabled={isAdding}
+                        onClick={handleAddPoll}
+                    >
+              + Create Poll
                     </button>
                 </div>
 
@@ -238,13 +278,13 @@ export default function CrewPolls() {
                         className={`${pollStyles.tabBtn} ${tab === "active" ? pollStyles.active : ""}`}
                         onClick={() => setTab("active")}
                     >
-                        Active
+            Active
                     </button>
                     <button
                         className={`${pollStyles.tabBtn} ${tab === "past" ? pollStyles.active : ""}`}
                         onClick={() => setTab("past")}
                     >
-                        Past
+            Past
                     </button>
                 </div>
 
@@ -262,9 +302,15 @@ export default function CrewPolls() {
                 </div>
 
                 {/* CREATE POLL MODAL */}
-                {showModal && (
-                    <div className={pollStyles.modalOverlay} onClick={() => setShowModal(false)}>
-                        <div className={pollStyles.modal} onClick={(e) => e.stopPropagation()}>
+                {showModal && canCreatePoll && (
+                    <div
+                        className={pollStyles.modalOverlay}
+                        onClick={() => setShowModal(false)}
+                    >
+                        <div
+                            className={pollStyles.modal}
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <h2 className={pollStyles.modalTitle}>Create Poll</h2>
                             <div className={pollStyles.formGroup}>
                                 <label className={pollStyles.formLabel}>Question</label>
@@ -276,7 +322,33 @@ export default function CrewPolls() {
                                 />
                             </div>
                             <div className={pollStyles.formGroup}>
-                                <label className={pollStyles.formLabel}>Options</label>
+                                <label className={pollStyles.formLabel}>Voting Ends</label>
+                                <input
+                                    type="datetime-local"
+                                    className={pollStyles.formInput}
+                                    value={newExpiresAt}
+                                    onChange={(e) => setNewExpiresAt(e.target.value)}
+                                />
+                            </div>
+                            <div className={pollStyles.formGroup}>
+                                <div className={pollStyles.optionsHeader}>
+                                    <label className={pollStyles.formLabel}>Options</label>
+                                    <button
+                                        type="button"
+                                        className={pollStyles.addOptionsBtn}
+                                        onClick={() =>
+                                            setNewOptions((prev) => {
+                                                if (prev.length >= MAX_OPTIONS_COUNT) return prev;
+                                                return [...prev, ""];
+                                            })
+                                        }
+                                        disabled={newOptions.length >= MAX_OPTIONS_COUNT}
+                                        aria-label="Add option"
+                                        title="Add option"
+                                    >
+                    +
+                                    </button>
+                                </div>
                                 {newOptions.map((opt, i) => (
                                     <input
                                         key={i}
@@ -305,7 +377,8 @@ export default function CrewPolls() {
                                     disabled={
                                         isAdding ||
                     !newQuestion.trim() ||
-                    newOptions.filter((o) => o.trim()).length < 2
+                    newOptions.filter((o) => o.trim()).length < 2 ||
+                    (newExpiresAt && new Date(newExpiresAt).getTime() <= Date.now())
                                     }
                                 >
                   Create
