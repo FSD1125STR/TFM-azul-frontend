@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext.jsx";
+import { API_BASE_URL } from "../../services/config.js";
 
-const SOCKET_URL = `http://${import.meta.env.VITE_BACK_HOST}:${import.meta.env.VITE_BACK_PORT}`;
+const SOCKET_URL = API_BASE_URL;
 
 const SocketContext = createContext(null);
 

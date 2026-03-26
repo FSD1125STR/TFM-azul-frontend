@@ -3,7 +3,8 @@ import { Link, Outlet } from "react-router-dom";
 import styles from "./AppLayout.module.css";
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { logout, updateAvatar } from "../../services/auth.js";
-import { uploadToCloudinary, API_BASE_URL } from "../../services/cloudinaryUpload.js";
+import { API_BASE_URL } from "../../services/config.js";
+import { uploadToCloudinary } from "../../services/cloudinaryUpload.js";
 import { useNavigate } from "react-router-dom";
 
 export default function AppLayout({ children }) {
