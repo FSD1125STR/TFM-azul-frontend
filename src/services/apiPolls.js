@@ -33,29 +33,6 @@ const normalizePoll = (poll) => {
 // Create a new poll
 export const createPoll = async (crewId, { question, options, expiresAt }) => {
     try { 
-        const { data: roledata } = await axios.get(
-            `${CREW_BASE_URL}/${crewId}/roles`,
-            { withCredentials: true }
-        );
-
-        const roles = roledata.roles;
-
-        // Verify user is a crew member
-        if (!roles.includes("crewMember")) {
-            const err = new Error("User is not a crew member");
-            err.status = 403;
-            throw err;
-        }
-
-        // Only admins can create polls for groups
-        if (crewId && !roles.includes("admin")) {
-            const err = new Error("User is not an admin");
-            err.status = 403;
-            throw err;
-        }
-
-
-    
         const { data } = await axios.post(
             `${CREW_BASE_URL}/${crewId}/polls`,
             {

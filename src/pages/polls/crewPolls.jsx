@@ -190,8 +190,6 @@ export default function CrewPolls() {
         if (showModal && !canCreatePoll) setShowModal(false);
     }, [showModal, canCreatePoll]);
 
-
-
     const handleAddPoll = () => {
         if (!canCreatePoll) {
             setShowModal(false);
@@ -208,15 +206,18 @@ export default function CrewPolls() {
         setShowModal(true);
     };
     const handleCreatePoll = async () => {
-        if (!canCreatePoll) {
-            setNotification({
-                type: "error",
-                message: "Solo el admin puede crear encuestas",
-            });
-            return;
-        }
+    
+        // do not create poll if expiry date is missing and tell user to include when voting ends
         if (!newQuestion.trim()) return;
         try {
+
+            if (!newExpiresAt) {
+                setNotification({
+                    type: "error",
+                    message: "Debes incluir una fecha de expiración",
+                });
+                return;
+            }
             setIsAdding(true);
             const added = await createPoll(idCrew, {
                 question: newQuestion.trim(),
@@ -268,7 +269,7 @@ export default function CrewPolls() {
                         disabled={isAdding}
                         onClick={handleAddPoll}
                     >
-              + Create Poll
+            + Create Poll
                     </button>
                 </div>
 
@@ -378,7 +379,8 @@ export default function CrewPolls() {
                                         isAdding ||
                     !newQuestion.trim() ||
                     newOptions.filter((o) => o.trim()).length < 2 ||
-                    (newExpiresAt && new Date(newExpiresAt).getTime() <= Date.now())
+                    (newExpiresAt &&
+                      new Date(newExpiresAt).getTime() <= Date.now())
                                     }
                                 >
                   Create
