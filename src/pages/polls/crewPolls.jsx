@@ -211,13 +211,7 @@ export default function CrewPolls() {
         if (!newQuestion.trim()) return;
         try {
 
-            if (!newExpiresAt) {
-                setNotification({
-                    type: "error",
-                    message: "Debes incluir una fecha de expiración",
-                });
-                return;
-            }
+          
             setIsAdding(true);
             const added = await createPoll(idCrew, {
                 question: newQuestion.trim(),
