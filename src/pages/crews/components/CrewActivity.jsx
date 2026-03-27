@@ -33,6 +33,7 @@ function buildMessage(notification) {
         EVENT_ATTENDANCE_UPDATED: { prefix: (n) => ` ha indicado que ${n.meta?.attending ? "sí" : "no"} asistirá al evento: ` },
         USER_JOINED:    { prefix: " se ha unido a la crew", noEntity: true },
         COMMENT_POSTED: { prefix: " ha comentado en " },
+        POLL_VOTED:     { prefix: " ha votado en la encuesta: " },
     };
 
     const template = TEMPLATES[notification.type];
@@ -60,6 +61,7 @@ const ICON_MAP = {
     POLL_CREATED: IconChartBar,
     USER_JOINED: IconUserPlus,
     COMMENT_POSTED: IconMessage,
+    POLL_VOTED: IconChartBar,
 };
 
 // Calcula la diferencia entre la fecha actual y la de created at, devuelve un string relativo

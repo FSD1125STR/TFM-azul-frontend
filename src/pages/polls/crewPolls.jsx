@@ -209,6 +209,21 @@ export default function CrewPolls() {
     
         // do not create poll if expiry date is missing and tell user to include when voting ends
         if (!newQuestion.trim()) return;
+        if (!newExpiresAt) {
+            setNotification({
+                type: "error",
+                message: "Debes indicar la fecha de cierre de la votación",
+            });
+            return;
+        }
+
+        if (new Date(newExpiresAt).getTime() <= Date.now()) {
+            setNotification({
+                type: "error",
+                message: "La fecha de cierre debe ser futura",
+            });
+            return;
+        }
         try {
 
           
@@ -321,6 +336,7 @@ export default function CrewPolls() {
                                 <input
                                     type="datetime-local"
                                     className={pollStyles.formInput}
+                                    required
                                     value={newExpiresAt}
                                     onChange={(e) => setNewExpiresAt(e.target.value)}
                                 />
@@ -372,9 +388,9 @@ export default function CrewPolls() {
                                     disabled={
                                         isAdding ||
                     !newQuestion.trim() ||
+                    !newExpiresAt ||
                     newOptions.filter((o) => o.trim()).length < 2 ||
-                    (newExpiresAt &&
-                      new Date(newExpiresAt).getTime() <= Date.now())
+                    new Date(newExpiresAt).getTime() <= Date.now()
                                     }
                                 >
                   Create
