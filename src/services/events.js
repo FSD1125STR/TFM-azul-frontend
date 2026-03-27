@@ -95,6 +95,18 @@ export const attendEvent = async (eventId) => {
     }
 };
 
+export const getEventAttendees = async (eventId) => {
+    try {
+        const { data } = await axios.get(
+            `${API_BASE_URL}/api/events/${eventId}/attendees`,
+            { withCredentials: true },
+        );
+        return data.attendees ?? [];
+    } catch (error) {
+        normalizeError(error, "Error al cargar participantes");
+    }
+};
+
 export const unattendEvent = async (eventId) => {
     try {
         const { data } = await axios.delete(
