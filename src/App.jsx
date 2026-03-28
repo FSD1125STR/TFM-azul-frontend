@@ -6,7 +6,7 @@ import CreateCrew from "./pages/crews/CreateCrew.jsx";
 import { AuthProvider } from "./hooks/context/AuthContext.jsx";
 import { SocketProvider } from "./hooks/context/SocketContext.jsx";
 import { ProtectedRoute } from "./components/common/ProtectedRoute.jsx";
-import Register from "./pages/auth/register.jsx";
+import Register from "./pages/auth/Register.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 import CrewLayout from "./components/layout/CrewLayout.jsx";
