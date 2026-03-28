@@ -11,7 +11,7 @@ import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 import CrewLayout from "./components/layout/CrewLayout.jsx";
 import MyCrews from "./pages/crews/myCrews.jsx";
-import CrewDetails from "./pages/crews/CrewDetails.jsx";
+import CrewDetails from "./pages/crews/Crewdetails.jsx";
 import CrewEvents from "./pages/events/crewEvents.jsx";
 import CreateEvent from "./pages/events/CreateEvent.jsx";
 import EventDetail from "./pages/events/EventDetail.jsx";
