@@ -5,7 +5,7 @@ import { getMyEvents } from "../../services/events.js";
 import EventCalendar from "../../components/common/EventCalendar.jsx";
 import EventCard from "./components/EventCard.jsx";
 import EventFilters from "./components/EventFilters.jsx";
-import styles from "./Events.module.css";
+import styles from "./events.module.css";
 
 export default function Events() {
     //Recuperamos el usuario logeado
