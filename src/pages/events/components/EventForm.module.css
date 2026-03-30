@@ -39,6 +39,12 @@
     gap: 16px;
 }
 
+.fieldError {
+    color: #b91c1c;
+    font-size: 13px;
+    margin-top: 2px;
+}
+
 @media (max-width: 960px) {
     .row {
         grid-template-columns: 1fr;
