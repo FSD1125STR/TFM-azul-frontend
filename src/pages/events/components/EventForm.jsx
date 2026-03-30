@@ -1,61 +1,33 @@
 import styles from "./EventForm.module.css";
 
-export default function EventForm({
-    values,
-    onChange,
-    disabled,
-    idPrefix = "event",
-}) {
+// Campos del formulario de evento, usando react hook form
+export default function EventForm({ register, errors, disabled }) {
     return (
         <>
             <div className={styles.field}>
-                <label htmlFor={`${idPrefix}-title`}>Título</label>
-                <input
-                    id={`${idPrefix}-title`}
-                    name="title"
-                    value={values.title}
-                    onChange={onChange}
-                    required
-                    disabled={disabled}
-                />
+                <label>Título</label>
+                <input {...register("title")} disabled={disabled} />
+                {errors.title && <span className={styles.fieldError}>{errors.title.message}</span>}
             </div>
 
             <div className={styles.row}>
                 <div className={styles.field}>
-                    <label htmlFor={`${idPrefix}-date`}>Fecha y hora</label>
-                    <input
-                        id={`${idPrefix}-date`}
-                        type="datetime-local"
-                        name="date"
-                        value={values.date}
-                        onChange={onChange}
-                        required
-                        disabled={disabled}
-                    />
+                    <label>Fecha y hora</label>
+                    <input type="datetime-local" {...register("date")} disabled={disabled} />
+                    {errors.date && <span className={styles.fieldError}>{errors.date.message}</span>}
                 </div>
 
                 <div className={styles.field}>
-                    <label htmlFor={`${idPrefix}-location`}>Lugar</label>
-                    <input
-                        id={`${idPrefix}-location`}
-                        name="location"
-                        value={values.location}
-                        onChange={onChange}
-                        disabled={disabled}
-                    />
+                    <label>Lugar</label>
+                    <input {...register("location")} disabled={disabled} />
+                    {errors.location && <span className={styles.fieldError}>{errors.location.message}</span>}
                 </div>
             </div>
 
             <div className={styles.field}>
-                <label htmlFor={`${idPrefix}-description`}>Descripción</label>
-                <textarea
-                    id={`${idPrefix}-description`}
-                    name="description"
-                    rows={4}
-                    value={values.description}
-                    onChange={onChange}
-                    disabled={disabled}
-                />
+                <label>Descripción</label>
+                <textarea rows={4} {...register("description")} disabled={disabled} />
+                {errors.description && <span className={styles.fieldError}>{errors.description.message}</span>}
             </div>
         </>
     );

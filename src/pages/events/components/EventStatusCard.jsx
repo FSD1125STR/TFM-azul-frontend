@@ -16,21 +16,24 @@ export default function EventStatusCard({ event, statusLabel, daysText, onAttend
             <p className={styles.daysText}>{daysText}</p>
 
             <div className={styles.attendButtons}>
+                {/** Boton para asistir al evento */}
                 <button
                     type="button"
                     className={`${styles.attendBtn} ${event.userAttending ? styles.attendBtnActive : ""}`}
                     onClick={onAttend}
                     disabled={submitting || event.userAttending}
                 >
-          Asisto
+                    Asisto
                 </button>
+
+                {/** Boton para no asistir al evento */}
                 <button
                     type="button"
                     className={`${styles.attendBtn} ${!event.userAttending ? styles.notAttendBtnActive : ""}`}
                     onClick={onUnattend}
                     disabled={submitting || !event.userAttending}
                 >
-          No asisto
+                    No asisto
                 </button>
             </div>
         </Container>
