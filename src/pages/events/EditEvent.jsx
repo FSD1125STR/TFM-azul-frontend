@@ -42,7 +42,7 @@ export default function EditEvent() {
             setLoadingEvent(true);
 
             try {
-                const eventData = await getEventById(eventId);
+                const eventData = await getEventById(idCrew, eventId);
                 reset({
                     title: eventData.title ?? "",
                     date: formatDateInput(eventData.date),
@@ -76,7 +76,7 @@ export default function EditEvent() {
         };
 
         try {
-            await updateEvent(eventId, payload);
+            await updateEvent(idCrew, eventId, payload);
             navigate(`/crews/${idCrew}/events/${eventId}`);
         } catch (err) {
             setError(err.message || "No se pudo guardar el evento");
