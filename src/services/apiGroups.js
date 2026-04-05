@@ -36,7 +36,7 @@ export const createGroup = async (crewId, payload) => {
     }
 };
 
-// Devuelve los detalles de un grupo (solo miembros del grupo)
+// Devuelve los detalles de un grupo (solo miembros del grupo o administradores)
 export const getGroupById = async (crewId, groupId) => {
     try {
         const { data } = await axios.get(`${CREW_BASE_URL}/${crewId}/groups/${groupId}`, {
@@ -74,7 +74,7 @@ export const deleteGroup = async (crewId, groupId) => {
     }
 };
 
-// Devuelve los miembros de un grupo (solo miembros del grupo)
+// Devuelve los miembros de un grupo (solo miembros del grupo o administradores)
 export const getGroupMembers = async (crewId, groupId) => {
     try {
         const { data } = await axios.get(
