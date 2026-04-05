@@ -148,9 +148,14 @@ export default function CrewMembers() {
     });
 
     // Grupos únicos extraídos de los miembros para el filtro
-    const uniqueGroups = [
-        ...new Set(members.map((m) => m.grupo).filter(Boolean)),
-    ];
+    const uniqueGroups = useMemo(() => {
+        const groupsSet = new Set();
+        crew?.groups.forEach((group) => {
+            groupsSet.add(group.name);
+        });
+        return Array.from(groupsSet);
+        
+    }, [crew?.groups]);
 
     // --- Estados globales ---
 
