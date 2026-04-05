@@ -32,9 +32,14 @@ function getEventStatus(date) {
 export default function EventDetail() {
     // Obtener datos de contexto y parámetros de URL
     const { crew } = useContext(CrewContext);
-    const { idCrew, eventId } = useParams();
+    const { idCrew, eventId, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
 
     const [event, setEvent] = useState(null); //Guarda info del evento
     const [attendees, setAttendees] = useState([]); //Guarda lista de usuarios que asisten al evento
@@ -82,7 +87,7 @@ export default function EventDetail() {
 
         try {
             await deleteEvent(idCrew, eventId);
-            navigate(`/crews/${idCrew}/events`);
+            navigate(eventsBase);
         } catch (err) {
             setError(err.message || "No se pudo eliminar el evento");
             setSubmitting(false);
@@ -164,7 +169,7 @@ export default function EventDetail() {
                         <button
                             type="button"
                             className={styles.secondaryButton}
-                            onClick={() => navigate(`/crews/${idCrew}/events/${eventId}/edit`)}
+                            onClick={() => navigate(`${eventsBase}/${eventId}/edit`)}
                             disabled={submitting}
                         >
                           Editar

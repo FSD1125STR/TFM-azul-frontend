@@ -23,12 +23,12 @@ export const getEventById = async (crewId, eventId) => {
     }
 }
 
-//Devuelve los eventos de una crew
-export const getCrewEvents = async (crewId) => {
+//Devuelve los eventos de una crew, opcionalmente filtrados por grupo
+export const getCrewEvents = async (crewId, { groupId } = {}) => {
     try {
         const { data } = await axios.get(
             `${API_BASE_URL}/api/crews/${crewId}/events`,
-            { withCredentials: true },
+            { withCredentials: true, params: groupId ? { groupId } : {} },
         );
         return data.events ?? [];
     } catch (error) {

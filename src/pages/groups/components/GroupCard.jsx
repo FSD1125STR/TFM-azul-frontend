@@ -13,6 +13,7 @@ export default function GroupCard({ group, onView, onEdit, onDelete, isAdmin }) 
                     )}
                     <div className={styles.meta}>
                         <span>{group.memberCount ?? 0} miembros</span>
+                        <span>{group.eventCount ?? 0} eventos</span>
                     </div>
                 </div>
 

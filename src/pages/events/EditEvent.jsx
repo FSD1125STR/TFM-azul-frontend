@@ -21,9 +21,14 @@ const schema = z.object({
 export default function EditEvent() {
     // Obtener datos de contexto y parámetros de URL
     const { crew } = useContext(CrewContext);
-    const { idCrew, eventId } = useParams();
+    const { idCrew, eventId, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
 
     const [loadingEvent, setLoadingEvent] = useState(true);
     const [error, setError] = useState("");
@@ -77,7 +82,7 @@ export default function EditEvent() {
 
         try {
             await updateEvent(idCrew, eventId, payload);
-            navigate(`/crews/${idCrew}/events/${eventId}`);
+            navigate(`${eventsBase}/${eventId}`);
         } catch (err) {
             setError(err.message || "No se pudo guardar el evento");
             setSubmitting(false);
@@ -127,7 +132,7 @@ export default function EditEvent() {
                         <button
                             type="button"
                             className={styles.secondaryButton}
-                            onClick={() => navigate(`/crews/${idCrew}/events/${eventId}`)}
+                            onClick={() => navigate(`${eventsBase}/${eventId}`)}
                             disabled={submitting}
                         >
                             Cancelar

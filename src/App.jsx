@@ -75,7 +75,7 @@ function App() {
                                 {/** Rutas dentro de un grupo, carga el layout de navegacion del grupo sustituyendolo por el de la crew */}
                                 <Route path="groups/:groupId" element={<GroupLayout />}>
                                     <Route index element={<div>Group Overview (TODO)</div>} />
-                                    <Route path="events" element={<div>Group Events (TODO)</div>} />
+                                    <Route path="events" element={<CrewEvents />} />
                                     <Route path="events/create" element={<CreateEvent />} />
                                     <Route path="events/:eventId" element={<EventDetail />} />
                                     <Route path="events/:eventId/edit" element={<EditEvent />} />
