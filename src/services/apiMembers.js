@@ -64,3 +64,12 @@ export async function editCrewMember(crewId, memberId, payload) {
     });
     return handleResponse(res);
 }
+
+// Obtiene los grupos a los que pertenece un miembro dentro de una crew, para mostrarlos en el modal de edición de miembro
+export async function getMemberGroups(crewId, memberId) {
+    const res = await fetch(`${CREW_BASE_URL}/${crewId}/members/${memberId}/groups`, {
+        credentials: "include",
+    });
+    const data = await handleResponse(res);
+    return data?.groups ?? [];
+}

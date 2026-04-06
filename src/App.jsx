@@ -21,6 +21,7 @@ import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
+import GroupMembers from "./pages/groups/GroupMembers.jsx";
 import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 import AccountSettings from "./pages/users/AccountSettings.jsx";
@@ -80,7 +81,7 @@ function App() {
                                     <Route path="events/:eventId" element={<EventDetail />} />
                                     <Route path="events/:eventId/edit" element={<EditEvent />} />
                                     <Route path="polls" element={<div>Group Polls (TODO)</div>} />
-                                    <Route path="members" element={<div>Group Members (TODO)</div>} />
+                                    <Route path="members" element={<GroupMembers />} />
                                 </Route>
                                 
                                 <Route path="invite" element={<CrewInvitations />} />
