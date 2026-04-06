@@ -142,6 +142,7 @@ export default function CrewPolls() {
 
     const INITIAL_OPTIONS_COUNT = 3;
     const MAX_OPTIONS_COUNT = INITIAL_OPTIONS_COUNT + 2;
+    const MIN_OPTIONS_COUNT = INITIAL_OPTIONS_COUNT - 1;
 
     // Get crew data from context instead of managing in local state
     const { crew, loading } = useContext(CrewContext) || {
@@ -344,27 +345,43 @@ export default function CrewPolls() {
                             <div className={pollStyles.formGroup}>
                                 <div className={pollStyles.optionsHeader}>
                                     <label className={pollStyles.formLabel}>Options</label>
-                                    <button
-                                        type="button"
-                                        className={pollStyles.addOptionsBtn}
-                                        onClick={() =>
-                                            setNewOptions((prev) => {
-                                                if (prev.length >= MAX_OPTIONS_COUNT) return prev;
-                                                return [...prev, ""];
-                                            })
-                                        }
-                                        disabled={newOptions.length >= MAX_OPTIONS_COUNT}
-                                        aria-label="Add option"
-                                        title="Add option"
-                                    >
-                    +
-                                    </button>
+                                    <div className={pollStyles.optionActions}>
+                                        <button
+                                            type="button"
+                                            className={pollStyles.optionActionBtn}
+                                            onClick={() =>
+                                                setNewOptions((prev) => {
+                                                    if (prev.length >= MAX_OPTIONS_COUNT) return prev;
+                                                    return [...prev, ""];
+                                                })
+                                            }
+                                            disabled={newOptions.length >= MAX_OPTIONS_COUNT}
+                                            aria-label="Add option"
+                                            title="Add option"
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={pollStyles.optionActionBtn}
+                                            onClick={() =>
+                                                setNewOptions((prev) => {
+                                                    if (prev.length <= MIN_OPTIONS_COUNT) return prev;
+                                                    return prev.slice(0, -1);
+                                                })
+                                            }
+                                            disabled={newOptions.length <= MIN_OPTIONS_COUNT}
+                                            aria-label="Remove option"
+                                            title="Remove option"
+                                        >
+                                            -
+                                        </button>
+                                    </div>
                                 </div>
                                 {newOptions.map((opt, i) => (
                                     <input
                                         key={i}
-                                        className={pollStyles.formInput}
-                                        style={{ marginBottom: 8 }}
+                                        className={`${pollStyles.formInput} ${pollStyles.optionInput}`}
                                         placeholder={`Option ${i + 1}`}
                                         value={opt}
                                         onChange={(e) => {

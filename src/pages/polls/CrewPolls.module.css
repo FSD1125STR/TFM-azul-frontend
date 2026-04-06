@@ -283,9 +283,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
-.addOptionsBtn {
+.optionActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optionActionBtn {
   width: 28px;
   height: 28px;
   border-radius: 9px;
@@ -302,13 +309,21 @@
   padding: 0;
 }
 
-.addOptionsBtn:hover {
+.optionActionBtn:hover {
   border-color: var(--color-button);
 }
 
-.addOptionsBtn:disabled {
+.optionActionBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.optionInput {
+  margin-bottom: 8px;
+}
+
+.optionInput:last-of-type {
+  margin-bottom: 0;
 }
 
 .formInput {
