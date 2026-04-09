@@ -1,8 +1,5 @@
 import axios from "axios";
 
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-export const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
-
 /**
  * Uploads a file to Cloudinary using a backend-generated signature.
  * @param {Object} options

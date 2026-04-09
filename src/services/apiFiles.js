@@ -1,5 +1,6 @@
 import axios from "axios";
-import { uploadToCloudinary, API_BASE_URL } from "./cloudinaryUpload.js";
+import { API_BASE_URL } from "./config.js";
+import { uploadToCloudinary } from "./cloudinaryUpload.js";
 
 const normalizeError = (error, fallbackMessage) => {
     const status = error.response?.status ?? 0;

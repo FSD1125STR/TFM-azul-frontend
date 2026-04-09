@@ -2,7 +2,8 @@
 //API WRAPPER DE CREWS
 
 import axios from "axios";
-import { uploadToCloudinary, API_BASE_URL } from "./cloudinaryUpload.js";
+import { API_BASE_URL } from "./config.js";
+import { uploadToCloudinary } from "./cloudinaryUpload.js";
 
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
 

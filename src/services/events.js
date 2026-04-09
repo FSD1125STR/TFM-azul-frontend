@@ -1,7 +1,5 @@
 import axios from "axios";
-
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
+import { API_BASE_URL } from "./config.js";
 
 const normalizeError = (error, fallbackMessage) => {
     const status = error.response?.status ?? 0;
@@ -11,11 +9,26 @@ const normalizeError = (error, fallbackMessage) => {
     throw normalized;
 };
 
-export const getCrewEvents = async (crewId) => {
+
+//Devuelve un evento por su id, junto con info de asistencia del usuario
+export const getEventById = async (crewId, eventId) => {
+    try{
+        const {data} = await axios.get(`${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
+            {withCredentials: true}
+        );
+        return data.event;
+
+    } catch (error) {
+        normalizeError(error, "Error al cargar evento");
+    }
+}
+
+//Devuelve los eventos de una crew, opcionalmente filtrados por grupo
+export const getCrewEvents = async (crewId, { groupId } = {}) => {
     try {
         const { data } = await axios.get(
             `${API_BASE_URL}/api/crews/${crewId}/events`,
-            { withCredentials: true },
+            { withCredentials: true, params: groupId ? { groupId } : {} },
         );
         return data.events ?? [];
     } catch (error) {
@@ -23,6 +36,7 @@ export const getCrewEvents = async (crewId) => {
     }
 };
 
+//Devuelve los eventos de un usuario
 export const getMyEvents = async (userId) => {
     try {
         const { data } = await axios.get(`${API_BASE_URL}/api/events`, {
@@ -35,6 +49,7 @@ export const getMyEvents = async (userId) => {
     }
 };
 
+//Crea un evento dentro de una crew. Solo para admins de la crew
 export const createCrewEvent = async (crewId, payload) => {
     try {
         const { data } = await axios.post(
@@ -48,6 +63,7 @@ export const createCrewEvent = async (crewId, payload) => {
     }
 };
 
+
 export const createEvent = async (payload) => {
     try {
         const { data } = await axios.post(`${API_BASE_URL}/api/events`, payload, {
@@ -59,10 +75,11 @@ export const createEvent = async (payload) => {
     }
 };
 
-export const updateEvent = async (eventId, payload) => {
+//Actualiza info de un evento
+export const updateEvent = async (crewId, eventId, payload) => {
     try {
         const { data } = await axios.put(
-            `${API_BASE_URL}/api/events/${eventId}`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
             payload,
             { withCredentials: true },
         );
@@ -72,11 +89,12 @@ export const updateEvent = async (eventId, payload) => {
     }
 };
 
-export const deleteEvent = async (eventId, userId) => {
+//Borra un evento
+export const deleteEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.delete(
-            `${API_BASE_URL}/api/events/${eventId}`,
-            { data: { userId }, withCredentials: true },
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
+            { withCredentials: true },
         );
         return data;
     } catch (error) {
@@ -84,10 +102,11 @@ export const deleteEvent = async (eventId, userId) => {
     }
 };
 
-export const attendEvent = async (eventId) => {
+//Registra la asistencia de un usuario a un evento
+export const attendEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.post(
-            `${API_BASE_URL}/api/events/${eventId}/attendance`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendance`,
             {},
             { withCredentials: true },
         );
@@ -97,10 +116,24 @@ export const attendEvent = async (eventId) => {
     }
 };
 
-export const unattendEvent = async (eventId) => {
+//Devuelve la lista de asistentes a un evento
+export const getEventAttendees = async (crewId, eventId) => {
+    try {
+        const { data } = await axios.get(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendees`,
+            { withCredentials: true },
+        );
+        return data.attendees ?? [];
+    } catch (error) {
+        normalizeError(error, "Error al cargar participantes");
+    }
+};
+
+//Quita la asistencia de un usuario a un evento
+export const unattendEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.delete(
-            `${API_BASE_URL}/api/events/${eventId}/attendance`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendance`,
             { withCredentials: true },
         );
         return data;

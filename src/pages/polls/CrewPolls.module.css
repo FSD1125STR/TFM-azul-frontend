@@ -278,6 +278,54 @@
   margin-bottom: 6px;
 }
 
+.optionsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.optionActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.optionActionBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.optionActionBtn:hover {
+  border-color: var(--color-button);
+}
+
+.optionActionBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.optionInput {
+  margin-bottom: 8px;
+}
+
+.optionInput:last-of-type {
+  margin-bottom: 0;
+}
+
 .formInput {
   width: 100%;
   padding: 10px 12px;
