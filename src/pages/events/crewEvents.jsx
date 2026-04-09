@@ -11,7 +11,7 @@ export default function CrewEvents() {
     const { crew } = useContext(CrewContext);
     const { idCrew, groupId } = useParams();
     const navigate = useNavigate();
-    const canManageCrew = crew.userRole?.permission === "admin";
+    const canManageCrew = crew?.userRole?.permission === "admin";
 
     //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
     const eventsBase = groupId

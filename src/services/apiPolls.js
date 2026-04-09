@@ -29,13 +29,14 @@ const normalizePoll = (poll) => {
 };
 
 // Create a new poll
-export const createPoll = async (crewId, { question, options }) => {
-    try {
+export const createPoll = async (crewId, { question, options, expiresAt }) => {
+    try { 
         const { data } = await axios.post(
             `${CREW_BASE_URL}/${crewId}/polls`,
             {
                 question,
                 options,
+                expiresAt,
             },
             { withCredentials: true }
         );

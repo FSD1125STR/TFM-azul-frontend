@@ -157,6 +157,65 @@
     line-height: 1.5;
 }
 
+.rsvpRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.rsvpButtons {
+    display: flex;
+    gap: 12px;
+}
+
+.rsvpButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.rsvpButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.rsvpYes,
+.rsvpNo {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+}
+
+.rsvpYesActive {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #166534;
+}
+
+.rsvpNoActive {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.rsvpStats {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
 @media (max-width: 960px) {
     .content {
         padding-top: 16px;
@@ -164,6 +223,15 @@
 
     .actions {
         flex-direction: column-reverse;
+    }
+
+    .rsvpButtons {
+        width: 100%;
+    }
+
+    .rsvpButton {
+        flex: 1;
+        justify-content: center;
     }
 }
 

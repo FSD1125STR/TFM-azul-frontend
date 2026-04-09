@@ -17,6 +17,7 @@ import { getGroupsInCrew, addGroupMember, removeGroupMember } from "../../../ser
 export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
     const { crew, crewId, loading, error } = useContext(CrewContext);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const roles = crew?.roles || [];
     const canManageMembers = crew?.userRole?.permission === "admin";
 
