@@ -10,6 +10,7 @@ import Register from "./pages/auth/Register.jsx";
 import Dashboard from "./pages/dashboard/Dashboard.jsx";
 import AppLayout from "./components/layout/AppLayout.jsx";
 import CrewLayout from "./components/layout/CrewLayout.jsx";
+import GroupLayout from "./components/layout/GroupLayout.jsx";
 import MyCrews from "./pages/crews/myCrews.jsx";
 import CrewDetails from "./pages/crews/Crewdetails.jsx";
 import CrewEvents from "./pages/events/crewEvents.jsx";
@@ -20,6 +21,7 @@ import CrewFiles from "./pages/files/crewFiles.jsx";
 import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
+import GroupMembers from "./pages/groups/GroupMembers.jsx";
 import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 import AccountSettings from "./pages/users/AccountSettings.jsx";
@@ -70,9 +72,22 @@ function App() {
                                 <Route path="polls" element={<CrewPolls />} />
                                 <Route path="members" element={<CrewMembers />} />
                                 <Route path="groups" element={<CrewGroups />} />
+
+                                {/** Rutas dentro de un grupo, carga el layout de navegacion del grupo sustituyendolo por el de la crew */}
+                                <Route path="groups/:groupId" element={<GroupLayout />}>
+                                    <Route index element={<div>Group Overview (TODO)</div>} />
+                                    <Route path="events" element={<CrewEvents />} />
+                                    <Route path="events/create" element={<CreateEvent />} />
+                                    <Route path="events/:eventId" element={<EventDetail />} />
+                                    <Route path="events/:eventId/edit" element={<EditEvent />} />
+                                    <Route path="polls" element={<div>Group Polls (TODO)</div>} />
+                                    <Route path="members" element={<GroupMembers />} />
+                                </Route>
+                                
                                 <Route path="invite" element={<CrewInvitations />} />
                             </Route>
                         </Route>
+
                     </Routes>
                 </BrowserRouter>
             </SocketProvider>

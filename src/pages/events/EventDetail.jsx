@@ -32,9 +32,14 @@ function getEventStatus(date) {
 export default function EventDetail() {
     // Obtener datos de contexto y parámetros de URL
     const { crew } = useContext(CrewContext);
-    const { idCrew, eventId } = useParams();
+    const { idCrew, eventId, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
 
     const [event, setEvent] = useState(null); //Guarda info del evento
     const [attendees, setAttendees] = useState([]); //Guarda lista de usuarios que asisten al evento
@@ -54,8 +59,8 @@ export default function EventDetail() {
 
             try {
                 const [eventData, attendeesData] = await Promise.all([
-                    getEventById(eventId),
-                    getEventAttendees(eventId),
+                    getEventById(idCrew, eventId),
+                    getEventAttendees(idCrew, eventId),
                 ]);
                 if (eventData) {
                     setEvent(eventData);
@@ -81,8 +86,8 @@ export default function EventDetail() {
         setError("");
 
         try {
-            await deleteEvent(eventId, userId);
-            navigate(`/crews/${idCrew}/events`);
+            await deleteEvent(idCrew, eventId);
+            navigate(eventsBase);
         } catch (err) {
             setError(err.message || "No se pudo eliminar el evento");
             setSubmitting(false);
@@ -96,7 +101,7 @@ export default function EventDetail() {
         setError("");
 
         try {
-            const data = await attendEvent(event._id);
+            const data = await attendEvent(idCrew, event._id);
 
             //Actualizamos el evento y la lista de asistentes con la nueva asistencia
             setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
@@ -116,7 +121,7 @@ export default function EventDetail() {
 
         try {
             //Llamamos a la api para quitar la asistencia y actualizamos el evento y la lista de asistentes
-            const data = await unattendEvent(event._id);
+            const data = await unattendEvent(idCrew, event._id);
             setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
             setAttendees((prev) => prev.filter((a) => a._id !== userId));
         } catch (err) {
@@ -164,7 +169,7 @@ export default function EventDetail() {
                         <button
                             type="button"
                             className={styles.secondaryButton}
-                            onClick={() => navigate(`/crews/${idCrew}/events/${eventId}/edit`)}
+                            onClick={() => navigate(`${eventsBase}/${eventId}/edit`)}
                             disabled={submitting}
                         >
                           Editar
