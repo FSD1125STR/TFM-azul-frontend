@@ -227,15 +227,14 @@
 }
 
 .emailOutlineButton {
-  color: #1f6fb2;
-  background: #fff;
-  border: 1px solid #c8d6f2;
-  box-shadow: var(--shadow-sm);
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
 }
 
-.emailOutlineButton:hover {
-  transform: translateY(-1px);
-  background: #f4f8ff;
+.emailOutlineButton:hover:not(:disabled) {
+  background: var(--color-background-primary);
 }
 
 .empty {
@@ -273,6 +272,7 @@
     background-color 120ms ease;
   height: 44px;
   min-width: 170px;
+  padding: 0 16px;
 }
 
 .primaryButton {
@@ -306,15 +306,14 @@
 }
 
 .dangerOutlineButton {
-  color: #d32f2f;
-  background: #fff;
-  border: 1px solid #f4b6b6;
-  box-shadow: var(--shadow-sm);
+  color: #991b1b;
+  background: rgba(220, 38, 38, 0.08);
+  border: none;
+  box-shadow: none;
 }
 
-.dangerOutlineButton:hover {
-  transform: translateY(-1px);
-  background: #fff5f5;
+.dangerOutlineButton:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.15);
 }
 
 .primaryButton:disabled,

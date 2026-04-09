@@ -89,6 +89,7 @@ export const updateInvitationStatus = async (invitationId, status) => {
     }
 };
 
+//Llama a la API para enviar la invitacion por email
 export const sendInvitationEmail = async (crewId, email) => {
     try {
         const { data } = await axios.post(
