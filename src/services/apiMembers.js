@@ -1,5 +1,4 @@
-const { VITE_BACK_HOST, VITE_BACK_PORT } = import.meta.env;
-const API_BASE_URL = `http://${VITE_BACK_HOST}:${VITE_BACK_PORT}`;
+import { API_BASE_URL } from "./config.js";
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
 
 async function handleResponse(res) {
@@ -64,4 +63,13 @@ export async function editCrewMember(crewId, memberId, payload) {
         body: JSON.stringify(payload),
     });
     return handleResponse(res);
+}
+
+// Obtiene los grupos a los que pertenece un miembro dentro de una crew, para mostrarlos en el modal de edición de miembro
+export async function getMemberGroups(crewId, memberId) {
+    const res = await fetch(`${CREW_BASE_URL}/${crewId}/members/${memberId}/groups`, {
+        credentials: "include",
+    });
+    const data = await handleResponse(res);
+    return data?.groups ?? [];
 }

@@ -1,4 +1,4 @@
-import { IconClock, IconMapPin } from "@tabler/icons-react";
+import { IconClock, IconMapPin, IconUsers } from "@tabler/icons-react";
 import { formatEventDateParts } from "../utils/eventDateUtils";
 import styles from "./EventCard.module.css";
 
@@ -32,21 +32,20 @@ export default function EventCard({ event, onClick, crewName }) {
                         </span>
                     )}
 
+                    <span className={styles.metaItem}>
+                        <IconUsers size={13} stroke={2} />
+                        {event.attendanceCount ?? 0}
+                    </span>
+
                     {/** Crew */}
-                    {crewName && (
-                        <span className={styles.crewPill}>{crewName}</span>
-                    )}
+                    {crewName && <span className={styles.crewPill}>{crewName}</span>}
                 </div>
             </div>
-            
+
             {/** Boton para ir al evento */}
             <div className={styles.actions}>
-                <button
-                    type="button"
-                    className={styles.detailButton}
-                    onClick={onClick}
-                >
-                    Detalles
+                <button type="button" className={styles.detailButton} onClick={onClick}>
+          Detalles
                 </button>
             </div>
         </article>

@@ -10,7 +10,9 @@ import {
     getCrewMembers,
     removeCrewMember,
     editCrewMember,
+    getMemberGroups,
 } from "../../../services/apiMembers.js";
+import { getGroupsInCrew, addGroupMember, removeGroupMember } from "../../../services/apiGroups.js";
 
 export default function CrewMembers() {
     // Extraemos la info de la crew desde el context
@@ -39,6 +41,12 @@ export default function CrewMembers() {
     // Modal de editar miembro
     const [memberToEdit, setMemberToEdit] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+
+    // Grupos en el modal de editar
+    const [allGroups, setAllGroups] = useState([]);
+    const [selectedGroupIds, setSelectedGroupIds] = useState(new Set()); //Grupos seleccionados
+    const [initialGroupIds, setInitialGroupIds] = useState(new Set()); //Grupos que tenia el miembro
+    const [groupsLoading, setGroupsLoading] = useState(false);
 
     const roleByName = useMemo(
         () =>
@@ -99,6 +107,43 @@ export default function CrewMembers() {
         }
     };
 
+    // Abre el modal de editar miembro cargando los grupos para mostrar en el modal y cuáles tenía el miembro para marcarlos como seleccionados
+    const handleOpenEditModal = async (member) => {
+        const role = roleByName.get(member.role);
+        setMemberToEdit({ ...member, roleId: role?._id ?? "" });
+        setGroupsLoading(true);
+        setAllGroups([]);
+        setSelectedGroupIds(new Set());
+        setInitialGroupIds(new Set());
+
+        try {
+            // Cargamos todos los grupos de la crew y los grupos a los que pertenece el miembro en paralelo
+            const [groups, memberGroups] = await Promise.all([
+                getGroupsInCrew(crewId),
+                getMemberGroups(crewId, member.id),
+            ]);
+            setAllGroups(groups);
+            const ids = new Set(memberGroups.map((g) => String(g._id)));
+            setSelectedGroupIds(ids);
+            setInitialGroupIds(ids);
+
+        } catch {
+            // grupos no críticos, el modal abre igualmente sin la sección
+        } finally {
+            setGroupsLoading(false);
+        }
+    };
+
+    // Maneja el toggle de selección de grupos en el modal de editar miembro
+    const handleToggleGroup = (groupId) => {
+        setSelectedGroupIds((prev) => {
+            const next = new Set(prev);
+            if (next.has(groupId)) next.delete(groupId);
+            else next.add(groupId);
+            return next;
+        });
+    };
+
     const handleEditMember = async () => {
         if (!canManageMembers) return;
         if (!memberToEdit) return;
@@ -111,9 +156,17 @@ export default function CrewMembers() {
         }
         try {
             setIsEditing(true);
-            await editCrewMember(crewId, memberToEdit.id, {
-                roleId: memberToEdit.roleId,
-            });
+
+            // Calculamos qué grupos se han añadido o quitado comparando el estado inicial con el actual
+            const groupsAdded = [...selectedGroupIds].filter((id) => !initialGroupIds.has(id));
+            const groupsRemoved = [...initialGroupIds].filter((id) => !selectedGroupIds.has(id));
+
+            await Promise.all([
+                editCrewMember(crewId, memberToEdit.id, { roleId: memberToEdit.roleId }),
+                ...groupsAdded.map((gId) => addGroupMember(crewId, gId, memberToEdit.id)), // Añadimos a los nuevos grupos uno a uno
+                ...groupsRemoved.map((gId) => removeGroupMember(crewId, gId, memberToEdit.id)), // Quitamos de los grupos eliminados uno a uno
+            ]);
+
             const selectedRole = roleById.get(String(memberToEdit.roleId));
             const updatedMember = {
                 ...memberToEdit,
@@ -127,6 +180,7 @@ export default function CrewMembers() {
                 message: "Miembro editado correctamente",
             });
             setMemberToEdit(null);
+            
         } catch (err) {
             setNotification({
                 type: "error",
@@ -138,20 +192,29 @@ export default function CrewMembers() {
     };
 
     // Filtramos los miembros según los filtros activos
-    const filteredMembers = members.filter((m) => {
-        const matchRole = !roleFilter || m.role === roleFilter;
-        const matchGroup = !groupFilter || m.grupo === groupFilter;
-        const matchSearch =
-      !search ||
-      m.name?.toLowerCase().includes(search.toLowerCase()) ||
-      m.email?.toLowerCase().includes(search.toLowerCase());
-        return matchRole && matchGroup && matchSearch;
-    });
+    const filteredMembers = useMemo(
+        () =>
+            members.filter((m) => {
+                const matchRole = !roleFilter || m.role === roleFilter;
+                const matchGroup = !groupFilter || m.grupo === groupFilter;
+                const matchSearch =
+                    !search ||
+                    m.name?.toLowerCase().includes(search.toLowerCase()) ||
+                    m.email?.toLowerCase().includes(search.toLowerCase());
+                return matchRole && matchGroup && matchSearch;
+            }),
+        [members, roleFilter, groupFilter, search]
+    );
 
     // Grupos únicos extraídos de los miembros para el filtro
-    const uniqueGroups = [
-        ...new Set(members.map((m) => m.grupo).filter(Boolean)),
-    ];
+    const uniqueGroups = useMemo(() => {
+        const groupsSet = new Set();
+        crew?.groups.forEach((group) => {
+            groupsSet.add(group.name);
+        });
+        return Array.from(groupsSet);
+        
+    }, [crew?.groups]);
 
     // --- Estados globales ---
 
@@ -267,26 +330,47 @@ export default function CrewMembers() {
                                     ))}
                                 </select>
                             </div>
-                            <div>
-                                <label
-                                    style={{
-                                        display: "block",
-                                        marginBottom: "4px",
-                                        fontWeight: "600",
-                                    }}
-                                >
-                                    Grupo
-                                </label>
-                                <input
-                                    className={styles.input}
-                                    type="text"
-                                    placeholder="Grupo"
-                                    value={memberToEdit.grupo || ""}
-                                    onChange={(e) =>
-                                        setMemberToEdit({ ...memberToEdit, grupo: e.target.value })
-                                    }
-                                />
-                            </div>
+
+                            {!groupsLoading && allGroups.length > 0 && (
+                                <div>
+                                    <label
+                                        style={{
+                                            display: "block",
+                                            marginBottom: "8px",
+                                            fontWeight: "600",
+                                        }}
+                                    >
+                                        Grupos
+                                    </label>
+                                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                        {allGroups.map((g) => (
+                                            <label
+                                                key={g._id}
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "8px",
+                                                    fontSize: "0.875rem",
+                                                    cursor: "pointer",
+                                                }}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedGroupIds.has(String(g._id))}
+                                                    onChange={() => handleToggleGroup(String(g._id))}
+                                                    disabled={isEditing}
+                                                />
+                                                {g.name}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {groupsLoading && (
+                                <p style={{ fontSize: "0.85rem", color: "var(--color-text-secondary)", margin: 0 }}>
+                                    Cargando grupos...
+                                </p>
+                            )}
                         </div>
                         <div className={styles.modalActions}>
                             <button
@@ -433,13 +517,7 @@ export default function CrewMembers() {
                                                     type="button"
                                                     className={styles.actionButton}
                                                     aria-label="Editar miembro"
-                                                    onClick={() => {
-                                                        const role = roleByName.get(member.role);
-                                                        setMemberToEdit({
-                                                            ...member,
-                                                            roleId: role?._id ?? "",
-                                                        });
-                                                    }}
+                                                    onClick={() => handleOpenEditModal(member)}
                                                 >
                                                     <IconPencil size={14} stroke={2} />
                                                     Editar

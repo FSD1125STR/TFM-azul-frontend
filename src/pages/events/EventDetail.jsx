@@ -4,41 +4,53 @@ import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { CrewContext } from "../../hooks/context/CrewContext";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import {
+    attendEvent,
     deleteEvent,
-    getCrewEventDetail,
-    setCrewEventAttendance,
-    updateEvent,
+    getEventById,
+    getEventAttendees,
+    unattendEvent,
 } from "../../services/events.js";
-import EventForm from "./components/EventForm.jsx";
-import { formatDateInput } from "./utils/eventDateUtils.js";
+import EventDetailsCard from "./components/EventDetailsCard.jsx";
+import EventStatusCard from "./components/EventStatusCard.jsx";
+import EventParticipantsCard from "./components/EventParticipantsCard.jsx";
 import styles from "./EventDetail.module.css";
 
-const initialEditForm = {
-    title: "",
-    date: "",
-    description: "",
-    location: "",
-};
+// Función para determinar el estado del evento (pasado o programado) y el texto de días
+function getEventStatus(date) {
+    const now = new Date();
+    const eventDate = new Date(date);
+    const isPast = eventDate < now;
+    const diffDays = Math.abs(Math.round((eventDate - now) / (1000 * 60 * 60 * 24)));
+    return {
+        statusLabel: isPast ? "Pasado" : "Programado",
+        daysText: isPast
+            ? diffDays === 0 ? "Hoy" : `Hace ${diffDays} día${diffDays !== 1 ? "s" : ""}`
+            : diffDays === 0 ? "Hoy" : `Faltan ${diffDays} día${diffDays !== 1 ? "s" : ""}`,
+    };
+}
 
 export default function EventDetail() {
+    // Obtener datos de contexto y parámetros de URL
     const { crew } = useContext(CrewContext);
-    const { idCrew, eventId } = useParams();
+    const { idCrew, eventId, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    const [event, setEvent] = useState(null);
+    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
+
+    const [event, setEvent] = useState(null); //Guarda info del evento
+    const [attendees, setAttendees] = useState([]); //Guarda lista de usuarios que asisten al evento
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [myAttendance, setMyAttendance] = useState(null);
-    const [attendanceSummary, setAttendanceSummary] = useState({ yes: 0, no: 0 });
-    const [isEditing, setIsEditing] = useState(false);
-    const [editForm, setEditForm] = useState(initialEditForm);
     const [submitting, setSubmitting] = useState(false);
-    const [rsvpSubmitting, setRsvpSubmitting] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); //Controla la visibilidad del modal de confirmación para eliminar el evento
 
     const userId = useMemo(() => user?._id, [user]);
 
+    //Cargamos el evento y sus asistentes llamando a la api
     useEffect(() => {
         const loadEvent = async () => {
             if (!idCrew) return;
@@ -46,10 +58,16 @@ export default function EventDetail() {
             setError("");
 
             try {
-                const detail = await getCrewEventDetail(idCrew, eventId);
-                setEvent(detail.event);
-                setMyAttendance(detail.myAttendance);
-                setAttendanceSummary(detail.attendance ?? { yes: 0, no: 0 });
+                const [eventData, attendeesData] = await Promise.all([
+                    getEventById(idCrew, eventId),
+                    getEventAttendees(idCrew, eventId),
+                ]);
+                if (eventData) {
+                    setEvent(eventData);
+                } else {
+                    setError("Evento no encontrado");
+                }
+                setAttendees(attendeesData ?? []);
             } catch (err) {
                 setError(err.message || "Error al cargar el evento");
             } finally {
@@ -60,55 +78,7 @@ export default function EventDetail() {
         loadEvent();
     }, [idCrew, eventId]);
 
-    const handleEditChange = (e) => {
-        const { name, value } = e.target;
-        setEditForm((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const startEdit = () => {
-        if (event) {
-            setEditForm({
-                title: event.title || "",
-                date: formatDateInput(event.date),
-                description: event.description || "",
-                location: event.location || "",
-            });
-            setIsEditing(true);
-        }
-    };
-
-    const cancelEdit = () => {
-        setIsEditing(false);
-        setEditForm(initialEditForm);
-    };
-
-    const handleEditSubmit = async (e) => {
-        e.preventDefault();
-        if (!userId) return;
-
-        setSubmitting(true);
-        setError("");
-
-        const payload = {
-            title: editForm.title.trim(),
-            date: editForm.date ? new Date(editForm.date).toISOString() : "",
-            description: editForm.description.trim(),
-            location: editForm.location.trim(),
-            userId,
-        };
-
-        try {
-            const data = await updateEvent(eventId, payload);
-            setEvent(data.event);
-            setIsEditing(false);
-            setEditForm(initialEditForm);
-        } catch (err) {
-            setError(err.message || "No se pudo guardar el evento");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
+    //Maneja la confirmación para eliminar el evento
     const handleDeleteConfirmed = async () => {
         if (!userId) return;
 
@@ -116,32 +86,52 @@ export default function EventDetail() {
         setError("");
 
         try {
-            await deleteEvent(eventId, userId);
-            navigate(`/crews/${idCrew}/events`);
+            await deleteEvent(idCrew, eventId);
+            navigate(eventsBase);
         } catch (err) {
             setError(err.message || "No se pudo eliminar el evento");
             setSubmitting(false);
         }
     };
 
-    const handleRsvp = async (attending) => {
-        if (!userId || !idCrew || !eventId) return;
-
-        setRsvpSubmitting(true);
+    //Maneja el boton para asistir al evento
+    const handleAttend = async () => {
+        if (!event?._id || event.userAttending) return;
+        setSubmitting(true);
         setError("");
 
         try {
-            const detail = await setCrewEventAttendance(idCrew, eventId, attending);
-            setEvent(detail.event);
-            setMyAttendance(detail.myAttendance);
-            setAttendanceSummary(detail.attendance ?? { yes: 0, no: 0 });
+            const data = await attendEvent(idCrew, event._id);
+
+            //Actualizamos el evento y la lista de asistentes con la nueva asistencia
+            setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
+            setAttendees((prev) => [...prev, data.attendance.user]);
         } catch (err) {
-            setError(err.message || "No se pudo actualizar tu asistencia");
+            setError(err.message || "No se pudo registrar la asistencia");
         } finally {
-            setRsvpSubmitting(false);
+            setSubmitting(false);
         }
     };
 
+    //Maneja el boton para quitar la asistencia al evento
+    const handleUnattend = async () => {
+        if (!event?._id || !event.userAttending) return;
+        setSubmitting(true);
+        setError("");
+
+        try {
+            //Llamamos a la api para quitar la asistencia y actualizamos el evento y la lista de asistentes
+            const data = await unattendEvent(idCrew, event._id);
+            setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
+            setAttendees((prev) => prev.filter((a) => a._id !== userId));
+        } catch (err) {
+            setError(err.message || "No se pudo quitar la asistencia");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Renderizamos un loading si esta cargando el evento
     if (loading) {
         return (
             <section className={styles.page}>
@@ -150,172 +140,75 @@ export default function EventDetail() {
         );
     }
 
+    // Si no hay evento, mostramos un mensaje
     if (!event) {
         return (
             <section className={styles.page}>
                 <header className={styles.header}>
-                    <div>
-                        <h1 className={styles.title}>Evento no encontrado</h1>
-                    </div>
-                    <button
-                        type="button"
-                        className={styles.primaryButton}
-                        onClick={() => navigate(`/crews/${idCrew}/events`)}
-                    >
-                        Volver
-                    </button>
+                    <h1 className={styles.title}>Evento no encontrado</h1>
                 </header>
             </section>
         );
     }
 
+    // Obtenemos el estado del evento y el texto de días
+    const { statusLabel, daysText } = getEventStatus(event.date);
+    // Comprobamos si el usuario es admin para mostrar las acciones de editar y eliminar
+    const isAdmin = crew?.userRole?.permission === "admin";
+
     return (
         <section className={styles.page}>
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Detalle del evento {event.title}</h1>
+                    <h1 className={styles.title}>{event.title}</h1>
                     <p className={styles.subtitle}>{crew?.name || "la crew"}</p>
                 </div>
-                <button
-                    type="button"
-                    className={styles.primaryButton}
-                    onClick={() => navigate(`/crews/${idCrew}/events`)}
-                >
-                    Volver
-                </button>
+                {isAdmin && (
+                    <div className={styles.headerActions}>
+                        {/** Botón de editar navega a la página de edición del evento */}
+                        <button
+                            type="button"
+                            className={styles.secondaryButton}
+                            onClick={() => navigate(`${eventsBase}/${eventId}/edit`)}
+                            disabled={submitting}
+                        >
+                          Editar
+                        </button>
+                        <button
+                            type="button"
+                            className={styles.dangerButton}
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={submitting}
+                        >
+                          Eliminar
+                        </button>
+                    </div>
+                )}
             </header>
 
             <div className={styles.content}>
-                {!isEditing && (
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2>Asistencia</h2>
-                            <p>Marca si vas a asistir al evento.</p>
-                        </div>
+                {/** Mostramos mensaje de error si existe */}
+                {error && <p className={styles.error}>{error}</p>}
 
-                        <div className={styles.rsvpRow}>
-                            <div className={styles.rsvpButtons}>
-                                <button
-                                    type="button"
-                                    className={`${styles.rsvpButton} ${myAttendance === true ? styles.rsvpYesActive : styles.rsvpYes}`}
-                                    onClick={() => handleRsvp(true)}
-                                    disabled={rsvpSubmitting || submitting}
-                                >
-                                    Sí
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`${styles.rsvpButton} ${myAttendance === false ? styles.rsvpNoActive : styles.rsvpNo}`}
-                                    onClick={() => handleRsvp(false)}
-                                    disabled={rsvpSubmitting || submitting}
-                                >
-                                    No
-                                </button>
-                            </div>
+                {/** Detalles del evento */}
+                <div className={styles.viewGrid}>
+                    <EventDetailsCard event={event} statusLabel={statusLabel} />
 
-                            <div className={styles.rsvpStats}>
-                                <span>Asisten: {attendanceSummary?.yes ?? 0}</span>
-                                <span>No asisten: {attendanceSummary?.no ?? 0}</span>
-                            </div>
-                        </div>
+                    <div className={styles.rightColumn}>
+                        <EventStatusCard
+                            event={event}
+                            statusLabel={statusLabel}
+                            daysText={daysText}
+                            onAttend={handleAttend}
+                            onUnattend={handleUnattend}
+                            submitting={submitting}
+                        />
+                        <EventParticipantsCard attendees={attendees} />
                     </div>
-                )}
-                {isEditing ? (
-                    <form className={styles.eventForm} onSubmit={handleEditSubmit}>
-                        <div className={styles.section}>
-                            <div className={styles.sectionHeader}>
-                                <h2>Editar evento</h2>
-                                <p>Modifica los datos del evento.</p>
-                            </div>
-
-                            <EventForm
-                                values={editForm}
-                                onChange={handleEditChange}
-                                disabled={submitting}
-                                idPrefix="edit"
-                            />
-                        </div>
-
-                        {error && <p className={styles.error}>{error}</p>}
-
-                        <div className={styles.actions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={cancelEdit}
-                                disabled={submitting}
-                            >
-                                Cancelar
-                            </button>
-                            <button className={styles.primaryButton} disabled={submitting}>
-                                Guardar cambios
-                            </button>
-                        </div>
-                    </form>
-                ) : (
-                    <div className={styles.section}>
-                        <div className={styles.eventDetail}>
-                            <div className={styles.detailField}>
-                                <label>Fecha</label>
-                                <p>
-                                    {new Date(event.date).toLocaleDateString("es-ES", {
-                                        weekday: "long",
-                                        day: "2-digit",
-                                        month: "long",
-                                        year: "numeric",
-                                    })}
-                                </p>
-                            </div>
-
-                            <div className={styles.detailField}>
-                                <label>Hora</label>
-                                <p>
-                                    {new Date(event.date).toLocaleTimeString("es-ES", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    })}
-                                </p>
-                            </div>
-
-                            {event.location && (
-                                <div className={styles.detailField}>
-                                    <label>Lugar</label>
-                                    <p>{event.location}</p>
-                                </div>
-                            )}
-
-                            {event.description && (
-                                <div className={styles.detailField}>
-                                    <label>Descripción</label>
-                                    <p>{event.description}</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {error && <p className={styles.error}>{error}</p>}
-
-                        <div className={styles.actions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={startEdit}
-                                disabled={submitting}
-                            >
-                                Editar evento
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.dangerButton}
-                                onClick={() => setShowDeleteConfirm(true)}
-                                disabled={submitting}
-                            >
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                )}
+                </div>
             </div>
-
+            
+            {/** Modal de confirmación para eliminar el evento */}
             <ConfirmModal
                 open={showDeleteConfirm}
                 title="¿Eliminar evento?"

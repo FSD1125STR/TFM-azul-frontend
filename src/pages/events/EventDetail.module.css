@@ -112,6 +112,26 @@
     padding: 12px 0;
 }
 
+.viewGrid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+    align-items: start;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.headerActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
 .eventDetail {
     display: grid;
     gap: 16px;
@@ -212,5 +232,15 @@
     .rsvpButton {
         flex: 1;
         justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .viewGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .headerActions {
+        flex-wrap: wrap;
     }
 }
