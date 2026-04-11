@@ -1,262 +1,101 @@
-import { useState, useContext, useEffect } from "react";
-import pollStyles from "./CrewPolls.module.css";
-import { useNavigate, useParams } from "react-router-dom";
-import styles from "../crews/CrewDetails.module.css";
-import CrewToast from "../crews/components/CrewToast.jsx";
+import { useState, useContext, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
 import { CrewContext } from "../../hooks/context/CrewContext";
-import { createPoll, getCrewPolls, votePoll } from "../../services/apiPolls";
+import { getCrewPolls, createPoll, deletePoll } from "../../services/apiPolls";
+import { Button } from "../../components/ui/Button.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal.jsx";
+import CrewToast from "../crews/components/CrewToast.jsx";
+import ActivePollCard from "./components/ActivePollCard.jsx";
+import PastPollCard from "./components/PastPollCard.jsx";
+import CreatePollModal from "./components/CreatePollModal.jsx";
+import styles from "./CrewPolls.module.css";
 
-function ActivePollCard({ poll, onVoteSuccess }) {
-    const { idCrew } = useParams();
-    const [selected, setSelected] = useState(null);
-    const [voted, setVoted] = useState(false);
-    const [isVoting, setIsVoting] = useState(false);
-    const [voteError, setVoteError] = useState(null);
-    const [voteCounts, setVoteCounts] = useState({});
-
-    // Update vote counts whenever poll changes
-    useEffect(() => {
-        if (poll?.options) {
-            setVoteCounts(
-                poll.options.reduce((acc, o) => ({ ...acc, [o.id]: o.votes ?? 0 }), {}),
-            );
-        }
-    }, [poll]);
-
-    const handleVote = async () => {
-        if (!selected || isVoting) return;
-
-        setIsVoting(true);
-        setVoteError(null);
-
-        try {
-            await votePoll(idCrew, poll._id, selected);
-            setVoteCounts((prev) => ({
-                ...prev,
-                [selected]: (prev[selected] || 0) + 1,
-            }));
-            setVoted(true);
-            // Refresh polls after voting to show updated counts
-            if (onVoteSuccess) {
-                setTimeout(() => onVoteSuccess(), 500);
-            }
-        } catch (err) {
-            if (err.code === "ALREADY_VOTED") {
-                setVoteError("You have already Voted once");
-                setVoted(false);
-            } else {
-                setVoteError(err.message || "Error al votar");
-            }
-            console.error("Vote error:", err.message);
-        } finally {
-            setIsVoting(false);
-        }
-    };
-
-    return (
-        <div className={pollStyles.pollCard}>
-            <h3 className={pollStyles.pollQuestion}>{poll.question}</h3>
-            <div className={pollStyles.optionsList}>
-                {poll.options?.length > 0 ? (
-                    poll.options.map((opt) => (
-                        <label
-                            key={opt.id}
-                            className={`${pollStyles.optionRow} ${selected === opt.id ? pollStyles.selected : ""} ${voted ? pollStyles.disabled : ""}`}
-                            onClick={() => !voted && setSelected(opt.id)}
-                        >
-                            <div className={pollStyles.radioCircle}>
-                                {selected === opt.id && <div className={pollStyles.radioDot} />}
-                            </div>
-                            <span className={pollStyles.optionLabel}>{opt.label}</span>
-                            <span className={pollStyles.voteCount}>{voteCounts[opt.id]}</span>
-                        </label>
-                    ))
-                ) : (
-                    <p>No options available</p>
-                )}
-            </div>
-            {voteError && <p className={pollStyles.voteError}>⚠️ {voteError}</p>}
-            {!voted ? (
-                <button
-                    className={`${pollStyles.voteBtn} ${selected ? pollStyles.active : ""}`}
-                    onClick={handleVote}
-                    disabled={isVoting || !selected}
-                >
-                    {isVoting ? "Votando..." : "Votar"}
-                </button>
-            ) : (
-                <p className={pollStyles.votedMsg}>✓ Voto registrado</p>
-            )}
-        </div>
-    );
-}
-
-function PastPollCard({ poll }) {
-    // Calculate total votes and percentages
-    const totalVotes = (poll.options ?? []).reduce(
-        (sum, o) => sum + (o.votes ?? 0),
-        0,
-    );
-    const optionsWithPercent = (poll.options ?? []).map((o) => ({
-        ...o,
-        percent:
-      totalVotes > 0 ? Math.round(((o.votes ?? 0) / totalVotes) * 100) : 0,
-    }));
-    const validPercents = optionsWithPercent
-        .map((o) => o.percent)
-        .filter((p) => p > 0);
-    const max = validPercents.length > 0 ? Math.max(...validPercents) : 0;
-
-    return (
-        <div className={pollStyles.pollCard}>
-            <h3 className={pollStyles.pollQuestion}>{poll.question}</h3>
-            <div className={pollStyles.resultsList}>
-                {optionsWithPercent?.length > 0 ? (
-                    optionsWithPercent.map((opt) => (
-                        <div key={opt.id} className={pollStyles.resultRow}>
-                            <div className={pollStyles.resultHeader}>
-                                <span className={pollStyles.optionLabel}>{opt.label}</span>
-                                <span className={pollStyles.resultMeta}>
-                                    {opt.votes ?? 0} votos ({opt.percent}%)
-                                </span>
-                            </div>
-                            <div className={pollStyles.barTrack}>
-                                <div
-                                    className={`${pollStyles.barFill} ${opt.percent === max ? pollStyles.barWinner : ""}`}
-                                    style={{ width: `${opt.percent}%` }}
-                                />
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <p>No results available</p>
-                )}
-            </div>
-        </div>
-    );
-}
-
+/**
+ * Página principal de encuestas de una crew.
+ * Orquesta el fetch de datos, el estado global y delega el render
+ * a los componentes especializados: ActivePollCard, PastPollCard y CreatePollModal.
+ */
 export default function CrewPolls() {
-    const navigate = useNavigate();
-    const { idCrew } = useParams();
+    const { idCrew, groupId } = useParams();
+    const { crew } = useContext(CrewContext) || { crew: null };
 
-    const INITIAL_OPTIONS_COUNT = 3;
-    const MAX_OPTIONS_COUNT = INITIAL_OPTIONS_COUNT + 2;
-    const MIN_OPTIONS_COUNT = INITIAL_OPTIONS_COUNT - 1;
+    // ── Estado de datos ──────────────────────────────────────────────────────
+    const [polls, setPolls] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
 
-    // Get crew data from context instead of managing in local state
-    const { crew, loading } = useContext(CrewContext) || {
-        crew: null,
-        loading: true,
-    };
-
+    // ── Estado de UI ─────────────────────────────────────────────────────────
     const [tab, setTab] = useState("active");
     const [showModal, setShowModal] = useState(false);
-    const [newQuestion, setNewQuestion] = useState("");
-    const [newExpiresAt, setNewExpiresAt] = useState("");
-    const [newOptions, setNewOptions] = useState(
-        Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""),
-    );
-    const [polls, setpolls] = useState([]);
-    const [isAdding, setIsAdding] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [pendingDelete, setPendingDelete] = useState(null); // poll._id pendiente de confirmar
+    const [isDeleting, setIsDeleting] = useState(false);
     const [notification, setNotification] = useState(null);
 
-    useEffect(() => {
-    // Fetch polls from API when component mounts
-        const fetchPolls = async () => {
-            try {
-                const updatedPolls = await getCrewPolls(idCrew);
-                setpolls(Array.isArray(updatedPolls) ? updatedPolls : []);
-            } catch (error) {
-                console.error("Error fetching polls:", error);
-            }
-        };
-        fetchPolls();
-    }, [idCrew]);
+    // El usuario puede administrar la sección si su rol en la crew es admin
+    const canManage = crew?.userRole?.permission === "admin";
 
-    const refreshPolls = async () => {
+    // ── Fetch de encuestas ───────────────────────────────────────────────────
+    const loadPolls = useCallback(async () => {
+        setFetchError(null);
+        setLoading(true);
         try {
-            const updatedPolls = await getCrewPolls(idCrew);
-            setpolls(Array.isArray(updatedPolls) ? updatedPolls : []);
-        } catch (error) {
-            console.error("Error refreshing polls:", error);
+            const data = await getCrewPolls(idCrew, { groupId });
+            setPolls(Array.isArray(data) ? data : []);
+        } catch (err) {
+            setFetchError(err.message || "No se pudieron cargar las encuestas");
+        } finally {
+            setLoading(false);
         }
-    };
+    }, [idCrew, groupId]);
 
+    useEffect(() => {
+        loadPolls();
+    }, [loadPolls]);
+
+    // ── Derivados ────────────────────────────────────────────────────────────
     const activePolls = polls.filter((p) => p.isActive === true);
     const pastPolls = polls.filter((p) => p.isActive === false);
-    const canCreatePoll = crew?.userRole?.permission === "admin";
 
-    useEffect(() => {
-        if (showModal && !canCreatePoll) setShowModal(false);
-    }, [showModal, canCreatePoll]);
+    // ── Handlers ─────────────────────────────────────────────────────────────
 
-    const handleAddPoll = () => {
-        if (!canCreatePoll) {
-            setShowModal(false);
-            setNotification({
-                type: "error",
-                message: "Solo el admin puede crear encuestas",
-            });
-            return;
-        }
-
-        setNewQuestion("");
-        setNewExpiresAt("");
-        setNewOptions(Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""));
-        setShowModal(true);
-    };
-    const handleCreatePoll = async () => {
-    
-        // do not create poll if expiry date is missing and tell user to include when voting ends
-        if (!newQuestion.trim()) return;
-        if (!newExpiresAt) {
-            setNotification({
-                type: "error",
-                message: "Debes indicar la fecha de cierre de la votación",
-            });
-            return;
-        }
-
-        if (new Date(newExpiresAt).getTime() <= Date.now()) {
-            setNotification({
-                type: "error",
-                message: "La fecha de cierre debe ser futura",
-            });
-            return;
-        }
+    // Crea una nueva encuesta y la añade al estado local
+    const handleCreatePoll = async ({ question, options, expiresAt }) => {
+        setIsCreating(true);
         try {
-
-          
-            setIsAdding(true);
-            const added = await createPoll(idCrew, {
-                question: newQuestion.trim(),
-                options: newOptions
-                    .filter((opt) => opt.trim())
-                    .map((opt) => opt.trim()),
-                expiresAt: newExpiresAt ? new Date(newExpiresAt).toISOString() : null,
-            });
-            setpolls((prev) => [...prev, added]);
-            setNewQuestion("");
-            setNewExpiresAt("");
-            setNewOptions(Array.from({ length: INITIAL_OPTIONS_COUNT }, () => ""));
+            const created = await createPoll(idCrew, { question, options, expiresAt, groupId });
+            setPolls((prev) => [...prev, created]);
             setShowModal(false);
-            setNotification({
-                type: "success",
-                message: "Encuesta creada correctamente",
-            });
+            setNotification({ type: "success", message: "Encuesta creada correctamente" });
         } catch (err) {
-            setNotification({
-                type: "error",
-                message: err.message || "No se pudo crear la encuesta",
-            });
+            setNotification({ type: "error", message: err.message || "No se pudo crear la encuesta" });
         } finally {
-            setIsAdding(false);
+            setIsCreating(false);
         }
     };
 
+    // Solicita confirmación antes de eliminar (abre el ConfirmModal)
+    const handleDeletePoll = (pollId) => setPendingDelete(pollId);
+
+    // Ejecuta el borrado tras confirmación del usuario
+    const handleConfirmDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await deletePoll(idCrew, pendingDelete);
+            setPolls((prev) => prev.filter((p) => p._id !== pendingDelete));
+            setNotification({ type: "success", message: "Encuesta eliminada" });
+        } catch (err) {
+            setNotification({ type: "error", message: err.message || "No se pudo eliminar la encuesta" });
+        } finally {
+            setIsDeleting(false);
+            setPendingDelete(null);
+        }
+    };
+
+    // ── Render ───────────────────────────────────────────────────────────────
     return (
         <>
+            {/* Toast de notificaciones */}
             {notification && (
                 <CrewToast
                     message={notification.message}
@@ -265,158 +104,105 @@ export default function CrewPolls() {
                 />
             )}
 
-            {/* MAIN */}
-            <div className={styles.container}>
-                {/* Page Header */}
-                <div className={pollStyles.pageHeader}>
-                    <h1 className={styles.title}>
-                        {loading ? "Loading..." : crew?.name || "Crew"}{" "}
-                        <span>Members Polls</span>
-                    </h1>
-
-                    <button
-                        className={pollStyles.btnPrimary}
-                        disabled={isAdding}
-                        onClick={handleAddPoll}
-                    >
-            + Create Poll
-                    </button>
-                </div>
-
-                {/* Tabs */}
-                <div className={pollStyles.tabs}>
-                    <button
-                        className={`${pollStyles.tabBtn} ${tab === "active" ? pollStyles.active : ""}`}
-                        onClick={() => setTab("active")}
-                    >
-            Active
-                    </button>
-                    <button
-                        className={`${pollStyles.tabBtn} ${tab === "past" ? pollStyles.active : ""}`}
-                        onClick={() => setTab("past")}
-                    >
-            Past
-                    </button>
-                </div>
-
-                {/* Polls */}
-                <div className={pollStyles.pollsGrid}>
-                    {tab === "active"
-                        ? activePolls.map((p) => (
-                            <ActivePollCard
-                                key={p._id}
-                                poll={p}
-                                onVoteSuccess={refreshPolls}
-                            />
-                        ))
-                        : pastPolls.map((p) => <PastPollCard key={p._id} poll={p} />)}
-                </div>
-
-                {/* CREATE POLL MODAL */}
-                {showModal && canCreatePoll && (
-                    <div
-                        className={pollStyles.modalOverlay}
-                        onClick={() => setShowModal(false)}
-                    >
-                        <div
-                            className={pollStyles.modal}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <h2 className={pollStyles.modalTitle}>Create Poll</h2>
-                            <div className={pollStyles.formGroup}>
-                                <label className={pollStyles.formLabel}>Question</label>
-                                <input
-                                    className={pollStyles.formInput}
-                                    placeholder="What is your question?"
-                                    value={newQuestion}
-                                    onChange={(e) => setNewQuestion(e.target.value)}
-                                />
-                            </div>
-                            <div className={pollStyles.formGroup}>
-                                <label className={pollStyles.formLabel}>Voting Ends</label>
-                                <input
-                                    type="datetime-local"
-                                    className={pollStyles.formInput}
-                                    required
-                                    value={newExpiresAt}
-                                    onChange={(e) => setNewExpiresAt(e.target.value)}
-                                />
-                            </div>
-                            <div className={pollStyles.formGroup}>
-                                <div className={pollStyles.optionsHeader}>
-                                    <label className={pollStyles.formLabel}>Options</label>
-                                    <div className={pollStyles.optionActions}>
-                                        <button
-                                            type="button"
-                                            className={pollStyles.optionActionBtn}
-                                            onClick={() =>
-                                                setNewOptions((prev) => {
-                                                    if (prev.length >= MAX_OPTIONS_COUNT) return prev;
-                                                    return [...prev, ""];
-                                                })
-                                            }
-                                            disabled={newOptions.length >= MAX_OPTIONS_COUNT}
-                                            aria-label="Add option"
-                                            title="Add option"
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={pollStyles.optionActionBtn}
-                                            onClick={() =>
-                                                setNewOptions((prev) => {
-                                                    if (prev.length <= MIN_OPTIONS_COUNT) return prev;
-                                                    return prev.slice(0, -1);
-                                                })
-                                            }
-                                            disabled={newOptions.length <= MIN_OPTIONS_COUNT}
-                                            aria-label="Remove option"
-                                            title="Remove option"
-                                        >
-                                            -
-                                        </button>
-                                    </div>
-                                </div>
-                                {newOptions.map((opt, i) => (
-                                    <input
-                                        key={i}
-                                        className={`${pollStyles.formInput} ${pollStyles.optionInput}`}
-                                        placeholder={`Option ${i + 1}`}
-                                        value={opt}
-                                        onChange={(e) => {
-                                            const updated = [...newOptions];
-                                            updated[i] = e.target.value;
-                                            setNewOptions(updated);
-                                        }}
-                                    />
-                                ))}
-                            </div>
-                            <div className={pollStyles.modalActions}>
-                                <button
-                                    className={pollStyles.btnSecondary}
-                                    onClick={() => setShowModal(false)}
-                                >
-                  Cancel
-                                </button>
-                                <button
-                                    className={pollStyles.btnPrimary}
-                                    onClick={() => handleCreatePoll()}
-                                    disabled={
-                                        isAdding ||
-                    !newQuestion.trim() ||
-                    !newExpiresAt ||
-                    newOptions.filter((o) => o.trim()).length < 2 ||
-                    new Date(newExpiresAt).getTime() <= Date.now()
-                                    }
-                                >
-                  Create
-                                </button>
-                            </div>
-                        </div>
+            <section className={styles.page}>
+                {/* Cabecera: título + botón de acción */}
+                <header className={styles.header}>
+                    <div>
+                        <h1 className={styles.title}>Encuestas</h1>
+                        <p className={styles.subtitle}>
+                            {groupId
+                                ? "Encuestas de este grupo."
+                                : "Crea y vota en encuestas de la crew."}
+                        </p>
                     </div>
-                )}
-            </div>
+                    {canManage && (
+                        <Button className={styles.headerButton} onClick={() => setShowModal(true)}>
+                            Nueva encuesta
+                        </Button>
+                    )}
+                </header>
+
+                <div className={styles.content}>
+                    {/* Pestañas Activas / Cerradas */}
+                    <div className={styles.tabs}>
+                        <button
+                            className={`${styles.tabBtn} ${tab === "active" ? styles.active : ""}`}
+                            onClick={() => setTab("active")}
+                        >
+                            Activas
+                        </button>
+                        <button
+                            className={`${styles.tabBtn} ${tab === "past" ? styles.active : ""}`}
+                            onClick={() => setTab("past")}
+                        >
+                            Cerradas
+                        </button>
+                    </div>
+
+                    {/* Contenido principal */}
+                    {loading ? (
+                        <p className={styles.empty}>Cargando encuestas...</p>
+                    ) : fetchError ? (
+                        <div className={styles.errorState}>
+                            <p>{fetchError}</p>
+                            <Button variant="secondary" className={styles.retryButton} onClick={loadPolls}>
+                                Reintentar
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className={styles.pollsGrid}>
+                            {tab === "active" ? (
+                                activePolls.length > 0 ? (
+                                    activePolls.map((p) => (
+                                        <ActivePollCard
+                                            key={p._id}
+                                            poll={p}
+                                            onVoteSuccess={loadPolls}
+                                            canDelete={canManage}
+                                            onDelete={handleDeletePoll}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className={styles.empty}>No hay encuestas activas todavía.</p>
+                                )
+                            ) : (
+                                pastPolls.length > 0 ? (
+                                    pastPolls.map((p) => (
+                                        <PastPollCard
+                                            key={p._id}
+                                            poll={p}
+                                            canDelete={canManage}
+                                            onDelete={handleDeletePoll}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className={styles.empty}>No hay encuestas cerradas.</p>
+                                )
+                            )}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Modal de creación de encuesta (sólo accesible para admins) */}
+            <CreatePollModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onSubmit={handleCreatePoll}
+                isSubmitting={isCreating}
+            />
+
+            {/* Modal de confirmación de borrado */}
+            <ConfirmModal
+                open={!!pendingDelete}
+                title="Eliminar encuesta"
+                description="¿Seguro que quieres eliminar esta encuesta? Se borrarán también todos los votos. Esta acción no se puede deshacer."
+                confirmLabel="Eliminar"
+                cancelLabel="Cancelar"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setPendingDelete(null)}
+                isLoading={isDeleting}
+            />
         </>
     );
 }

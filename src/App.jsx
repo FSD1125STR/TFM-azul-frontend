@@ -80,7 +80,7 @@ function App() {
                                     <Route path="events/create" element={<CreateEvent />} />
                                     <Route path="events/:eventId" element={<EventDetail />} />
                                     <Route path="events/:eventId/edit" element={<EditEvent />} />
-                                    <Route path="polls" element={<div>Group Polls (TODO)</div>} />
+                                    <Route path="polls" element={<CrewPolls />} />
                                     <Route path="members" element={<GroupMembers />} />
                                 </Route>
                                 
