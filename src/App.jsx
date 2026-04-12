@@ -22,6 +22,7 @@ import CrewPolls from "./pages/polls/crewPolls.jsx";
 import CrewMembers from "./pages/crews/components/crewMembers.jsx";
 import CrewGroups from "./pages/groups/crewGroups.jsx";
 import GroupMembers from "./pages/groups/GroupMembers.jsx";
+import GroupOverview from "./pages/groups/GroupOverview.jsx";
 import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 import AccountSettings from "./pages/users/AccountSettings.jsx";
@@ -75,7 +76,7 @@ function App() {
 
                                 {/** Rutas dentro de un grupo, carga el layout de navegacion del grupo sustituyendolo por el de la crew */}
                                 <Route path="groups/:groupId" element={<GroupLayout />}>
-                                    <Route index element={<div>Group Overview (TODO)</div>} />
+                                    <Route index element={<GroupOverview />} />
                                     <Route path="events" element={<CrewEvents />} />
                                     <Route path="events/create" element={<CreateEvent />} />
                                     <Route path="events/:eventId" element={<EventDetail />} />

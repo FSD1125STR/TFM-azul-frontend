@@ -1,3 +1,4 @@
+// Formatea una fecha para usarla como valor en un input de tipo datetime-local, devolviendo una cadena en formato "YYYY-MM-DDTHH:mm"
 export function formatDateInput(value) {
     if (!value) return "";
     const date = new Date(value);
@@ -8,6 +9,7 @@ export function formatDateInput(value) {
     )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+// Formatea una fecha para mostrarla en el widget de eventos, devolviendo partes separadas para día, mes, hora y una fecha completa legible
 export function formatEventDateParts(value) {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
