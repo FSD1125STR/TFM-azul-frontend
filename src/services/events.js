@@ -11,9 +11,9 @@ const normalizeError = (error, fallbackMessage) => {
 
 
 //Devuelve un evento por su id, junto con info de asistencia del usuario
-export const getEventById = async (eventId) => {
+export const getEventById = async (crewId, eventId) => {
     try{
-        const {data} = await axios.get(`${API_BASE_URL}/api/events/${eventId}`,
+        const {data} = await axios.get(`${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
             {withCredentials: true}
         );
         return data.event;
@@ -23,12 +23,12 @@ export const getEventById = async (eventId) => {
     }
 }
 
-//Devuelve los eventos de una crew
-export const getCrewEvents = async (crewId) => {
+//Devuelve los eventos de una crew, opcionalmente filtrados por grupo
+export const getCrewEvents = async (crewId, { groupId } = {}) => {
     try {
         const { data } = await axios.get(
             `${API_BASE_URL}/api/crews/${crewId}/events`,
-            { withCredentials: true },
+            { withCredentials: true, params: groupId ? { groupId } : {} },
         );
         return data.events ?? [];
     } catch (error) {
@@ -76,10 +76,10 @@ export const createEvent = async (payload) => {
 };
 
 //Actualiza info de un evento
-export const updateEvent = async (eventId, payload) => {
+export const updateEvent = async (crewId, eventId, payload) => {
     try {
         const { data } = await axios.put(
-            `${API_BASE_URL}/api/events/${eventId}`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
             payload,
             { withCredentials: true },
         );
@@ -90,11 +90,11 @@ export const updateEvent = async (eventId, payload) => {
 };
 
 //Borra un evento
-export const deleteEvent = async (eventId, userId) => {
+export const deleteEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.delete(
-            `${API_BASE_URL}/api/events/${eventId}`,
-            { data: { userId }, withCredentials: true },
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}`,
+            { withCredentials: true },
         );
         return data;
     } catch (error) {
@@ -103,10 +103,10 @@ export const deleteEvent = async (eventId, userId) => {
 };
 
 //Registra la asistencia de un usuario a un evento
-export const attendEvent = async (eventId) => {
+export const attendEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.post(
-            `${API_BASE_URL}/api/events/${eventId}/attendance`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendance`,
             {},
             { withCredentials: true },
         );
@@ -117,10 +117,10 @@ export const attendEvent = async (eventId) => {
 };
 
 //Devuelve la lista de asistentes a un evento
-export const getEventAttendees = async (eventId) => {
+export const getEventAttendees = async (crewId, eventId) => {
     try {
         const { data } = await axios.get(
-            `${API_BASE_URL}/api/events/${eventId}/attendees`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendees`,
             { withCredentials: true },
         );
         return data.attendees ?? [];
@@ -130,10 +130,10 @@ export const getEventAttendees = async (eventId) => {
 };
 
 //Quita la asistencia de un usuario a un evento
-export const unattendEvent = async (eventId) => {
+export const unattendEvent = async (crewId, eventId) => {
     try {
         const { data } = await axios.delete(
-            `${API_BASE_URL}/api/events/${eventId}/attendance`,
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/attendance`,
             { withCredentials: true },
         );
         return data;

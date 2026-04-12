@@ -167,7 +167,10 @@
   height: 50px;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
 }
 
 .copyButton:hover {
@@ -195,6 +198,45 @@
   flex-wrap: wrap;
 }
 
+.bottomActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emailForm {
+  display: grid;
+  gap: 12px;
+}
+
+.emailRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.emailInput {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #c8d6f2;
+  background: #f8faff;
+  color: var(--color-text-primary);
+  height: 44px;
+  font-size: 15px;
+}
+
+.emailOutlineButton {
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+.emailOutlineButton:hover:not(:disabled) {
+  background: var(--color-background-primary);
+}
+
 .empty {
   display: grid;
   gap: 12px;
@@ -216,16 +258,21 @@
 .primaryButton,
 .secondaryButton,
 .dangerButton,
-.dangerOutlineButton {
+.dangerOutlineButton,
+.emailOutlineButton {
   border: none;
   border-radius: var(--radius-sm);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow-md);
-  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
   height: 44px;
   min-width: 170px;
+  padding: 0 16px;
 }
 
 .primaryButton {
@@ -259,21 +306,21 @@
 }
 
 .dangerOutlineButton {
-  color: #d32f2f;
-  background: #fff;
-  border: 1px solid #f4b6b6;
-  box-shadow: var(--shadow-sm);
+  color: #991b1b;
+  background: rgba(220, 38, 38, 0.08);
+  border: none;
+  box-shadow: none;
 }
 
-.dangerOutlineButton:hover {
-  transform: translateY(-1px);
-  background: #fff5f5;
+.dangerOutlineButton:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.15);
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled,
 .dangerButton:disabled,
-.dangerOutlineButton:disabled {
+.dangerOutlineButton:disabled,
+.emailOutlineButton:disabled {
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
@@ -302,10 +349,20 @@
     align-items: stretch;
   }
 
+  .bottomActions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .emailRow {
+    grid-template-columns: 1fr;
+  }
+
   .primaryButton,
   .secondaryButton,
   .dangerButton,
   .dangerOutlineButton,
+  .emailOutlineButton,
   .copyButton {
     width: 100%;
   }

@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_BASE_URL } from "./config.js";
 
+// Todos los endpoints de polls viven bajo /api/crews/:crewId/polls
 const CREW_BASE_URL = `${API_BASE_URL}/api/crews`;
-const POLL_BASE_URL = `${API_BASE_URL}/api/polls`;
 
-
+// Extrae status y mensaje de un error de axios
 const normalizeError = (error, fallbackMessage) => {
     const status = error.response?.status ?? 0;
     const message = error.response?.data?.message || fallbackMessage;
@@ -13,7 +13,9 @@ const normalizeError = (error, fallbackMessage) => {
     return normalized;
 };
 
-// Normalize poll options to match UI expectations
+// Normaliza un poll del backend al formato esperado por el frontend:
+// - Mapea `value` → `label` en las opciones
+// - Garantiza compatibilidad de `id` / `_id`
 const normalizePoll = (poll) => {
     if (!poll?.options) return poll;
     return {
@@ -21,22 +23,18 @@ const normalizePoll = (poll) => {
         _id: poll.id || poll._id,
         options: poll.options.map((opt) => ({
             ...opt,
-            // Map `value` from DB to `label` for UI, and ensure `id`
             label: opt.label || opt.value,
             id: opt.id || opt._id,
-        })) ?? [],
+        })),
     };
 };
 
-// Create a new poll
-export const createPoll = async (crewId, { question, options }) => {
+// Crea una nueva encuesta en una crew (o en un grupo si se pasa groupId)
+export const createPoll = async (crewId, { question, options, expiresAt, groupId }) => {
     try {
         const { data } = await axios.post(
             `${CREW_BASE_URL}/${crewId}/polls`,
-            {
-                question,
-                options,
-            },
+            { question, options, expiresAt, groupId },
             { withCredentials: true }
         );
         const poll = data?.poll ?? data;
@@ -46,6 +44,7 @@ export const createPoll = async (crewId, { question, options }) => {
     }
 };
 
+// Registra el voto de un usuario en una opción concreta
 export const votePoll = async (crewId, pollId, optionId) => {
     try {
         const { data } = await axios.post(
@@ -55,20 +54,16 @@ export const votePoll = async (crewId, pollId, optionId) => {
         );
         return data;
     } catch (error) {
-        if (error.response?.status === 409) {
-            throw Object.assign(new Error("Ya has votado en esta encuesta"), {
-                code: "ALREADY_VOTED",
-            });
-        }
         throw normalizeError(error, "No se pudo votar en la encuesta");
     }
 };
-// Get all polls for a crew
-export const getCrewPolls = async (crewId) => {
+
+// Devuelve todas las encuestas de una crew (o de un grupo si se pasa groupId)
+export const getCrewPolls = async (crewId, { groupId } = {}) => {
     try {
         const { data } = await axios.get(
-            `${POLL_BASE_URL}/${crewId}/polls`,
-            { withCredentials: true }
+            `${CREW_BASE_URL}/${crewId}/polls`,
+            { withCredentials: true, params: groupId ? { groupId } : {} }
         );
         const polls = data.polls ?? [];
         return Array.isArray(polls) ? polls.map(normalizePoll) : [];
@@ -77,11 +72,11 @@ export const getCrewPolls = async (crewId) => {
     }
 };
 
-// Get a specific poll by ID
-export const getPollById = async (pollId, crewId) => {
+// Devuelve una encuesta concreta por su ID
+export const getPollById = async (crewId, pollId) => {
     try {
         const { data } = await axios.get(
-            `${POLL_BASE_URL}/${crewId}/polls/${pollId}`,
+            `${CREW_BASE_URL}/${crewId}/polls/${pollId}`,
             { withCredentials: true }
         );
         const poll = data?.poll ?? data;
@@ -91,11 +86,11 @@ export const getPollById = async (pollId, crewId) => {
     }
 };
 
-// Delete a poll
-export const deletePoll = async (pollId) => {
+// Elimina una encuesta y todas sus opciones y votos asociados
+export const deletePoll = async (crewId, pollId) => {
     try {
         const { data } = await axios.delete(
-            `${POLL_BASE_URL}/${pollId}`,
+            `${CREW_BASE_URL}/${crewId}/polls/${pollId}`,
             { withCredentials: true }
         );
         return data;

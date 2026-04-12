@@ -30,17 +30,21 @@ function buildMessage(notification) {
         FILE_UPLOADED:  { prefix: " ha subido el archivo " },
         EVENT_CREATED:  { prefix: " ha creado un evento: " },
         EVENT_UPDATED:  { prefix: " ha actualizado el evento: " },
+        EVENT_ATTENDANCE_UPDATED: { prefix: (n) => ` ha indicado que ${n.meta?.attending ? "sí" : "no"} asistirá al evento: ` },
         USER_JOINED:    { prefix: " se ha unido a la crew", noEntity: true },
         COMMENT_POSTED: { prefix: " ha comentado en " },
+        POLL_VOTED:     { prefix: " ha votado en la encuesta: " },
     };
 
     const template = TEMPLATES[notification.type];
     if (!template) return <span>{actorName}</span>;
 
+    const prefix = typeof template.prefix === "function" ? template.prefix(notification) : template.prefix;
+
     return (
         <>
             <span className={styles.actor}>{actorName}</span>
-            {template.prefix}
+            {prefix}
             {/** Si no necesita entidad no se muestra */}
             {!template.noEntity && entityName && (
                 <span className={styles.entityName}>{entityName}</span>
@@ -52,10 +56,12 @@ function buildMessage(notification) {
 const ICON_MAP = {
     EVENT_CREATED: IconCalendar,
     EVENT_UPDATED: IconCalendar,
+    EVENT_ATTENDANCE_UPDATED: IconCalendar,
     FILE_UPLOADED: IconFile,
     POLL_CREATED: IconChartBar,
     USER_JOINED: IconUserPlus,
     COMMENT_POSTED: IconMessage,
+    POLL_VOTED: IconChartBar,
 };
 
 // Calcula la diferencia entre la fecha actual y la de created at, devuelve un string relativo

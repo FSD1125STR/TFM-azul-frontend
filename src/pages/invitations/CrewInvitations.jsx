@@ -6,6 +6,7 @@ import styles from "./CrewInvitations.module.css";
 import {
     createInvitation,
     getLatestInvitation,
+    sendInvitationEmail,
     updateInvitationStatus,
 } from "../../services/apiInvitations.js";
 
@@ -18,15 +19,23 @@ const buildInvitationUrl = (token) => {
 
 export default function CrewInvitations() {
     //Obtenemos info de la crew a partir del contexto
-    const { crew, crewId, loading: crewLoading, error: crewError } = useContext(CrewContext);
+    const {
+        crew,
+        crewId,
+        loading: crewLoading,
+        error: crewError,
+    } = useContext(CrewContext);
     const navigate = useNavigate();
 
     const [invitation, setInvitation] = useState(null); //Estado de la invitacion
     const [loading, setLoading] = useState(true); //Para renderizar mientras carga la peticion
     const [error, setError] = useState(""); //Para renderizar errores
     const [isEmpty, setIsEmpty] = useState(false); //Para diferenciar error cuando no hay invitaciones
-    const [isCreating, setIsCreating] = useState(false); 
+    const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [email, setEmail] = useState("");
+    const [isSendingEmail, setIsSendingEmail] = useState(false);
     const [notification, setNotification] = useState(null); //Para mostrar una notificacion Toast
 
     // Al cargar la pagina, solicitamos al backend la ultima invitacióncreada en esa crew
@@ -46,7 +55,6 @@ export default function CrewInvitations() {
                 if (isMounted) {
                     setInvitation(latest); //Actualizamos el estado con la ultima invitacion
                 }
-
             } catch (err) {
                 //Manejamos diferentes tipos de errores
                 if (!isMounted) return;
@@ -55,11 +63,9 @@ export default function CrewInvitations() {
                 if (err.status === 404) {
                     setInvitation(null);
                     setIsEmpty(true);
-
                 } else {
                     setError(err.message || "No se pudo cargar la invitacion.");
                 }
-
             } finally {
                 if (isMounted) {
                     setLoading(false);
@@ -72,7 +78,6 @@ export default function CrewInvitations() {
         return () => {
             isMounted = false;
         };
-
     }, [crewId]);
 
     //Generamos un link con el token de la invitacion, solo se calcula si cambia el token
@@ -104,7 +109,6 @@ export default function CrewInvitations() {
                         type: "success",
                         message: "Invitacion creada y enlace copiado.",
                     });
-
                 } catch (copyError) {
                     console.log("Error al copiar en portapapeles: ", copyError);
                     setNotification({
@@ -112,7 +116,6 @@ export default function CrewInvitations() {
                         message: "Invitacion creada, pero no se pudo copiar el enlace.",
                     });
                 }
-
             } else {
                 //Si no se puede copiar porque no está habilitada la opcion, simplemente notificamos que se creo la invitacion
                 setNotification({
@@ -120,14 +123,12 @@ export default function CrewInvitations() {
                     message: "Invitacion creada correctamente.",
                 });
             }
-
         } catch (err) {
             //Si hay error notificamos con Toast
             setNotification({
                 type: "error",
                 message: err.message || "No se pudo crear la invitacion.",
             });
-
         } finally {
             setIsCreating(false);
         }
@@ -148,13 +149,11 @@ export default function CrewInvitations() {
                 type: "success",
                 message: "Invitacion desactivada.",
             });
-
         } catch (err) {
             setNotification({
                 type: "error",
                 message: err.message || "No se pudo desactivar la invitacion.",
             });
-
         } finally {
             setIsUpdating(false);
         }
@@ -180,13 +179,53 @@ export default function CrewInvitations() {
                 type: "success",
                 message: "Enlace copiado al portapapeles.",
             });
-
         } catch (copyError) {
             console.log("Error al copiar en portapapeles: ", copyError);
             setNotification({
                 type: "error",
                 message: "No se pudo copiar el enlace.",
             });
+        }
+    };
+
+    const handleToggleEmailForm = () => {
+        setShowEmailForm((prev) => !prev);
+        setEmail("");
+    };
+
+    //Maneja la accion para enviar la invitacion por email
+    const handleSendEmail = async () => {
+        if (!crewId) return;
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail) {
+            setNotification({
+                type: "error",
+                message: "Introduce un email.",
+            });
+            return;
+        }
+
+        try {
+            setIsSendingEmail(true);
+
+            //Llamamos a la API para enviar la invitacion por email
+            await sendInvitationEmail(crewId, normalizedEmail);
+            setNotification({
+                type: "success",
+                message: `Invitacion enviada a ${normalizedEmail}.`,
+            });
+            setEmail("");
+            setShowEmailForm(false);
+
+        } catch (err) {
+            setNotification({
+                type: "error",
+                message: err.message || "No se pudo enviar la invitacion por email.",
+            });
+            
+        } finally {
+            setIsSendingEmail(false);
         }
     };
 
@@ -205,7 +244,7 @@ export default function CrewInvitations() {
                     className={styles.secondaryButton}
                     onClick={() => navigate("/crews")}
                 >
-                    Volver a mis crews
+          Volver a mis crews
                 </button>
             </div>
         );
@@ -226,9 +265,7 @@ export default function CrewInvitations() {
                 />
             )}
 
-
             <div className={styles.container}>
-                
                 {/** Sección de invitaciones */}
                 <header className={styles.header}>
                     <h1>Invitaciones</h1>
@@ -251,7 +288,7 @@ export default function CrewInvitations() {
                             </button>
                         </div>
                     ) : (
-                        //Si hay invitaciones (solo puede haber una), renderizamos la invitacion actual con opcion a cambiar el estado y a crear una nueva
+                    //Si hay invitaciones (solo puede haber una), renderizamos la invitacion actual con opcion a cambiar el estado y a crear una nueva
                         <>
                             <div className={styles.cardHeader}>
                                 {/* Header con info de la invitacion y boton para crear una nueva */}
@@ -270,13 +307,15 @@ export default function CrewInvitations() {
                                         </span>
                                         {invitation?.createdAt && (
                                             <span className={styles.metaDot}>
-                                                 Creada: {" "}
-                                                {new Date(invitation.createdAt).toLocaleDateString("es-ES")}
+                        Creada:{" "}
+                                                {new Date(invitation.createdAt).toLocaleDateString(
+                                                    "es-ES",
+                                                )}
                                             </span>
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 {/* Boton para generar una nueva invitación */}
                                 <div className={styles.cardHeaderActions}>
                                     <button
@@ -295,7 +334,7 @@ export default function CrewInvitations() {
                             </p>
 
                             <div className={styles.divider} />
-                            
+
                             {/* Body con el link de la invitación */}
                             <div className={styles.section}>
                                 <h3>Enlace de invitacion</h3>
@@ -327,26 +366,73 @@ export default function CrewInvitations() {
                                                 <rect x="2" y="2" width="13" height="13" rx="2" />
                                             </svg>
                                         </span>
-
-                                        Copiar
+                                      Copiar
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {/* footer con boton para desactivar la invitación */}
                             <div className={styles.bottomRow}>
                                 <p className={styles.helperText}>
-                                    Comparte este enlace para invitar nuevos miembros.
+                                  Comparte este enlace para invitar nuevos miembros.
                                 </p>
-                                <button
-                                    type="button"
-                                    className={styles.dangerOutlineButton}
-                                    onClick={handleDeactivate}
-                                    disabled={isUpdating || !invitation?.isActive}
-                                >
-                                    {isUpdating ? "Desactivando..." : "Desactivar invitacion"}
-                                </button>
+
+                                <div className={styles.bottomActions}>
+                                    <button
+                                        type="button"
+                                        className={styles.emailOutlineButton}
+                                        onClick={handleToggleEmailForm}
+                                        disabled={!invitation?.isActive || isSendingEmail}
+                                    >
+                                      Enviar por email
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className={styles.dangerOutlineButton}
+                                        onClick={handleDeactivate}
+                                        disabled={isUpdating || !invitation?.isActive}
+                                    >
+                                        {isUpdating ? "Desactivando..." : "Desactivar invitacion"}
+                                    </button>
+                                </div>
                             </div>
+
+                            {showEmailForm && (
+                                <>
+                                    <div className={styles.divider} />
+                                    <div className={styles.emailForm}>
+                                        <h3>Enviar invitacion por email</h3>
+                                        <div className={styles.emailRow}>
+                                            <input
+                                                type="email"
+                                                className={styles.emailInput}
+                                                placeholder="example@gmail.com"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                            />
+
+                                            <button
+                                                type="button"
+                                                className={styles.primaryButton}
+                                                onClick={handleSendEmail}
+                                                disabled={isSendingEmail}
+                                            >
+                                                {isSendingEmail ? "Enviando..." : "Enviar invitacion"}
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className={styles.secondaryButton}
+                                                onClick={handleToggleEmailForm}
+                                                disabled={isSendingEmail}
+                                            >
+                                                Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </>
                     )}
                 </section>
@@ -354,4 +440,3 @@ export default function CrewInvitations() {
         </div>
     );
 }
-

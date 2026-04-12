@@ -88,3 +88,18 @@ export const updateInvitationStatus = async (invitationId, status) => {
         throw normalizeError(error, "No se pudo actualizar la invitacion.");
     }
 };
+
+//Llama a la API para enviar la invitacion por email
+export const sendInvitationEmail = async (crewId, email) => {
+    try {
+        const { data } = await axios.post(
+            `${API_BASE_URL}/api/crews/${crewId}/invitation/email`,
+            { email },
+            { withCredentials: true },
+        );
+
+        return data;
+    } catch (error) {
+        throw normalizeError(error, "No se pudo enviar la invitacion por email.");
+    }
+};

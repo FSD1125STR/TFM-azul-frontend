@@ -18,9 +18,13 @@ const schema = z.object({
 
 export default function CreateEvent() {
     const { crew } = useContext(CrewContext);
-    const { idCrew } = useParams();
+    const { idCrew, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
 
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
@@ -44,11 +48,12 @@ export default function CreateEvent() {
             description: data.description?.trim() ?? "",
             location: data.location?.trim() ?? "",
             createdBy: userId,
+            ...(groupId && { groupId }),
         };
 
         try {
             await createCrewEvent(idCrew, payload);
-            navigate(`/crews/${idCrew}/events`);
+            navigate(eventsBase);
         } catch (err) {
             setError(err.message || "No se pudo crear el evento");
             setSubmitting(false);
@@ -85,7 +90,7 @@ export default function CreateEvent() {
                         <button
                             type="button"
                             className={styles.secondaryButton}
-                            onClick={() => navigate(`/crews/${idCrew}/events`)}
+                            onClick={() => navigate(eventsBase)}
                             disabled={submitting}
                         >
                             Cancelar

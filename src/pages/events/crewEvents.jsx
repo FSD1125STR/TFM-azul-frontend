@@ -9,9 +9,14 @@ import styles from "./crewEvents.module.css";
 
 export default function CrewEvents() {
     const { crew } = useContext(CrewContext);
-    const { idCrew } = useParams();
+    const { idCrew, groupId } = useParams();
     const navigate = useNavigate();
-    const canManageCrew = crew.userRole?.permission === "admin";
+    const canManageCrew = crew?.userRole?.permission === "admin";
+
+    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
+    const eventsBase = groupId
+        ? `/crews/${idCrew}/groups/${groupId}/events`
+        : `/crews/${idCrew}/events`;
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -41,24 +46,25 @@ export default function CrewEvents() {
         });
     }, [events, searchTerm, timeFilter]);
 
-    const loadEvents = async () => {
-        if (!idCrew) return;
-        setLoading(true);
-        setError("");
-
-        try {
-            const data = await getCrewEvents(idCrew);
-            setEvents(data || []);
-        } catch (err) {
-            setError(err.message || "Error al cargar eventos");
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        //Carga los eventos de la crew o del grupo al montar el componente o cuando cambian el idCrew o el groupId (si estamos viendo los eventos de un grupo)
+        const loadEvents = async () => {
+            if (!idCrew) return;
+            setLoading(true);
+            setError("");
+
+            try {
+                const data = await getCrewEvents(idCrew, { groupId });
+                setEvents(data || []);
+            } catch (err) {
+                setError(err.message || "Error al cargar eventos");
+            } finally {
+                setLoading(false);
+            }
+        };
+
         loadEvents();
-    }, [idCrew]);
+    }, [idCrew, groupId]);
 
     return (
         <section className={styles.page}>
@@ -73,7 +79,7 @@ export default function CrewEvents() {
                 {canManageCrew && (
                     <Button
                         className={styles.headerButton}
-                        onClick={() => navigate(`/crews/${idCrew}/events/create`)}
+                        onClick={() => navigate(`${eventsBase}/create`)}
                     >
                         Crear evento
                     </Button>
@@ -107,7 +113,7 @@ export default function CrewEvents() {
                                     key={event._id}
                                     event={event}
                                     onClick={() =>
-                                        navigate(`/crews/${idCrew}/events/${event._id}`)
+                                        navigate(`${eventsBase}/${event._id}`)
                                     }
                                 />
                             ))}
