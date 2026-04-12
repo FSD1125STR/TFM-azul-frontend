@@ -1,4 +1,5 @@
-﻿import styles from "./ConfirmModal.module.css";
+﻿import { useState } from "react";
+import styles from "./ConfirmModal.module.css";
 
 export default function ConfirmModal({
     open,
@@ -10,7 +11,23 @@ export default function ConfirmModal({
     onCancel,
     isLoading = false,
 }) {
+    const [isPending, setIsPending] = useState(false);
+
     if (!open) return null;
+
+    const loading = isLoading || isPending;
+
+    const handleConfirm = async () => {
+        const result = onConfirm();
+        if (result instanceof Promise) {
+            setIsPending(true);
+            try {
+                await result;
+            } finally {
+                setIsPending(false);
+            }
+        }
+    };
 
     return (
         <div className={styles.overlay} role="dialog" aria-modal="true">
@@ -22,17 +39,17 @@ export default function ConfirmModal({
                         type="button"
                         className={styles.secondaryButton}
                         onClick={onCancel}
-                        disabled={isLoading}
+                        disabled={loading}
                     >
                         {cancelLabel}
                     </button>
                     <button
                         type="button"
                         className={styles.dangerButton}
-                        onClick={onConfirm}
-                        disabled={isLoading}
+                        onClick={handleConfirm}
+                        disabled={loading}
                     >
-                        {isLoading ? "Eliminando..." : confirmLabel}
+                        {loading ? "Eliminando..." : confirmLabel}
                     </button>
                 </div>
             </div>

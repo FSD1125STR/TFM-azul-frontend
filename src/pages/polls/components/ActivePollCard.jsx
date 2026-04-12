@@ -15,21 +15,28 @@ import styles from "./ActivePollCard.module.css";
  */
 export default function ActivePollCard({ poll, onVoteSuccess, canDelete, onDelete }) {
     const { idCrew } = useParams();
-    const [selected, setSelected] = useState(null);
-    const [voted, setVoted] = useState(false);
+    const [selected, setSelected] = useState(poll.userVoteOptionId ?? null);
+    const [confirmedVote, setConfirmedVote] = useState(poll.userVoteOptionId ?? null);
     const [isVoting, setIsVoting] = useState(false);
     const [voteError, setVoteError] = useState(null);
+    const [voteSuccess, setVoteSuccess] = useState(null);
     const [voteCounts, setVoteCounts] = useState({});
 
-    // Sincroniza los contadores de votos cuando el poll cambia (ej. tras refresh)
+    // Sincroniza contadores y voto del usuario cuando el poll cambia (ej. tras refresh)
     useEffect(() => {
         if (poll?.options) {
             setVoteCounts(
                 poll.options.reduce((acc, o) => ({ ...acc, [o.id]: o.votes ?? 0 }), {})
             );
         }
+        //Si el usuario tiene un voto registrado, se muestra seleccionado
+        setSelected(poll.userVoteOptionId ?? null);
+        setConfirmedVote(poll.userVoteOptionId ?? null);
+        setVoteSuccess(null);
+
     }, [poll]);
 
+    // Handler para registrar el voto del usuario
     const handleVote = async () => {
         if (!selected || isVoting) return;
 
@@ -38,20 +45,29 @@ export default function ActivePollCard({ poll, onVoteSuccess, canDelete, onDelet
 
         try {
             await votePoll(idCrew, poll._id, selected);
-            // Actualización optimista del contador sin esperar re-fetch
-            setVoteCounts((prev) => ({
-                ...prev,
-                [selected]: (prev[selected] || 0) + 1,
-            }));
-            setVoted(true);
+
+            // Actualización optimista: decrementa voto anterior, incrementa el nuevo
+            setVoteCounts((prev) => {
+                const next = { ...prev };
+                if (confirmedVote && confirmedVote !== selected) {
+                    next[confirmedVote] = Math.max(0, (next[confirmedVote] || 0) - 1);
+                }
+                if (!confirmedVote || confirmedVote !== selected) {
+                    next[selected] = (next[selected] || 0) + 1;
+                }
+                return next;
+            });
+
+            const wasVoted = confirmedVote !== null;
+            setConfirmedVote(selected);
+            setVoteSuccess(wasVoted ? "actualizado" : "registrado");
+            setTimeout(() => setVoteSuccess(null), 2000);
+
             // Refresca la lista tras un breve delay para que el servidor procese el voto
             if (onVoteSuccess) setTimeout(() => onVoteSuccess(), 500);
+            
         } catch (err) {
-            if (err.code === "ALREADY_VOTED") {
-                setVoteError("Ya has votado en esta encuesta");
-            } else {
-                setVoteError(err.message || "Error al votar");
-            }
+            setVoteError(err.message || "Error al votar");
         } finally {
             setIsVoting(false);
         }
@@ -60,12 +76,12 @@ export default function ActivePollCard({ poll, onVoteSuccess, canDelete, onDelet
     // Formatea la fecha de cierre en formato legible
     const expiryLabel = poll.expiresAt
         ? new Date(poll.expiresAt).toLocaleString("es-ES", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-          })
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
         : null;
 
     return (
@@ -96,8 +112,8 @@ export default function ActivePollCard({ poll, onVoteSuccess, canDelete, onDelet
                     poll.options.map((opt) => (
                         <label
                             key={opt.id}
-                            className={`${styles.optionRow} ${selected === opt.id ? styles.selected : ""} ${voted ? styles.disabled : ""}`}
-                            onClick={() => !voted && setSelected(opt.id)}
+                            className={`${styles.optionRow} ${selected === opt.id ? styles.selected : ""}`}
+                            onClick={() => setSelected(opt.id)}
                         >
                             <div className={styles.radioCircle}>
                                 {selected === opt.id && <div className={styles.radioDot} />}
@@ -119,21 +135,22 @@ export default function ActivePollCard({ poll, onVoteSuccess, canDelete, onDelet
                 </p>
             )}
 
-            {/* Botón de votar o confirmación */}
-            {!voted ? (
-                <button
-                    className={`${styles.voteBtn} ${selected ? styles.active : ""}`}
-                    onClick={handleVote}
-                    disabled={isVoting || !selected}
-                >
-                    {isVoting ? "Votando..." : "Votar"}
-                </button>
-            ) : (
+            {/* Confirmación breve tras votar */}
+            {voteSuccess && (
                 <p className={styles.votedMsg}>
                     <IconCheck size={14} stroke={2.5} />
-                    Voto registrado
+                    Voto {voteSuccess}
                 </p>
             )}
+
+            {/* Botón de votar (siempre visible) */}
+            <button
+                className={`${styles.voteBtn} ${selected ? styles.active : ""}`}
+                onClick={handleVote}
+                disabled={isVoting || !selected}
+            >
+                {isVoting ? "Votando..." : confirmedVote ? "Cambiar voto" : "Votar"}
+            </button>
         </div>
     );
 }

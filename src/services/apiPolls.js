@@ -54,11 +54,6 @@ export const votePoll = async (crewId, pollId, optionId) => {
         );
         return data;
     } catch (error) {
-        if (error.response?.status === 409) {
-            throw Object.assign(new Error("Ya has votado en esta encuesta"), {
-                code: "ALREADY_VOTED",
-            });
-        }
         throw normalizeError(error, "No se pudo votar en la encuesta");
     }
 };

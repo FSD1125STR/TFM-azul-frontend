@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { CrewContext } from "../../hooks/context/CrewContext";
-import { getCrewPolls, createPoll, deletePoll } from "../../services/apiPolls";
+import { getCrewPolls, deletePoll } from "../../services/apiPolls";
 import { Button } from "../../components/ui/Button.jsx";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import CrewToast from "../crews/components/CrewToast.jsx";
@@ -19,29 +19,28 @@ export default function CrewPolls() {
     const { idCrew, groupId } = useParams();
     const { crew } = useContext(CrewContext) || { crew: null };
 
-    // ── Estado de datos ──────────────────────────────────────────────────────
+    //Estado de datos
     const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(true);
     const [fetchError, setFetchError] = useState(null);
 
-    // ── Estado de UI ─────────────────────────────────────────────────────────
+    //Estado de UI
     const [tab, setTab] = useState("active");
     const [showModal, setShowModal] = useState(false);
-    const [isCreating, setIsCreating] = useState(false);
     const [pendingDelete, setPendingDelete] = useState(null); // poll._id pendiente de confirmar
-    const [isDeleting, setIsDeleting] = useState(false);
     const [notification, setNotification] = useState(null);
 
     // El usuario puede administrar la sección si su rol en la crew es admin
     const canManage = crew?.userRole?.permission === "admin";
 
-    // ── Fetch de encuestas ───────────────────────────────────────────────────
+    //Fetch de encuestas 
     const loadPolls = useCallback(async () => {
         setFetchError(null);
         setLoading(true);
         try {
             const data = await getCrewPolls(idCrew, { groupId });
             setPolls(Array.isArray(data) ? data : []);
+            
         } catch (err) {
             setFetchError(err.message || "No se pudieron cargar las encuestas");
         } finally {
@@ -59,36 +58,25 @@ export default function CrewPolls() {
 
     // ── Handlers ─────────────────────────────────────────────────────────────
 
-    // Crea una nueva encuesta y la añade al estado local
-    const handleCreatePoll = async ({ question, options, expiresAt }) => {
-        setIsCreating(true);
-        try {
-            const created = await createPoll(idCrew, { question, options, expiresAt, groupId });
-            setPolls((prev) => [...prev, created]);
-            setShowModal(false);
-            setNotification({ type: "success", message: "Encuesta creada correctamente" });
-        } catch (err) {
-            setNotification({ type: "error", message: err.message || "No se pudo crear la encuesta" });
-        } finally {
-            setIsCreating(false);
-        }
+    // Recibe el poll recién creado desde CreatePollModal y lo añade a la lista
+    const handlePollCreated = (poll) => {
+        setPolls((prev) => [...prev, poll]);
+        setNotification({ type: "success", message: "Encuesta creada correctamente" });
     };
 
     // Solicita confirmación antes de eliminar (abre el ConfirmModal)
     const handleDeletePoll = (pollId) => setPendingDelete(pollId);
 
     // Ejecuta el borrado tras confirmación del usuario
+    // ConfirmModal gestiona el estado de carga detectando la Promise devuelta
     const handleConfirmDelete = async () => {
-        setIsDeleting(true);
         try {
             await deletePoll(idCrew, pendingDelete);
             setPolls((prev) => prev.filter((p) => p._id !== pendingDelete));
             setNotification({ type: "success", message: "Encuesta eliminada" });
+            setPendingDelete(null);
         } catch (err) {
             setNotification({ type: "error", message: err.message || "No se pudo eliminar la encuesta" });
-        } finally {
-            setIsDeleting(false);
-            setPendingDelete(null);
         }
     };
 
@@ -188,8 +176,7 @@ export default function CrewPolls() {
             <CreatePollModal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                onSubmit={handleCreatePoll}
-                isSubmitting={isCreating}
+                onCreated={handlePollCreated}
             />
 
             {/* Modal de confirmación de borrado */}
@@ -201,7 +188,6 @@ export default function CrewPolls() {
                 cancelLabel="Cancelar"
                 onConfirm={handleConfirmDelete}
                 onCancel={() => setPendingDelete(null)}
-                isLoading={isDeleting}
             />
         </>
     );
