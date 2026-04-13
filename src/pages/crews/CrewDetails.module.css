@@ -184,20 +184,34 @@
   gap: 12px;
 }
 
-.mainInfo{
-  display: flex;
-  align-items: start;
+/* Grid para CalendarWidget + ActivityWidget.
+   Proporción 1fr / 1.5fr reproduce el anterior 40%/60% con grid para
+   consistencia con el resto de layouts. align-items: start evita que el
+   widget más corto se estire hasta la altura del más alto. */
+.mainInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
 }
 
-.calendarContainer{
-  width: 40%;
-  height: fit-content;
+/* Grid para EventsWidget + PollsWidget (resumen de próximos eventos y encuestas) */
+.widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
-.activityContainer{
-  width: 60%;
-  height: fit-content;
+@media (max-width: 720px) {
+  .mainInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .widgets {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {

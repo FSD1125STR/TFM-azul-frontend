@@ -1,0 +1,122 @@
+/* WidgetCard ya proporciona el contenedor exterior (background, border, padding, shadow).
+   Este módulo solo estiliza el contenido interno del feed de notificaciones. */
+
+/* ── Lista scrollable ────────────────────────────────────────── */
+/* max-height limita la altura del feed para no crecer indefinidamente
+   cuando hay muchas notificaciones */
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    max-height: 380px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+/* ── Item individual ─────────────────────────────────────────── */
+.item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: var(--radius-sm);
+    transition: background 120ms ease;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.item:hover {
+    background: rgba(148, 163, 184, 0.08);
+}
+
+/* ── Icono del tipo de notificación ──────────────────────────── */
+.icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: #eff6ff;
+    color: #13a4ec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Contenido texto ─────────────────────────────────────────── */
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0; /* permite que el texto haga ellipsis dentro del flex */
+}
+
+.message {
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+}
+
+/* Nombre del usuario que generó la notificación */
+.actor {
+    font-weight: 600;
+    color: #13a4ec;
+}
+
+/* Nombre de la entidad afectada (poll, archivo, evento) */
+.entityName {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.time {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+/* Badge que indica el subgrupo de la notificación */
+.groupBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #0369a1;
+    background: #e0f2fe;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
+/* ── Estados ─────────────────────────────────────────────────── */
+.loading {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    padding: 8px 0;
+}
+
+.error {
+    font-size: 0.875rem;
+    color: #b91c1c;
+    background: #fee2e2;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+}
+
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.emptyIcon {
+    opacity: 0.35;
+    color: #64748b;
+}
