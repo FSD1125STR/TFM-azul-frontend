@@ -77,6 +77,19 @@
     color: var(--color-text-secondary);
 }
 
+/* Badge que indica el subgrupo de la notificación */
+.groupBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: #0369a1;
+    background: #e0f2fe;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
 /* ── Estados ─────────────────────────────────────────────────── */
 .loading {
     font-size: 0.9rem;

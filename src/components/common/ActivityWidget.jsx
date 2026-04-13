@@ -131,6 +131,9 @@ export default function ActivityWidget({ notifications, loading, error }) {
                                 </span>
                                 <div className={styles.content}>
                                     <span className={styles.message}>{buildMessage(n)}</span>
+                                    {n.group?.name && (
+                                        <span className={styles.groupBadge}>{n.group.name}</span>
+                                    )}
                                     <span className={styles.time}>{formatRelativeTime(n.createdAt)}</span>
                                 </div>
                             </li>
