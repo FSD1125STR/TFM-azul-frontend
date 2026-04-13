@@ -104,7 +104,7 @@
   text-align: center;
 }
 
-.stats div{
+.stats div {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -114,7 +114,7 @@
   color: var(--color-text-secondary);
 }
 
-.separator{
+.separator {
   border: none;
   border-right: 1px solid var(--color-text-secondary);
   opacity: 0.3;
@@ -157,6 +157,16 @@
   cursor: pointer;
 }
 
+.warningButton {
+  border: none;
+  background: #ef6c00;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -184,18 +194,18 @@
   gap: 12px;
 }
 
-.mainInfo{
+.mainInfo {
   display: flex;
   align-items: start;
   gap: 20px;
 }
 
-.calendarContainer{
+.calendarContainer {
   width: 40%;
   height: fit-content;
 }
 
-.activityContainer{
+.activityContainer {
   width: 60%;
   height: fit-content;
 }
