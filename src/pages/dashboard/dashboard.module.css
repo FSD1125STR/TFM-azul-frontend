@@ -1,0 +1,63 @@
+/* Contenedor principal de la página */
+.page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Banner de bienvenida ──────────────────────────────────────── */
+.welcome {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.welcomeTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 4px;
+    line-height: 1.2;
+}
+
+.welcomeSubtitle {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* Botón "Nueva crew" — igual que primaryButton de MyCrews, ancho automático */
+.createBtn {
+    width: auto !important;
+    padding: 12px 20px !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+}
+
+/* ── Grid inferior: eventos + actividad ───────────────────────── */
+.bottomGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 20px 16px 40px;
+        gap: 20px;
+    }
+
+    .welcomeTitle {
+        font-size: 1.4rem;
+    }
+
+    .bottomGrid {
+        grid-template-columns: 1fr;
+    }
+}
