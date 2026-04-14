@@ -104,7 +104,7 @@
   text-align: center;
 }
 
-.stats div{
+.stats div {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -114,7 +114,7 @@
   color: var(--color-text-secondary);
 }
 
-.separator{
+.separator {
   border: none;
   border-right: 1px solid var(--color-text-secondary);
   opacity: 0.3;
@@ -137,24 +137,73 @@
   cursor: pointer;
 }
 
+/* Base compartida para los tres botones de acción de la crew */
+.secondaryButton,
+.dangerButton,
+.leaveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.secondaryButton,
+.dangerButton,
+.leaveButton {
+  white-space: nowrap;
+}
+
+/* Editar — variante secundaria neutra */
 .secondaryButton {
   border: 1px solid var(--color-border);
   background: var(--color-background-secondary);
   color: var(--color-text-primary);
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
 }
 
+.secondaryButton:hover:not(:disabled) {
+  background: var(--color-background-primary);
+  border-color: #b0bec5;
+}
+
+/* Eliminar — variante destructiva sólida */
 .dangerButton {
   border: none;
   background: #e53935;
   color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #c62828;
+}
+
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Abandonar — variante destructiva suave (ghost) */
+.leaveButton {
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  background: rgba(220, 38, 38, 0.07);
+  color: #c62828;
+}
+
+.leaveButton:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(220, 38, 38, 0.55);
+}
+
+.leaveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .overlay {
@@ -184,20 +233,34 @@
   gap: 12px;
 }
 
-.mainInfo{
-  display: flex;
-  align-items: start;
+/* Grid para CalendarWidget + ActivityWidget.
+   Proporción 1fr / 1.5fr reproduce el anterior 40%/60% con grid para
+   consistencia con el resto de layouts. align-items: start evita que el
+   widget más corto se estire hasta la altura del más alto. */
+.mainInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
 }
 
-.calendarContainer{
-  width: 40%;
-  height: fit-content;
+/* Grid para EventsWidget + PollsWidget (resumen de próximos eventos y encuestas) */
+.widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
-.activityContainer{
-  width: 60%;
-  height: fit-content;
+@media (max-width: 720px) {
+  .mainInfo {
+    grid-template-columns: 1fr;
+  }
+
+  .widgets {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 900px) {

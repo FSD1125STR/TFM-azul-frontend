@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CrewForm from "./components/CrewForm.jsx";
 import CrewToast from "./components/CrewToast.jsx";
@@ -11,13 +11,20 @@ import {
     deleteCrew,
     getCrewImageUrl,
     updateCrew,
+    leaveCrew
 } from "../../services/apiCrews.js";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
-import { Container } from "../../components/ui/Container.jsx";
 import { Button } from "../../components/ui/Button.jsx";
 import { IconUserCircle, IconUsersGroup  } from "@tabler/icons-react";
-import CrewCalendar from "./components/CrewCalendar.jsx";
-import CrewActivity from "./components/CrewActivity.jsx";
+// Widgets de resumen — todos props-driven, sin dependencia de contexto
+import CalendarWidget from "../events/components/CalendarWidget.jsx";
+import ActivityWidget from "../../components/common/ActivityWidget.jsx";
+import EventsWidget from "../events/components/EventsWidget.jsx";
+import PollsWidget from "../polls/components/PollsWidget.jsx";
+// Servicios de datos
+import { getCrewEvents } from "../../services/events.js";
+import { getCrewPolls } from "../../services/apiPolls.js";
+import { useNotifications } from "../../hooks/useNotifications.js";
 
 export default function CrewDetails() {
     //Extraemos toda la info de la crew a partir del context
@@ -27,6 +34,48 @@ export default function CrewDetails() {
     const [isEditing, setIsEditing] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isLeaving, setIsLeaving] = useState(false);
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+    // ── Datos de eventos y encuestas ──────────────────────────────────────────
+    // Un único fetch sirve a CalendarWidget (todos los eventos) y a EventsWidget
+    // (eventos próximos filtrados), eliminando la petición duplicada que hacía CrewCalendar.
+    const [events, setEvents] = useState([]);
+    const [polls, setPolls] = useState([]);
+    const [eventsLoading, setEventsLoading] = useState(true); // para el estado de carga del calendario
+
+    // Filtramos eventos futuros (max 3) y encuestas activas (max 3) para los widgets de resumen
+    const upcomingEvents = useMemo(() => {
+        const now = new Date();
+        return events
+            .filter((e) => new Date(e.date) >= now)
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .slice(0, 3);
+    }, [events]);
+
+    const activePolls = useMemo(() => {
+        return polls.filter((p) => p.isActive).slice(0, 3);
+    }, [polls]);
+
+    // Cargamos eventos y encuestas en paralelo al montar o cambiar de crew
+    useEffect(() => {
+        if (!crewId) return;
+        setEventsLoading(true);
+
+        Promise.all([getCrewEvents(crewId), getCrewPolls(crewId)])
+            .then(([e, p]) => {
+                setEvents(Array.isArray(e) ? e : []);
+                setPolls(Array.isArray(p) ? p : []);
+            })
+            .catch(() => {})
+            .finally(() => setEventsLoading(false));
+    }, [crewId]);
+
+    // ── Notificaciones en tiempo real ─────────────────────────────────────────
+    // useNotifications gestiona el fetch inicial + actualizaciones por WebSocket.
+    // Se llama aquí (antes de los early returns) para cumplir las reglas de hooks,
+    // y se pasa como props a ActivityWidget.
+    const { notifications, loading: notifLoading, error: notifError } = useNotifications(crewId);
     
 
     const handleUpdate = async (payload) => {
@@ -50,6 +99,26 @@ export default function CrewDetails() {
         } catch (err) {
             setNotification({ type: "error", message: err.message || "No se pudo eliminar" });
             setIsDeleting(false);
+        }
+    };
+
+    const handleLeaveCrew = async () => {
+        try {
+            setIsLeaving(true);
+            const result = await leaveCrew(crewId);
+            setNotification({
+                type: "success",
+                message: result?.reassignedAdminUserId
+                    ? "Has abandonado la crew. Se asigno un nuevo administrador al azar."
+                    : "Has abandonado la crew.",
+            });
+            setTimeout(() => navigate("/crews"), 1200);
+        } catch (err) {
+            setNotification({
+                type: "error",
+                message: err.message || "No se pudo abandonar la crew",
+            });
+            setIsLeaving(false);
         }
     };
 
@@ -123,6 +192,36 @@ export default function CrewDetails() {
                 </div>
             )}
 
+            {showLeaveConfirm && (
+                <div className={styles.overlay}>
+                    <div className={styles.modal}>
+                        <h3>Abandonar crew</h3>
+                        <p>
+                          Seguro que quieres abandonar <strong>{crew.name}</strong>? Si eres
+                          el unico admin, se asignara uno nuevo al azar.
+                        </p>
+                        <div className={styles.modalActions}>
+                            <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => setShowLeaveConfirm(false)}
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className={styles.warningButton}
+                                onClick={handleLeaveCrew}
+                                disabled={isLeaving}
+                            >
+                                {isLeaving ? "Abandonando..." : "Sí, abandonar"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
             {/* Sección principal con la info de la crew */}
             <div className={styles.container}>
                 {/* Si se esta editando se renderiza el formulario con los valores iniciales de la crew */}
@@ -178,6 +277,13 @@ export default function CrewDetails() {
                                         >
                                             Eliminar
                                         </button>
+                                        <button
+                                            type="button"
+                                            className={styles.leaveButton}
+                                            onClick={() => setShowLeaveConfirm(true)}
+                                        >
+                                          Abandonar
+                                        </button>
                                     </div>
                                 )}
                             </div>
@@ -210,16 +316,30 @@ export default function CrewDetails() {
                                 </div>
                             </div>
                             
+                            {/**Grid con calendario y actividad reciente.
+                              * Ambos reciben datos del padre (props-driven) — sin fetches internos. */}
                             <div className={styles.mainInfo}>
-                                {/**Mostramos el calendario */}
-                                <Container className={styles.calendarContainer}>
-                                    <CrewCalendar/>
-                                </Container>
+                                {/* Calendario con todos los eventos de la crew */}
+                                <CalendarWidget events={events} loading={eventsLoading} />
 
-                                {/**Mostramos el contenedor de actividad */}
-                                <Container className={styles.activityContainer}>
-                                    <CrewActivity/>
-                                </Container>
+                                {/* Feed de actividad reciente con notificaciones en tiempo real */}
+                                <ActivityWidget
+                                    notifications={notifications}
+                                    loading={notifLoading}
+                                    error={notifError}
+                                />
+                            </div>
+
+                            {/**Widgets de resumen: próximos eventos y encuestas activas */}
+                            <div className={styles.widgets}>
+                                <EventsWidget
+                                    events={upcomingEvents}
+                                    emptyMessage="No hay eventos próximos en esta crew."
+                                />
+                                <PollsWidget
+                                    polls={activePolls}
+                                    emptyMessage="No hay encuestas activas en esta crew."
+                                />
                             </div>
                             
                             

@@ -1,0 +1,63 @@
+/* Container ya aporta background, border, border-radius, padding y shadow. */
+
+.header {
+    margin-bottom: 24px;
+}
+
+.name {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 6px;
+    line-height: 1.2;
+}
+
+.description {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 6px;
+}
+
+.meta {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    opacity: 0.75;
+}
+
+/* ── Stats row ── */
+.stats {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 20px;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+}
+
+.stat:first-child {
+    padding-left: 0;
+}
+
+.stat strong {
+    color: var(--color-text-primary);
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.separator {
+    width: 1px;
+    height: 20px;
+    background: var(--color-border);
+    flex-shrink: 0;
+}

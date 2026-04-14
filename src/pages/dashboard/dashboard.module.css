@@ -1,0 +1,71 @@
+/* Contenedor principal de la página */
+.page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Banner de bienvenida ──────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.remarked{
+    color: var(--color-button);
+}
+
+
+.title {
+  font-size: 50px;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+}
+
+.primaryButton {
+  background: var(--color-button);
+  color: var(--color-button-text);
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.primaryButton:hover,
+.primaryButton:focus-visible {
+  background: var(--color-button-hover);
+}
+
+/* ── Grid inferior: eventos + actividad ───────────────────────── */
+.bottomGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding: 20px 16px 40px;
+        gap: 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .bottomGrid {
+        grid-template-columns: 1fr;
+    }
+}

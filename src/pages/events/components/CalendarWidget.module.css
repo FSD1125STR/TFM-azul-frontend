@@ -1,0 +1,8 @@
+/* CalendarWidget solo necesita anular el margen que WidgetCard deja
+   en la parte inferior, ya que EventCalendar gestiona su propio layout interno. */
+
+.calendarWrapper {
+    /* Compensamos el gap de WidgetCard para que el calendario ocupe
+       todo el ancho disponible sin márgenes extra */
+    margin: 0 -4px;
+}
