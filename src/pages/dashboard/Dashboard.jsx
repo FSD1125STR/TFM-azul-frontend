@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IconPlus } from "@tabler/icons-react";
 
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { useAllNotifications } from "../../hooks/useAllNotifications.js";
@@ -8,6 +7,7 @@ import { getCrews } from "../../services/apiCrews.js";
 import { getMyEvents } from "../../services/events.js";
 
 import { Button } from "../../components/ui/Button.jsx";
+import { Link } from "react-router-dom";
 import { DASHBOARD_MAX_EVENTS } from "../../constants/dashboard.js";
 import RecentCrewsWidget from "../../components/common/RecentCrewsWidget.jsx";
 import EventsWidget from "../events/components/EventsWidget.jsx";
@@ -16,18 +16,20 @@ import ActivityWidget from "../../components/common/ActivityWidget.jsx";
 import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
+    //
     const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
 
+    //Estado de datos
     const [crews, setCrews] = useState([]);
     const [crewsLoading, setCrewsLoading] = useState(true);
 
     const [events, setEvents] = useState([]);
     const [eventsLoading, setEventsLoading] = useState(true);
 
+    //Custom hook para notificaciones de usuario
     const { notifications, loading: notifLoading, error: notifError } = useAllNotifications();
 
-    // Fetch crews
+    // Fetch crews del usuario
     useEffect(() => {
         getCrews()
             .then(setCrews)
@@ -35,7 +37,7 @@ export default function Dashboard() {
             .finally(() => setCrewsLoading(false));
     }, []);
 
-    // Fetch user events
+    // Fetch eventos del usuario, de su crew y de su grupo (todos si es admin)
     useEffect(() => {
         getMyEvents()
             .then((data) => setEvents(data?.events ?? data ?? []))
@@ -46,19 +48,16 @@ export default function Dashboard() {
     return (
         <div className={styles.page}>
             {/* ── Banner de bienvenida ────────────────────────────────── */}
-            <div className={styles.welcome}>
+            <header className={styles.header}>
                 <div>
-                    <h1 className={styles.welcomeTitle}>
-                        ¡Hola, {user?.username ?? ""}!
-                    </h1>
-                    <p className={styles.welcomeSubtitle}>
-                        Aquí tienes un resumen de tu actividad reciente.
-                    </p>
+                    <h1 className={styles.title}>¡Hola de nuevo <span className={styles.remarked}>{user?.username ?? ""}</span>!</h1>
+                    <p className={styles.subtitle}>Aquí tienes un resumen de tu actividad reciente.</p>
                 </div>
-                <Button onClick={() => navigate("/crews/create")} className={styles.createBtn}>
-                    Nueva crew
-                </Button>
-            </div>
+                <Link to="/crews/create" className={styles.primaryButton}>
+                    Nueva Crew
+                </Link>
+            </header>
+
 
             {/* ── Crews recientes ─────────────────────────────────────── */}
             <RecentCrewsWidget crews={crews} loading={crewsLoading} />

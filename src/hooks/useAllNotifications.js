@@ -11,7 +11,7 @@ export const useAllNotifications = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // ── Fetch inicial ────────────────────────────────────────────────────────
+    // Fetch de todas las notificaciones del usuario
     useEffect(() => {
         getAllNotifications()
             .then((data) => setNotifications(data))
@@ -19,9 +19,8 @@ export const useAllNotifications = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    // ── Tiempo real ──────────────────────────────────────────────────────────
-    // El socket ya está unido a los rooms crew:, group: y crew-admin: del usuario
-    // (gestionado en socketManager.js), por lo que las notificaciones de todos los
+
+    // El socket ya está unido a los rooms crew:, group: y crew-admin: del usuario (gestionado en socketManager.js), por lo que las notificaciones de todos los
     // grupos y crews llegarán aquí automáticamente.
     useEffect(() => {
         if (!socket) return;
@@ -40,7 +39,9 @@ export const useAllNotifications = () => {
         return () => {
             socket.off("notification:new", handleNewNotification);
         };
+
     }, [socket]);
 
+    //El hook devuelve un array de notificaciones ordenadas por fecha (la más reciente primero), junto con estados de carga y error
     return { notifications, loading, error };
 };

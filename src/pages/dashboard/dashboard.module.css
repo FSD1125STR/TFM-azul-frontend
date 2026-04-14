@@ -9,34 +9,41 @@
 }
 
 /* ── Banner de bienvenida ──────────────────────────────────────── */
-.welcome {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.welcomeTitle {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0 0 4px;
-    line-height: 1.2;
+.remarked{
+    color: var(--color-button);
 }
 
-.welcomeSubtitle {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
-    margin: 0;
+
+.title {
+  font-size: 50px;
+  margin: 0;
+  color: var(--color-text-primary);
 }
 
-/* Botón "Nueva crew" — igual que primaryButton de MyCrews, ancho automático */
-.createBtn {
-    width: auto !important;
-    padding: 12px 20px !important;
-    border-radius: 12px !important;
-    font-size: 1rem !important;
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--color-text-secondary);
+}
+
+.primaryButton {
+  background: var(--color-button);
+  color: var(--color-button-text);
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.primaryButton:hover,
+.primaryButton:focus-visible {
+  background: var(--color-button-hover);
 }
 
 /* ── Grid inferior: eventos + actividad ───────────────────────── */
@@ -53,8 +60,9 @@
         gap: 20px;
     }
 
-    .welcomeTitle {
-        font-size: 1.4rem;
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .bottomGrid {

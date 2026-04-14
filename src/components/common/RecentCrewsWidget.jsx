@@ -7,6 +7,7 @@ import styles from "./RecentCrewsWidget.module.css";
 export default function RecentCrewsWidget({ crews, loading }) {
     const navigate = useNavigate();
 
+    //Extraemos los más recientes, ordenados por fecha de actualización
     const recent = [...(crews ?? [])]
         .sort((a, b) => new Date(b.updatedAt ?? 0) - new Date(a.updatedAt ?? 0))
         .slice(0, DASHBOARD_MAX_CREWS);
