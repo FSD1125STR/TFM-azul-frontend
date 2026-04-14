@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { useAllNotifications } from "../../hooks/useAllNotifications.js";
@@ -13,7 +12,7 @@ import RecentCrewsWidget from "../../components/common/RecentCrewsWidget.jsx";
 import EventsWidget from "../events/components/EventsWidget.jsx";
 import ActivityWidget from "../../components/common/ActivityWidget.jsx";
 
-import styles from "./Dashboard.module.css";
+import styles from "./dashboard.module.css";
 
 export default function Dashboard() {
     //
