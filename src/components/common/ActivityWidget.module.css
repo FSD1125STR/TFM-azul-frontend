@@ -77,6 +77,19 @@
     color: var(--color-text-secondary);
 }
 
+/* Badge que indica la crew de la notificación (solo en el dashboard global) */
+.crewBadge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    background: #13a4ec36;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-top: 2px;
+    align-self: flex-start;
+}
+
 /* Badge que indica el subgrupo de la notificación */
 .groupBadge {
     display: inline-block;

@@ -10,6 +10,18 @@ const normalizeError = (error, fallbackMessage) => {
     return normalized;
 };
 
+// Devuelve todas las notificaciones del usuario a través de todas sus crews
+export const getAllNotifications = async () => {
+    try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/notifications`, {
+            withCredentials: true,
+        });
+        return data.data;
+    } catch (error) {
+        throw normalizeError(error, "No se pudieron cargar las notificaciones");
+    }
+};
+
 // Llamamos a la api para que devuelva las notificaciones/actividades de la crew
 export const getCrewNotifications = async (crewId) => {
     try {
