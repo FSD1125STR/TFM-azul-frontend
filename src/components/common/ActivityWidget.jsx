@@ -94,7 +94,7 @@ function formatRelativeTime(dateStr) {
 }
 
 // ── Componente principal ─────────────────────────────────────────────────────
-export default function ActivityWidget({ notifications, loading, error }) {
+export default function ActivityWidget({ notifications, loading, error, showCrew = false }) {
     return (
         // WidgetCard proporciona el título "Actividad reciente" y el contenedor visual.
         // Gestionamos los estados internamente (loading/error/empty/list) en lugar de
@@ -131,6 +131,9 @@ export default function ActivityWidget({ notifications, loading, error }) {
                                 </span>
                                 <div className={styles.content}>
                                     <span className={styles.message}>{buildMessage(n)}</span>
+                                    {showCrew && n.crew?.name && (
+                                        <span className={styles.crewBadge}>{n.crew.name}</span>
+                                    )}
                                     {n.group?.name && (
                                         <span className={styles.groupBadge}>{n.group.name}</span>
                                     )}

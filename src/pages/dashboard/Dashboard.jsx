@@ -74,6 +74,7 @@ export default function Dashboard() {
                     notifications={notifications}
                     loading={notifLoading}
                     error={notifError}
+                    showCrew={true}
                 />
             </div>
         </div>
