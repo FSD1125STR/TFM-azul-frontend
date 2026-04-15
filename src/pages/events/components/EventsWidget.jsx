@@ -37,7 +37,7 @@ export default function EventsWidget({ events, emptyMessage = "No hay eventos pr
                                             {event.attendanceCount || 0} asistentes
                                         </span>
                                     </div>
-                                    <Link to={`events/${event._id}`} className={styles.detailLink}>
+                                    <Link to={event.group ? `/crews/${event.crew._id}/groups/${event.group._id}/events/${event._id}` : `/crews/${event.crew._id}/events/${event._id}`} className={styles.detailLink}>
                                         Ver detalles →
                                     </Link>
                                 </div>
