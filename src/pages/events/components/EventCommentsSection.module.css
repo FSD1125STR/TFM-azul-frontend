@@ -1,0 +1,254 @@
+.section {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg, 16px);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    display: grid;
+    gap: 16px;
+}
+
+.sectionHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--color-text-primary);
+}
+
+.sectionHeader p {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.error {
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.primaryButton,
+.secondaryButton {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.primaryButton {
+    background: var(--color-button);
+    color: #ffffff;
+}
+
+.primaryButton:hover {
+    background: var(--color-button-hover);
+}
+
+.secondaryButton {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+.commentForm {
+    display: grid;
+    gap: 12px;
+}
+
+.commentInput {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    resize: vertical;
+    font: inherit;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+.commentInput:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.2);
+    border-color: var(--color-button);
+}
+
+.commentFormFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.commentCounter {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.commentList {
+    display: grid;
+    gap: 12px;
+}
+
+.commentCard {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-background-primary);
+}
+
+.commentHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.commentHeaderMeta {
+    display: grid;
+    justify-items: end;
+    gap: 6px;
+}
+
+.commentAuthor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.commentAvatar,
+.commentAvatarFallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.commentAvatar {
+    object-fit: cover;
+}
+
+.commentAvatarFallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-button);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.commentAuthorName,
+.commentAuthorMeta,
+.commentContent,
+.commentDate {
+    margin: 0;
+}
+
+.commentAuthorName {
+    color: var(--color-text-primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.commentAuthorMeta {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    word-break: break-word;
+}
+
+.commentDate {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.commentActions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.commentActionButton,
+.commentDeleteButton {
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: transparent;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.commentActionButton {
+    color: var(--color-text-primary);
+}
+
+.commentDeleteButton {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.commentContent {
+    color: var(--color-text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+}
+
+.commentEditor {
+    display: grid;
+    gap: 10px;
+}
+
+.commentEditorFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.commentEditorActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.empty {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin: 0;
+    padding: 4px 0;
+}
+
+@media (max-width: 768px) {
+    .commentHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .commentHeaderMeta {
+        justify-items: start;
+    }
+}

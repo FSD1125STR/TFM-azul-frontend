@@ -6,51 +6,49 @@ import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import {
     attendEvent,
     deleteEvent,
-    getEventById,
     getEventAttendees,
+    getEventById,
     unattendEvent,
 } from "../../services/events.js";
+import EventCommentsSection from "./components/EventCommentsSection.jsx";
 import EventDetailsCard from "./components/EventDetailsCard.jsx";
-import EventStatusCard from "./components/EventStatusCard.jsx";
 import EventParticipantsCard from "./components/EventParticipantsCard.jsx";
+import EventStatusCard from "./components/EventStatusCard.jsx";
 import styles from "./EventDetail.module.css";
 
-// Función para determinar el estado del evento (pasado o programado) y el texto de días
 function getEventStatus(date) {
     const now = new Date();
     const eventDate = new Date(date);
     const isPast = eventDate < now;
     const diffDays = Math.abs(Math.round((eventDate - now) / (1000 * 60 * 60 * 24)));
+
     return {
         statusLabel: isPast ? "Pasado" : "Programado",
         daysText: isPast
-            ? diffDays === 0 ? "Hoy" : `Hace ${diffDays} día${diffDays !== 1 ? "s" : ""}`
-            : diffDays === 0 ? "Hoy" : `Faltan ${diffDays} día${diffDays !== 1 ? "s" : ""}`,
+            ? diffDays === 0 ? "Hoy" : `Hace ${diffDays} dia${diffDays !== 1 ? "s" : ""}`
+            : diffDays === 0 ? "Hoy" : `Faltan ${diffDays} dia${diffDays !== 1 ? "s" : ""}`,
     };
 }
 
 export default function EventDetail() {
-    // Obtener datos de contexto y parámetros de URL
     const { crew } = useContext(CrewContext);
     const { idCrew, eventId, groupId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    //Detecta si estamos viendo los eventos de un grupo para mantener las rutas dentro o fuera del grupo
     const eventsBase = groupId
         ? `/crews/${idCrew}/groups/${groupId}/events`
         : `/crews/${idCrew}/events`;
 
-    const [event, setEvent] = useState(null); //Guarda info del evento
-    const [attendees, setAttendees] = useState([]); //Guarda lista de usuarios que asisten al evento
+    const [event, setEvent] = useState(null);
+    const [attendees, setAttendees] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false); //Controla la visibilidad del modal de confirmación para eliminar el evento
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const userId = useMemo(() => user?._id, [user]);
 
-    //Cargamos el evento y sus asistentes llamando a la api
     useEffect(() => {
         const loadEvent = async () => {
             if (!idCrew) return;
@@ -62,11 +60,13 @@ export default function EventDetail() {
                     getEventById(idCrew, eventId),
                     getEventAttendees(idCrew, eventId),
                 ]);
+
                 if (eventData) {
                     setEvent(eventData);
                 } else {
                     setError("Evento no encontrado");
                 }
+
                 setAttendees(attendeesData ?? []);
             } catch (err) {
                 setError(err.message || "Error al cargar el evento");
@@ -78,7 +78,6 @@ export default function EventDetail() {
         loadEvent();
     }, [idCrew, eventId]);
 
-    //Maneja la confirmación para eliminar el evento
     const handleDeleteConfirmed = async () => {
         if (!userId) return;
 
@@ -94,16 +93,14 @@ export default function EventDetail() {
         }
     };
 
-    //Maneja el boton para asistir al evento
     const handleAttend = async () => {
         if (!event?._id || event.userAttending) return;
+
         setSubmitting(true);
         setError("");
 
         try {
             const data = await attendEvent(idCrew, event._id);
-
-            //Actualizamos el evento y la lista de asistentes con la nueva asistencia
             setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
             setAttendees((prev) => [...prev, data.attendance.user]);
         } catch (err) {
@@ -113,17 +110,16 @@ export default function EventDetail() {
         }
     };
 
-    //Maneja el boton para quitar la asistencia al evento
     const handleUnattend = async () => {
         if (!event?._id || !event.userAttending) return;
+
         setSubmitting(true);
         setError("");
 
         try {
-            //Llamamos a la api para quitar la asistencia y actualizamos el evento y la lista de asistentes
             const data = await unattendEvent(idCrew, event._id);
             setEvent((prev) => ({ ...prev, attendanceCount: data.attendanceCount, userAttending: data.userAttending }));
-            setAttendees((prev) => prev.filter((a) => a._id !== userId));
+            setAttendees((prev) => prev.filter((attendee) => attendee._id !== userId));
         } catch (err) {
             setError(err.message || "No se pudo quitar la asistencia");
         } finally {
@@ -131,7 +127,6 @@ export default function EventDetail() {
         }
     };
 
-    // Renderizamos un loading si esta cargando el evento
     if (loading) {
         return (
             <section className={styles.page}>
@@ -140,7 +135,6 @@ export default function EventDetail() {
         );
     }
 
-    // Si no hay evento, mostramos un mensaje
     if (!event) {
         return (
             <section className={styles.page}>
@@ -151,9 +145,7 @@ export default function EventDetail() {
         );
     }
 
-    // Obtenemos el estado del evento y el texto de días
     const { statusLabel, daysText } = getEventStatus(event.date);
-    // Comprobamos si el usuario es admin para mostrar las acciones de editar y eliminar
     const isAdmin = crew?.userRole?.permission === "admin";
 
     return (
@@ -165,14 +157,13 @@ export default function EventDetail() {
                 </div>
                 {isAdmin && (
                     <div className={styles.headerActions}>
-                        {/** Botón de editar navega a la página de edición del evento */}
                         <button
                             type="button"
                             className={styles.secondaryButton}
                             onClick={() => navigate(`${eventsBase}/${eventId}/edit`)}
                             disabled={submitting}
                         >
-                          Editar
+                            Editar
                         </button>
                         <button
                             type="button"
@@ -180,17 +171,15 @@ export default function EventDetail() {
                             onClick={() => setShowDeleteConfirm(true)}
                             disabled={submitting}
                         >
-                          Eliminar
+                            Eliminar
                         </button>
                     </div>
                 )}
             </header>
 
             <div className={styles.content}>
-                {/** Mostramos mensaje de error si existe */}
                 {error && <p className={styles.error}>{error}</p>}
 
-                {/** Detalles del evento */}
                 <div className={styles.viewGrid}>
                     <EventDetailsCard event={event} statusLabel={statusLabel} />
 
@@ -206,13 +195,20 @@ export default function EventDetail() {
                         <EventParticipantsCard attendees={attendees} />
                     </div>
                 </div>
+
+                {/** Sección de comentarios */}
+                <EventCommentsSection
+                    comments={event.comments ?? []}
+                    eventId={event._id}
+                    crewId={idCrew}
+                    userId={userId}
+                />
             </div>
-            
-            {/** Modal de confirmación para eliminar el evento */}
+
             <ConfirmModal
                 open={showDeleteConfirm}
-                title="¿Eliminar evento?"
-                description="Esta acción no se puede deshacer."
+                title="Eliminar evento?"
+                description="Esta accion no se puede deshacer."
                 confirmLabel="Eliminar"
                 onConfirm={handleDeleteConfirmed}
                 onCancel={() => setShowDeleteConfirm(false)}

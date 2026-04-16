@@ -28,6 +28,7 @@ const ICON_MAP = {
     POLL_VOTED:               IconChartBar,
     USER_JOINED:              IconUserPlus,
     COMMENT_POSTED:           IconMessage,
+   
 };
 
 // ── Helpers de texto ─────────────────────────────────────────────────────────
@@ -55,7 +56,8 @@ function buildMessage(notification) {
         USER_JOINED:              { prefix: " se ha unido a la crew", noEntity: true },
         COMMENT_POSTED:           { prefix: " ha comentado en " },
         POLL_VOTED:               { prefix: " ha votado en la encuesta: " },
-    };
+        FILE_DOWNLOADED:          { prefix: " ha descargado el archivo: " },
+         };
 
     const template = TEMPLATES[notification.type];
     if (!template) return <span>{actorName}</span>;

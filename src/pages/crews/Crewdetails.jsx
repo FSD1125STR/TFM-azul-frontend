@@ -261,31 +261,33 @@ export default function CrewDetails() {
                                     <h1>{crew.name}</h1>
                                     <p>{crew.description}</p>
                                 </div>
-                                {canManageCrew && (
-                                    <div className={styles.actions}>
-                                        <button
-                                            type="button"
-                                            className={styles.secondaryButton}
-                                            onClick={() => setIsEditing(true)}
-                                        >
+                                <div className={styles.actions}>
+                                    {canManageCrew && (
+                                        <>
+                                            <button
+                                                type="button"
+                                                className={styles.secondaryButton}
+                                                onClick={() => setIsEditing(true)}
+                                            >
                                             Editar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={styles.dangerButton}
-                                            onClick={() => setShowDeleteConfirm(true)}
-                                        >
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={styles.dangerButton}
+                                                onClick={() => setShowDeleteConfirm(true)}
+                                            >
                                             Eliminar
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={styles.leaveButton}
-                                            onClick={() => setShowLeaveConfirm(true)}
-                                        >
-                                          Abandonar
-                                        </button>
-                                    </div>
-                                )}
+                                            </button>
+                                        </>
+                                    )}
+                                    <button
+                                        type="button"
+                                        className={styles.leaveButton}
+                                        onClick={() => setShowLeaveConfirm(true)}
+                                    >
+                                        Abandonar
+                                    </button>
+                                </div>
                             </div>
 
                             {/**Mostramos footer de la card con info de la cuando se creo la crew */}

@@ -115,14 +115,16 @@
 .viewGrid {
     display: grid;
     grid-template-columns: 1fr 320px;
+    grid-template-rows: 1fr;
+    height: 500px;
     gap: 20px;
-    align-items: start;
 }
 
 .rightColumn {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-height: 0;
 }
 
 .headerActions {

@@ -129,6 +129,44 @@ export const getEventAttendees = async (crewId, eventId) => {
     }
 };
 
+export const addEventComment = async (crewId, eventId, content) => {
+    try {
+        const { data } = await axios.post(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/comments`,
+            { content },
+            { withCredentials: true },
+        );
+        return data.comment;
+    } catch (error) {
+        normalizeError(error, "Error al agregar comentario");
+    }
+};
+
+export const updateEventComment = async (crewId, eventId, commentId, content) => {
+    try {
+        const { data } = await axios.patch(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/comments/${commentId}`,
+            { content },
+            { withCredentials: true },
+        );
+        return data.comment;
+    } catch (error) {
+        normalizeError(error, "Error al actualizar comentario");
+    }
+};
+
+export const deleteEventComment = async (crewId, eventId, commentId) => {
+    try {
+        const { data } = await axios.delete(
+            `${API_BASE_URL}/api/crews/${crewId}/events/${eventId}/comments/${commentId}`,
+            { withCredentials: true },
+        );
+        return data;
+    } catch (error) {
+        normalizeError(error, "Error al eliminar comentario");
+    }
+};
+
 //Quita la asistencia de un usuario a un evento
 export const unattendEvent = async (crewId, eventId) => {
     try {
