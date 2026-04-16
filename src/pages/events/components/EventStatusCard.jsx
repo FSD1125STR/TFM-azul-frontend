@@ -2,6 +2,7 @@ import { Container } from "../../../components/ui/Container.jsx";
 import styles from "./EventStatusCard.module.css";
 
 export default function EventStatusCard({ event, statusLabel, daysText, onAttend, onUnattend, submitting }) {
+
     return (
         <Container className={styles.card}>
             <h2 className={styles.cardTitle}>Estado</h2>
@@ -21,7 +22,7 @@ export default function EventStatusCard({ event, statusLabel, daysText, onAttend
                     type="button"
                     className={`${styles.attendBtn} ${event.userAttending ? styles.attendBtnActive : ""}`}
                     onClick={onAttend}
-                    disabled={submitting || event.userAttending}
+                    disabled={submitting || event.userAttending || statusLabel === "Pasado"}
                 >
                     Asisto
                 </button>
@@ -31,7 +32,7 @@ export default function EventStatusCard({ event, statusLabel, daysText, onAttend
                     type="button"
                     className={`${styles.attendBtn} ${!event.userAttending ? styles.notAttendBtnActive : ""}`}
                     onClick={onUnattend}
-                    disabled={submitting || !event.userAttending}
+                    disabled={submitting || !event.userAttending || statusLabel === "Pasado"}
                 >
                     No asisto
                 </button>

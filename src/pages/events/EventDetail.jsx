@@ -4,15 +4,13 @@ import { AuthContext } from "../../hooks/context/AuthContext.jsx";
 import { CrewContext } from "../../hooks/context/CrewContext";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import {
-    addEventComment,
     attendEvent,
     deleteEvent,
-    deleteEventComment,
     getEventAttendees,
     getEventById,
     unattendEvent,
-    updateEventComment,
 } from "../../services/events.js";
+import EventCommentsSection from "./components/EventCommentsSection.jsx";
 import EventDetailsCard from "./components/EventDetailsCard.jsx";
 import EventParticipantsCard from "./components/EventParticipantsCard.jsx";
 import EventStatusCard from "./components/EventStatusCard.jsx";
@@ -46,10 +44,6 @@ export default function EventDetail() {
     const [attendees, setAttendees] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [commentText, setCommentText] = useState("");
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [editingCommentText, setEditingCommentText] = useState("");
-    const [commentActionId, setCommentActionId] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -133,93 +127,6 @@ export default function EventDetail() {
         }
     };
 
-    const handleCommentSubmit = async (e) => {
-        e.preventDefault();
-        const trimmedComment = commentText.trim();
-
-        if (!event?._id || !trimmedComment) {
-            return;
-        }
-
-        setSubmitting(true);
-        setError("");
-
-        try {
-            const newComment = await addEventComment(idCrew, event._id, trimmedComment);
-            setEvent((prev) => ({
-                ...prev,
-                comments: [...(prev?.comments ?? []), newComment],
-            }));
-            setCommentText("");
-        } catch (err) {
-            setError(err.message || "No se pudo agregar el comentario");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleCommentEditStart = (comment) => {
-        setEditingCommentId(comment._id);
-        setEditingCommentText(comment.content);
-        setError("");
-    };
-
-    const handleCommentEditCancel = () => {
-        setEditingCommentId(null);
-        setEditingCommentText("");
-    };
-
-    const handleCommentEditSave = async (commentId) => {
-        const trimmedComment = editingCommentText.trim();
-
-        if (!trimmedComment) {
-            return;
-        }
-
-        setCommentActionId(commentId);
-        setError("");
-
-        try {
-            const updatedComment = await updateEventComment(idCrew, event._id, commentId, trimmedComment);
-            setEvent((prev) => ({
-                ...prev,
-                comments: (prev?.comments ?? []).map((comment) =>
-                    comment._id === commentId ? updatedComment : comment,
-                ),
-            }));
-            handleCommentEditCancel();
-        } catch (err) {
-            setError(err.message || "No se pudo actualizar el comentario");
-        } finally {
-            setCommentActionId("");
-        }
-    };
-
-    const handleCommentDelete = async (commentId) => {
-        if (!window.confirm("Quieres eliminar este comentario?")) {
-            return;
-        }
-
-        setCommentActionId(commentId);
-        setError("");
-
-        try {
-            await deleteEventComment(idCrew, event._id, commentId);
-            setEvent((prev) => ({
-                ...prev,
-                comments: (prev?.comments ?? []).filter((comment) => comment._id !== commentId),
-            }));
-
-            if (editingCommentId === commentId) {
-                handleCommentEditCancel();
-            }
-        } catch (err) {
-            setError(err.message || "No se pudo eliminar el comentario");
-        } finally {
-            setCommentActionId("");
-        }
-    };
-
     if (loading) {
         return (
             <section className={styles.page}>
@@ -289,142 +196,13 @@ export default function EventDetail() {
                     </div>
                 </div>
 
-                <section className={styles.section}>
-                    <div className={styles.sectionHeader}>
-                        <h2>Comentarios</h2>
-                        <p>Comparte tu opinion sobre este evento con el resto del equipo.</p>
-                    </div>
-
-                    <form className={styles.commentForm} onSubmit={handleCommentSubmit}>
-                        <textarea
-                            className={styles.commentInput}
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Escribe tu comentario..."
-                            maxLength={500}
-                            rows={4}
-                            disabled={submitting}
-                        />
-                        <div className={styles.commentFormFooter}>
-                            <span className={styles.commentCounter}>{commentText.trim().length}/500</span>
-                            <button
-                                type="submit"
-                                className={styles.primaryButton}
-                                disabled={submitting || !commentText.trim()}
-                            >
-                                Publicar comentario
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className={styles.commentList}>
-                        {event.comments?.length ? (
-                            event.comments.map((comment) => {
-                                const commentAuthor = comment.user ?? {};
-                                const authorName = commentAuthor.name || commentAuthor.username || "Usuario";
-                                const isOwnComment = commentAuthor._id === userId;
-                                const isEditing = editingCommentId === comment._id;
-                                const isCommentBusy = commentActionId === comment._id;
-                                const postedAt = comment.createdAt
-                                    ? new Date(comment.createdAt).toLocaleString("es-ES", {
-                                        dateStyle: "medium",
-                                        timeStyle: "short",
-                                    })
-                                    : "";
-
-                                return (
-                                    <article key={comment._id} className={styles.commentCard}>
-                                        <div className={styles.commentHeader}>
-                                            <div className={styles.commentAuthor}>
-                                                {commentAuthor.image ? (
-                                                    <img
-                                                        src={commentAuthor.image}
-                                                        alt={authorName}
-                                                        className={styles.commentAvatar}
-                                                    />
-                                                ) : (
-                                                    <div className={styles.commentAvatarFallback}>
-                                                        {authorName.charAt(0).toUpperCase()}
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <p className={styles.commentAuthorName}>{authorName}</p>
-                                                    <p className={styles.commentAuthorMeta}>
-                                                        {commentAuthor.username ? `@${commentAuthor.username}` : ""}
-                                                        {commentAuthor.email ? ` · ${commentAuthor.email}` : ""}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className={styles.commentHeaderMeta}>
-                                                {postedAt && <time className={styles.commentDate}>{postedAt}</time>}
-                                                {isOwnComment && (
-                                                    <div className={styles.commentActions}>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.commentActionButton}
-                                                            onClick={() => handleCommentEditStart(comment)}
-                                                            disabled={isCommentBusy}
-                                                        >
-                                                            Editar
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.commentDeleteButton}
-                                                            onClick={() => handleCommentDelete(comment._id)}
-                                                            disabled={isCommentBusy}
-                                                        >
-                                                            Eliminar
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {isEditing ? (
-                                            <div className={styles.commentEditor}>
-                                                <textarea
-                                                    className={styles.commentInput}
-                                                    value={editingCommentText}
-                                                    onChange={(e) => setEditingCommentText(e.target.value)}
-                                                    maxLength={500}
-                                                    rows={4}
-                                                    disabled={isCommentBusy}
-                                                />
-                                                <div className={styles.commentEditorFooter}>
-                                                    <span className={styles.commentCounter}>
-                                                        {editingCommentText.trim().length}/500
-                                                    </span>
-                                                    <div className={styles.commentEditorActions}>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.secondaryButton}
-                                                            onClick={handleCommentEditCancel}
-                                                            disabled={isCommentBusy}
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.primaryButton}
-                                                            onClick={() => handleCommentEditSave(comment._id)}
-                                                            disabled={isCommentBusy || !editingCommentText.trim()}
-                                                        >
-                                                            Guardar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p className={styles.commentContent}>{comment.content}</p>
-                                        )}
-                                    </article>
-                                );
-                            })
-                        ) : (
-                            <p className={styles.empty}>Todavia no hay comentarios en este evento.</p>
-                        )}
-                    </div>
-                </section>
+                {/** Sección de comentarios */}
+                <EventCommentsSection
+                    comments={event.comments ?? []}
+                    eventId={event._id}
+                    crewId={idCrew}
+                    userId={userId}
+                />
             </div>
 
             <ConfirmModal
