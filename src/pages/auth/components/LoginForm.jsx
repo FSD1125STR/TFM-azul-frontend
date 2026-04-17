@@ -61,23 +61,23 @@ export default function LoginForm() {
         <>
             <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
                 <div className={styles.formItem}>
-                    <label>Username</label>
+                    <label>Usuario</label>
                     <input {...register("username")} />
                     {errors.username && <p>{errors.username.message}</p>}
                 </div>
 
                 <div className={styles.formItem}>
-                    <label>Password</label>
+                    <label>Contraseña</label>
                     <input type="password" {...register("password")} />
                     {errors.password && <p>{errors.password.message}</p>}
                 </div>
 
                 <div className={styles.forgotPassword}>
-                    <a href="#">Forgot password?</a>
+                    <a href="#">¿Has olvidado tu contraseña?</a>
                 </div>
 
                 <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Logging in..." : "Log in"}
+                    {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
             </form>
 

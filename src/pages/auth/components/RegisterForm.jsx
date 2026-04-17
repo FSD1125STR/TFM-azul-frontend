@@ -69,32 +69,32 @@ export default function RegisterForm() {
                     </div>
 
                     <div className={styles.formItem}>
-                        <label>username</label>
+                        <label>Usuario</label>
                         <input {...register("username")} />
                         {errors.username && <p>{errors.username.message}</p>}
                     </div>
                 </div>
 
                 <div className={styles.formItem}>
-                    <label>email</label>
+                    <label>Email</label>
                     <input type="email" {...register("email")} />
                     {errors.email && <p>{errors.email.message}</p>}
                 </div>
 
                 <div className={styles.formItem}>
-                    <label>password</label>
+                    <label>Contraseña</label>
                     <input type="password" {...register("password")} />
                     {errors.password && <p>{errors.password.message}</p>}
                 </div>
 
                 <div className={styles.formItem}>
-                    <label>repeat password</label>
+                    <label>Confirmar contraseña</label>
                     <input type="password" {...register("repeatPassword")} />
                     {errors.repeatPassword && <p>{errors.repeatPassword.message}</p>}
                 </div>
 
                 <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Signing up..." : "Sign up"}
+                    {isSubmitting ? "Registrándose..." : "Registrarse"}
                 </Button>
 
                 {serverError && <p className={styles.serverError}>{serverError}</p>}

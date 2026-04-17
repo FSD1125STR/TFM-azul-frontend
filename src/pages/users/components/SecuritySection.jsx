@@ -16,12 +16,12 @@ export default function SecuritySection({ passwords, passwordChangeActive, onPas
     return (
         <div className={styles.section}>
             <div className={styles.sectionHeader}>
-                <h2>Security &amp; Password</h2>
+                <h2>Seguridad &amp; Contraseña</h2>
             </div>
 
             <div className={styles.stack}>
                 <label className={styles.field}>
-                    <span className={styles.label}>Current Password</span>
+                    <span className={styles.label}>Contraseña actual</span>
                     {/** Input de contraseña actual, solo se habilita si se escribe la nueva contraseña */}
                     <input
                         className={styles.input}
@@ -41,7 +41,7 @@ export default function SecuritySection({ passwords, passwordChangeActive, onPas
                 
                 {/** Input de la nueva contraseña */}
                 <label className={styles.field}>
-                    <span className={styles.label}>New Password</span>
+                    <span className={styles.label}>Nueva contraseña</span>
                     <input
                         className={styles.input}
                         type="password"
@@ -53,7 +53,7 @@ export default function SecuritySection({ passwords, passwordChangeActive, onPas
                 
                 {/** Input de confirmacion de la nueva contraseña */}
                 <label className={styles.field}>
-                    <span className={styles.label}>Confirm Password</span>
+                    <span className={styles.label}>Confirmar contraseña</span>
                     <input
                         className={styles.input}
                         type="password"

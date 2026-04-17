@@ -46,7 +46,7 @@ export default function AccountSettings() {
     return (
         <div className={styles.page}>
             <div className={styles.container}>
-                <h1 className={styles.title}>Account Settings</h1>
+                <h1 className={styles.title}>Configuración de usuario</h1>
 
                 <form className={styles.form} onSubmit={handleSubmit}>
                     {/** Sección de información del perfil */}
@@ -99,7 +99,7 @@ export default function AccountSettings() {
                             type="submit" //Ejecuta el submit del formulario
                             className={styles.primaryButton}
                         >
-                            Save Changes
+                            Guardar
                         </Button>
 
                         {/** Botton de borrar cuenta. Muestra la modal de confirmacion */}
@@ -108,7 +108,7 @@ export default function AccountSettings() {
                             className={styles.dangerButton}
                             onClick={() => setShowDeleteConfirm(true)}
                         >
-                            Delete Account
+                            Borrar cuenta
                         </Button>
                     </div>
                 </form>
