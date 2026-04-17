@@ -23,7 +23,7 @@ export default function Header() {
                         //Navegamos a register conservando la query string que puede tener info de la proxima ruta despues de registarse
                         onClick={() => navigate(`/register${location.search}`)}
                     >
-                        Register
+                        Registrarse
                     </Button>
                 </div>
             )}
@@ -36,7 +36,7 @@ export default function Header() {
                         //Navegamos a register conservando la query string que puede tener info de la proxima ruta despues de logearse
                         onClick={() => navigate(`/login${location.search}`)}
                     >
-                        Login
+                        Iniciar sesión
                     </Button>
                 </div>
             )}

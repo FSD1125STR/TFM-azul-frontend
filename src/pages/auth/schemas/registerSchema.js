@@ -4,28 +4,28 @@ export const registerSchema = z.object({
     name: z
         .string()
         .trim()
-        .min(1, "Name is required"),
+        .min(1, "El nombre es obligatorio"),
 
     username: z
         .string()
         .trim()
-        .min(1, "Username is required"),
+        .min(1, "El nombre de usuario es obligatorio"),
 
     email: z
         .string()
         .trim()
-        .min(1, "Email is required")
-        .email("Invalid email address"),
+        .min(1, "El correo electrónico es obligatorio")
+        .email("Dirección de correo electrónico inválida"),
 
     password: z
         .string()
-        .min(8, "Password must be at least 8 characters"),
+        .min(8, "La contraseña debe tener al menos 8 caracteres"),
     
     repeatPassword: z
         .string()
-        .min(1, "Repeat password is required")
+        .min(1, "La contraseña de confirmación es obligatoria")
 
 }).refine((data) => data.password === data.repeatPassword, {
     path: ["repeatPassword"],
-    message: "Passwords don't match",
+    message: "Las contraseñas no coinciden",
 });

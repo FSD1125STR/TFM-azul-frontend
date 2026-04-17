@@ -32,7 +32,7 @@ export default function ProfileSection({
     return (
         <div className={styles.section}>
             <div className={styles.sectionHeader}>
-                <h2>Profile Information</h2>
+                <h2>Información del perfil</h2>
             </div>
 
             <div className={styles.profileRow}>
@@ -82,7 +82,7 @@ export default function ProfileSection({
             {/**Formulario para modificar los datos del usuario: name, username y email */}
             <div className={styles.grid}>
                 <label className={styles.field}>
-                    <span className={styles.label}>Full name</span>
+                    <span className={styles.label}>Nombre completo</span>
                     <input
                         className={styles.input}
                         value={profile.name}
@@ -93,7 +93,7 @@ export default function ProfileSection({
                 </label>
 
                 <label className={styles.field}>
-                    <span className={styles.label}>Username</span>
+                    <span className={styles.label}>Usuario</span>
                     <input
                         className={styles.input}
                         value={profile.username}
