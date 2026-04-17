@@ -149,7 +149,7 @@ export default function AppLayout({ children }) {
                                     role="menuitem"
                                     onClick={handleLogout}
                                 >
-                                  Logout
+                                  Cerrar sesión
                                 </button>
                             </div>
                         )}
