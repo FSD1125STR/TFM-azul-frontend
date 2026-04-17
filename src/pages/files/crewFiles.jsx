@@ -3,6 +3,7 @@ import { IconUpload, IconFile, IconTrash, IconFolderOpen } from "@tabler/icons-r
 import { CrewContext } from "../../hooks/context/CrewContext";
 import { getCrewFiles, uploadCrewFile, deleteCrewFile } from "../../services/apiFiles.js";
 import { Button } from "../../components/ui/Button.jsx";
+import { Title, Subtitle } from "../../components/ui/Title.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
 import styles from "./crewFiles.module.css";
 
@@ -70,10 +71,10 @@ export default function CrewFiles() {
             {/** Header con boton de subir archivos, solo si es administrador */}
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Archivos de {crew?.name || "la Crew"}</h1>
-                    <p className={styles.subtitle}>
+                    <Title>Archivos de <span>{crew?.name || "la crew"}</span></Title>
+                    <Subtitle>
                         Sube y gestiona los archivos compartidos de tu crew.
-                    </p>
+                    </Subtitle>
                 </div>
 
                 {isAdmin && (

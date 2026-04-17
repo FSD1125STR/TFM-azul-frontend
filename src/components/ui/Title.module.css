@@ -1,0 +1,19 @@
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+}
+
+.title span {
+    color: var(--color-button);
+}
+
+.groupTitle span {    
+    color: rgba(19, 164, 236, 0.534);
+}
+
+.subtitle {
+    margin: 6px 0 0;
+    color: var(--color-text-secondary);
+}

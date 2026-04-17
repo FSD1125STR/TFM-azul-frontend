@@ -1,8 +1,10 @@
 import { useState, useContext, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { CrewContext } from "../../hooks/context/CrewContext";
+import { GroupContext } from "../../hooks/context/GroupContext.jsx";
 import { getCrewPolls, deletePoll } from "../../services/apiPolls";
 import { Button } from "../../components/ui/Button.jsx";
+import { Title, Subtitle, GroupTitle } from "../../components/ui/Title.jsx";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import CrewToast from "../crews/components/CrewToast.jsx";
 import ActivePollCard from "./components/ActivePollCard.jsx";
@@ -18,6 +20,7 @@ import styles from "./CrewPolls.module.css";
 export default function CrewPolls() {
     const { idCrew, groupId } = useParams();
     const { crew } = useContext(CrewContext) || { crew: null };
+    const { group } = useContext(GroupContext) || { group: null };
 
     //Estado de datos
     const [polls, setPolls] = useState([]);
@@ -96,12 +99,24 @@ export default function CrewPolls() {
                 {/* Cabecera: título + botón de acción */}
                 <header className={styles.header}>
                     <div>
-                        <h1 className={styles.title}>Encuestas</h1>
-                        <p className={styles.subtitle}>
-                            {groupId
-                                ? "Encuestas de este grupo."
-                                : "Crea y vota en encuestas de la crew."}
-                        </p>
+                        {groupId ? ( //Si hay group ID mostramos un titulo específico
+                            <>
+                                <GroupTitle>
+                                    Encuestas de <span>{group?.name || "el grupo"}</span>
+                                </GroupTitle>
+                                <Subtitle>
+                                    Gestiona las encuestas asociadas a este grupo dentro de <span>{crew?.name || "la crew"}</span>.
+                                </Subtitle>
+                            </>
+                        ) : (
+                            <>
+                                <Title>Encuestas de <span>{crew?.name || "la crew"}</span></Title>
+                                <Subtitle>
+                                    Gestiona las encuestas asociadas a esta crew.
+                                </Subtitle>
+                            </>           
+                        )}
+
                     </div>
                     {canManage && (
                         <Button className={styles.headerButton} onClick={() => setShowModal(true)}>

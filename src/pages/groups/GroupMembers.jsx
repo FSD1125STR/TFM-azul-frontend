@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { IconTrash } from "@tabler/icons-react";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 import { GroupContext } from "../../hooks/context/GroupContext.jsx";
+import { Title, Subtitle, GroupTitle } from "../../components/ui/Title.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
 import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import CrewToast from "../crews/components/CrewToast.jsx";
@@ -128,9 +129,12 @@ export default function GroupMembers() {
 
             <div className={styles.container}>
                 {/** Titulo de la pagina */}
-                <h1 className={styles.title}>
-                    <span>Miembros</span> de {group?.name || "el grupo"}
-                </h1>
+                <GroupTitle>
+                    Eventos de <span>{group?.name || "el grupo"}</span>
+                </GroupTitle>
+                <Subtitle>
+                    Gestiona los eventos asociados este grupo dentro de <span>{crew?.name || "la crew"}</span>.
+                </Subtitle>
 
                 <div className={styles.statsRow}>
                     {/** Carta con info de miembros totales  */}

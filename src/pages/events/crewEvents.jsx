@@ -2,13 +2,16 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/Button.jsx";
 import { CrewContext } from "../../hooks/context/CrewContext";
+import { GroupContext } from "../../hooks/context/GroupContext.jsx";
 import { getCrewEvents } from "../../services/events.js";
+import { Title, Subtitle, GroupTitle } from "../../components/ui/Title.jsx";
 import EventCard from "./components/EventCard.jsx";
 import EventFilters from "./components/EventFilters.jsx";
 import styles from "./crewEvents.module.css";
 
 export default function CrewEvents() {
     const { crew } = useContext(CrewContext);
+    const { group } = useContext(GroupContext);
     const { idCrew, groupId } = useParams();
     const navigate = useNavigate();
     const canManageCrew = crew?.userRole?.permission === "admin";
@@ -70,10 +73,24 @@ export default function CrewEvents() {
         <section className={styles.page}>
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Eventos de {crewName}</h1>
-                    <p className={styles.subtitle}>
-                        Gestiona los eventos asociados a esta crew.
-                    </p>
+                    {groupId ? ( //Si hay group ID mostramos un titulo específico
+                        <>
+                            <GroupTitle>
+                                Eventos de <span>{group?.name || "el grupo"}</span>
+                            </GroupTitle>
+                            <Subtitle>
+                                Gestiona los eventos asociados este grupo dentro de <span>{crewName}</span>.
+                            </Subtitle>
+                        </>
+                    ) : (
+                        <>
+                            <Title>Eventos de <span>{crewName}</span></Title>
+                            <Subtitle>
+                                Gestiona los eventos asociados a esta crew.
+                            </Subtitle>
+                        </>           
+                    )}    
+
                 </div>
                 {/**Solo los admins pueden crear eventos */}
                 {canManageCrew && (
