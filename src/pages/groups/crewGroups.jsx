@@ -9,6 +9,7 @@ import {
     getGroupsInCrew,
     updateGroup,
 } from "../../services/apiGroups.js";
+import { Title, Subtitle } from "../../components/ui/Title.jsx";
 import GroupCard from "./components/GroupCard.jsx";
 import GroupFilters from "./components/GroupFilters.jsx";
 import GroupFormModal from "./components/GroupFormModal.jsx";
@@ -129,11 +130,10 @@ export default function CrewGroups() {
         <section className={styles.page}>
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Grupos de {crewName}</h1>
-                    <p className={styles.subtitle}>
-                        Organiza los miembros de tu crew en grupos más pequeños.
-                    </p>
+                    <Title>Grupos de <span>{crewName}</span></Title>
+                    <Subtitle>Organiza los miembros de tu crew en grupos más pequeños.</Subtitle>
                 </div>
+                
                 {isAdmin && (
                     <Button className={styles.headerButton} onClick={handleOpenCreate}>
                         Crear grupo

@@ -1,7 +1,7 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { getGroupById } from "../../services/apiGroups.js";
 
-const GroupContext = createContext(null);
+const GroupContext = createContext({ group: null, groupId: null, loading: false, error: "" });
 
 const GroupProvider = ({ crewId, groupId, children }) => {
     const [group, setGroup] = useState(null);

@@ -12,6 +12,7 @@ import {
     editCrewMember,
     getMemberGroups,
 } from "../../../services/apiMembers.js";
+import { Title, Subtitle } from "../../../components/ui/Title.jsx";
 import { getGroupsInCrew, addGroupMember, removeGroupMember } from "../../../services/apiGroups.js";
 
 export default function CrewMembers() {
@@ -397,9 +398,8 @@ export default function CrewMembers() {
             <div className={styles.container}>
 
                 {/* Título */}
-                <h1 className={styles.title}>
-                    <span>Miembros</span> de {crew.name}
-                </h1>
+                <Title>Miembros de <span>{crew.name}</span></Title>
+                <Subtitle>Gestiona los miembros de tu crew y sus roles.</Subtitle>
 
                 {/* Stat cards + botón de añadir */}
                 <div className={styles.statsRow}>

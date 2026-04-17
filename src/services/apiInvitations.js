@@ -75,10 +75,10 @@ export const createInvitation = async (crewId) => {
     }
 };
 
-export const updateInvitationStatus = async (invitationId, status) => {
+export const updateInvitationStatus = async (invitationId, crewId, status) => {
     try {
         const { data } = await axios.patch(
-            `${API_BASE_URL}/api/invitations/${invitationId}`,
+            `${API_BASE_URL}/api/crews/${crewId}/invitation/${invitationId}`,
             { status },
             { withCredentials: true },
         );
