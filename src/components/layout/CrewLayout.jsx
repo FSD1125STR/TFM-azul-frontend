@@ -13,38 +13,38 @@ import styles from "./CrewLayout.module.css";
 const defaultNavItems = [
     {
         key: "overview",
-        label: "Overview",
+        label: "Dashboard",
         to: ".", //Apunta al index del padre (CrewDetails)
         end: true,
         icon: <IconLayoutDashboard size={18} stroke={1.8} />,
     },
     {
         key: "events",
-        label: "Events",
+        label: "Eventos",
         to: "events",
         icon: <IconCalendarEventFilled size={18} />,
     },
     {
         key: "files",
-        label: "Files",
+        label: "Archivos",
         to: "files",
         icon: <IconFolderFilled size={18} />,
     },
     {
         key: "polls",
-        label: "Polls",
+        label: "Encuestas",
         to: "polls",
         icon: <IconChartBar size={18} stroke={1.8} />,
     },
     {
         key: "members",
-        label: "Members",
+        label: "Miembros",
         to: "members",
         icon: <IconUsers size={18} stroke={1.8} />,
     },
     {
         key: "groups",
-        label: "Groups",
+        label: "Grupos",
         to: "groups",
         icon: <IconBinaryTree2 size={18} stroke={1.8} />,
     },
@@ -137,7 +137,7 @@ function CrewLayoutContent({ children }) {
                             <span className={styles.inviteIcon} aria-hidden="true">
                                 <IconUserPlus size={18} stroke={1.8} />
                             </span>
-                            Invite Members
+                            Inivitar miembros
                         </button>
                     </div>
                 )}

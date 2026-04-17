@@ -94,13 +94,13 @@ export default function AppLayout({ children }) {
                     {/* Menu de navegacion entre las paginas principales del usuario */}
                     <nav className={styles.nav} aria-label="Primary">
                         <Link className={styles.navLink} to="/">
-                        Dashboards
+                        Dashboard
                         </Link>
                         <Link className={styles.navLink} to="/crews">
                         Crews
                         </Link>
                         <Link className={styles.navLink} to="/events">
-                        Events
+                        Eventos
                         </Link>
                     </nav>
 
