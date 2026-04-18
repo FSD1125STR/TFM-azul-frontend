@@ -116,10 +116,10 @@ export default function AccountSettings() {
 
             <ConfirmModal
                 open={showDeleteConfirm}
-                title="Delete Account"
-                description="This action is permanent and cannot be undone. All your data will be erased."
-                confirmLabel="Delete Account"
-                cancelLabel="Cancel"
+                title="Borrar cuenta"
+                description="¿Estás seguro de que quieres borrar tu cuenta? Esta acción no se puede deshacer."
+                confirmLabel="Borrar cuenta"
+                cancelLabel="Cancelar"
                 onCancel={() => setShowDeleteConfirm(false)}
                 onConfirm={handleDelete}
             />
