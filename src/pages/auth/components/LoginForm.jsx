@@ -9,6 +9,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../../hooks/context/AuthContext";
 import { getLoggedUser } from "../../../services/auth";
+import{ Link } from "react-router-dom";
 
 export default function LoginForm() {
     //React router 
@@ -73,7 +74,7 @@ export default function LoginForm() {
                 </div>
 
                 <div className={styles.forgotPassword}>
-                    <a href="#">¿Has olvidado tu contraseña?</a>
+                    <Link to="/forgot-password">¿Has olvidado tu contraseña?</Link>
                 </div>
 
                 <Button type="submit" disabled={isSubmitting}>
