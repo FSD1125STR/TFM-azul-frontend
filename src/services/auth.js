@@ -145,3 +145,38 @@ export const logout = async () => {
         throw normalized;
     }
 };
+
+//Llama a la API para restablecer la contraseña con el token recibido por email
+export const resetPassword = async (token, password) => {
+    try {
+        const { data } = await axios.post(`${AUTH_BASE_URL}/reset-password`, { token, password }, { withCredentials: true });
+        return data;
+    } catch (error) {
+        const status = error.response?.status ?? 0;
+        const message = error.response?.data?.message || "Error al restablecer la contraseña";
+        const normalized = new Error(message);
+        normalized.status = status;
+        normalized.originalError = error;
+        throw normalized;
+    }
+};
+
+//Llama a la API para enviar el email de recuperación de contraseña
+export const sendForgotPasswordEmail = async (email) => {
+    try{
+        const {data} = await axios.post(`${AUTH_BASE_URL}/forgot-password`, {email}, {withCredentials: true});
+        
+        return data;
+
+    } catch (error) {
+        const status = error.response?.status ?? 0;
+        const message = error.response?.data?.message || "Error al enviar el email de recuperación";
+
+        const normalized = new Error(message);
+        normalized.status = status;
+        normalized.originalError = error;
+
+        throw normalized;
+
+    }
+}

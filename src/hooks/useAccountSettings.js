@@ -219,7 +219,7 @@ export function useAccountSettings({ navigate }) {
             }
 
             setUser?.(nextUser); //Actualizamos el estado del usuario con la nueva info
-            setNotice("Changes saved successfully.");
+            setNotice("Usuario actualizado correctamente.");
             setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
         } catch (err) {
@@ -235,7 +235,7 @@ export function useAccountSettings({ navigate }) {
         try {
             await deleteUser();
             setUser(null);
-            setNotice("Account deleted successfully.");
+            setNotice("Cuenta eliminada correctamente.");
             navigate("/");
         } catch (err) {
             setError(err.message);

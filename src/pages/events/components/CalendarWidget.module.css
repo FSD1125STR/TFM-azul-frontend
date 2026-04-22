@@ -5,4 +5,5 @@
     /* Compensamos el gap de WidgetCard para que el calendario ocupe
        todo el ancho disponible sin márgenes extra */
     margin: 0 -4px;
+    height: 100%;
 }

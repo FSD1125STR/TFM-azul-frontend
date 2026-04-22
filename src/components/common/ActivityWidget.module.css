@@ -9,7 +9,7 @@
     margin: 0;
     padding: 0;
     overflow-y: auto;
-    max-height: 380px;
+    height: 100%;
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
 }
