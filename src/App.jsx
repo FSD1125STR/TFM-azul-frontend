@@ -27,6 +27,7 @@ import Events from "./pages/events/Events.jsx";
 import CrewInvitations from "./pages/invitations/CrewInvitations.jsx";
 import AccountSettings from "./pages/users/AccountSettings.jsx";
 import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
+import ResetPassword from "./pages/auth/ResetPassword.jsx";
 
 function App() {
     return (
@@ -39,6 +40,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
                         <Route
                             path="/invite/:token"
                             element={
