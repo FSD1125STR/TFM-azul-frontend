@@ -92,6 +92,13 @@
   text-align: center;
 }
 
+.successMessage {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #38a169;
+  text-align: center;
+}
+
 @media (max-width: 480px) {
   .form {
     margin-top: 16px;

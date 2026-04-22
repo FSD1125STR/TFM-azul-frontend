@@ -137,7 +137,7 @@ function CrewLayoutContent({ children }) {
                             <span className={styles.inviteIcon} aria-hidden="true">
                                 <IconUserPlus size={18} stroke={1.8} />
                             </span>
-                            Inivitar miembros
+                            Invitar miembros
                         </button>
                     </div>
                 )}
