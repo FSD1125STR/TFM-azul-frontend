@@ -29,7 +29,7 @@ export default function Header() {
             )}
 
             {/**Si estamos en registro renderizamos boton de login */}
-            {location.pathname === "/register" && (
+            {(location.pathname === "/register" || location.pathname === "/reset-password") && (
                 <div className="login-button">
                     <Button
                         className="login-btn"
