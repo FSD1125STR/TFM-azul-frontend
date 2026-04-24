@@ -5,6 +5,7 @@ import { getCrewFiles, uploadCrewFile, deleteCrewFile } from "../../services/api
 import { Button } from "../../components/ui/Button.jsx";
 import { Title, Subtitle } from "../../components/ui/Title.jsx";
 import DataTable from "../../components/common/DataTable.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import styles from "./crewFiles.module.css";
 
 export default function CrewFiles() {
@@ -14,6 +15,8 @@ export default function CrewFiles() {
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isUploading, setIsUploading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [fileToDelete, setFileToDelete] = useState(null);
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
 
@@ -50,13 +53,18 @@ export default function CrewFiles() {
         }
     };
 
-    const handleDelete = async (fileId) => {
+    const handleConfirmDelete = async () => {
+        if (!fileToDelete) return;
         setError(null);
+        setIsDeleting(true);
         try {
-            await deleteCrewFile(crewId, fileId);
-            setFiles((prev) => prev.filter((f) => f._id !== fileId));
+            await deleteCrewFile(crewId, fileToDelete._id);
+            setFiles((prev) => prev.filter((f) => f._id !== fileToDelete._id));
+            setFileToDelete(null);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -68,6 +76,15 @@ export default function CrewFiles() {
 
     return (
         <section className={styles.page}>
+            <ConfirmModal
+                open={!!fileToDelete}
+                title="Eliminar archivo"
+                description={`¿Seguro que quieres eliminar "${fileToDelete?.originalName}"? Esta acción no se puede deshacer.`}
+                confirmLabel="Sí, eliminar"
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setFileToDelete(null)}
+                isLoading={isDeleting}
+            />
             {/** Header con boton de subir archivos, solo si es administrador */}
             <header className={styles.header}>
                 <div>
@@ -176,7 +193,7 @@ export default function CrewFiles() {
                                     <td className={styles.tdCenter}>
                                         <button
                                             className={styles.deleteButton}
-                                            onClick={() => handleDelete(file._id)}
+                                            onClick={() => setFileToDelete(file)}
                                         >
                                             <IconTrash size={14} />
                                             Eliminar

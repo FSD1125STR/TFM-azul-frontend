@@ -2,6 +2,7 @@ import { useContext, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconPencil, IconTrash } from "@tabler/icons-react";
 import CrewToast from "./CrewToast.jsx";
+import ConfirmModal from "../../../components/common/ConfirmModal.jsx";
 import styles from "./crewMember.module.css";
 import { CrewContext } from "../../../hooks/context/CrewContext.jsx";
 import RoleManagement from "../../users/RoleManagement.jsx";
@@ -255,36 +256,15 @@ export default function CrewMembers() {
                 />
             )}
 
-            {/* Modal de confirmación de borrado */}
-            {canManageMembers && memberToDelete && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <h3>Eliminar miembro</h3>
-                        <p>
-                            ¿Seguro que quieres eliminar a{" "}
-                            <strong>{memberToDelete.name}</strong> de la crew? Esta acción no
-                            se puede deshacer.
-                        </p>
-                        <div className={styles.modalActions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={() => setMemberToDelete(null)}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.dangerButton}
-                                onClick={handleDeleteMember}
-                                disabled={isDeleting}
-                            >
-                                {isDeleting ? "Eliminando..." : "Sí, eliminar"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                open={canManageMembers && !!memberToDelete}
+                title="Eliminar miembro"
+                description={`¿Seguro que quieres eliminar a ${memberToDelete?.name} de la crew? Esta acción no se puede deshacer.`}
+                confirmLabel="Sí, eliminar"
+                onConfirm={handleDeleteMember}
+                onCancel={() => setMemberToDelete(null)}
+                isLoading={isDeleting}
+            />
 
             {/* Modal de editar miembro */}
             {canManageMembers && memberToEdit && (
