@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CrewContext } from "../../hooks/context/CrewContext.jsx";
 import CrewToast from "../crews/components/CrewToast.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import styles from "./CrewInvitations.module.css";
 import {
     createInvitation,
@@ -33,6 +34,7 @@ export default function CrewInvitations() {
     const [isEmpty, setIsEmpty] = useState(false); //Para diferenciar error cuando no hay invitaciones
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [showDeactivateConfirm, setShowDeactivateConfirm] = useState(false);
     const [showEmailForm, setShowEmailForm] = useState(false);
     const [email, setEmail] = useState("");
     const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -144,12 +146,14 @@ export default function CrewInvitations() {
             //Llama a la API para actualizar el estado a False
             const updated = await updateInvitationStatus(invitation._id, invitation.crew._id, false);
             setInvitation(updated); //Actualizamos el estado con la nueva invitacion
+            setShowDeactivateConfirm(false);
             //Generamos notificacion Toast
             setNotification({
                 type: "success",
                 message: "Invitacion desactivada.",
             });
         } catch (err) {
+            setShowDeactivateConfirm(false);
             setNotification({
                 type: "error",
                 message: err.message || "No se pudo desactivar la invitacion.",
@@ -256,6 +260,15 @@ export default function CrewInvitations() {
     //Componente principal
     return (
         <div className={styles.page}>
+            <ConfirmModal
+                open={showDeactivateConfirm}
+                title="Desactivar invitación"
+                description="¿Seguro que quieres desactivar esta invitación? El enlace dejará de funcionar."
+                confirmLabel="Sí, desactivar"
+                onConfirm={handleDeactivate}
+                onCancel={() => setShowDeactivateConfirm(false)}
+                isLoading={isUpdating}
+            />
             {/**Toast, solo se muestra si hay alguna notificacion */}
             {notification && (
                 <CrewToast
@@ -390,10 +403,10 @@ export default function CrewInvitations() {
                                     <button
                                         type="button"
                                         className={styles.dangerOutlineButton}
-                                        onClick={handleDeactivate}
+                                        onClick={() => setShowDeactivateConfirm(true)}
                                         disabled={isUpdating || !invitation?.isActive}
                                     >
-                                        {isUpdating ? "Desactivando..." : "Desactivar invitacion"}
+                                        Desactivar invitacion
                                     </button>
                                 </div>
                             </div>

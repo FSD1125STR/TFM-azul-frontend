@@ -2,6 +2,7 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CrewForm from "./components/CrewForm.jsx";
 import CrewToast from "./components/CrewToast.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal.jsx";
 import styles from "./CrewDetails.module.css";
 import {
     ACTIVITY_STYLES,
@@ -161,65 +162,25 @@ export default function CrewDetails() {
                 />
             )}
             
-            {/* Mostramos la modal para confirmar la eliminación, solo si showDeleteConfirm es true */}
-            {showDeleteConfirm && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <h3>Eliminar crew</h3>
-                        <p>Seguro que quieres eliminar <strong>{crew.name}</strong>? Esta acción no se puede deshacer.</p>
-                        <div className={styles.modalActions}>
-                            {/** Boton para cancelar - cambia el estado y se cierra la modal */}
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={() => setShowDeleteConfirm(false)}
-                            >
-                                Cancelar
-                            </button>
+            <ConfirmModal
+                open={showDeleteConfirm}
+                title="Eliminar crew"
+                description={`¿Seguro que quieres eliminar "${crew.name}"? Esta acción no se puede deshacer.`}
+                confirmLabel="Sí, eliminar"
+                onConfirm={handleDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+                isLoading={isDeleting}
+            />
 
-                            {/** Boton para confirmar la eliminacion */}
-                            <button
-                                type="button"
-                                className={styles.dangerButton}
-                                onClick={handleDelete}
-                                disabled={isDeleting}
-                            >
-                                {isDeleting ? "Eliminando..." : "Sí, eliminar"}
-                            </button>
-
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showLeaveConfirm && (
-                <div className={styles.overlay}>
-                    <div className={styles.modal}>
-                        <h3>Abandonar crew</h3>
-                        <p>
-                          Seguro que quieres abandonar <strong>{crew.name}</strong>? Si eres
-                          el unico admin, se asignara uno nuevo al azar.
-                        </p>
-                        <div className={styles.modalActions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={() => setShowLeaveConfirm(false)}
-                            >
-                              Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.warningButton}
-                                onClick={handleLeaveCrew}
-                                disabled={isLeaving}
-                            >
-                                {isLeaving ? "Abandonando..." : "Sí, abandonar"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                open={showLeaveConfirm}
+                title="Abandonar crew"
+                description={`¿Seguro que quieres abandonar "${crew.name}"? Si eres el único admin, se asignará uno nuevo al azar.`}
+                confirmLabel="Sí, abandonar"
+                onConfirm={handleLeaveCrew}
+                onCancel={() => setShowLeaveConfirm(false)}
+                isLoading={isLeaving}
+            />
 
 
             {/* Sección principal con la info de la crew */}
