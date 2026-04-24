@@ -99,9 +99,14 @@ export default function JoinCrew() {
             //si no hay error, notificación exitosa y vamos a la crew
             setNotification({ type: "success", message: "Te has unido a la crew." });
 
-            if (crew?._id) {
-                setTimeout(() => navigate(`/crews/${crew._id}`), 1200);
-            }
+            const crewId = crew?._id;
+            setTimeout(() => {
+                if (crewId) {
+                    navigate(`/crews/${crewId}`);
+                } else {
+                    navigate("/crews");
+                }
+            }, 1200);
 
         } catch (err) {
             // //Si no esta autorizado redirigir al usuario
@@ -147,6 +152,13 @@ export default function JoinCrew() {
                     {!loading && error && (
                         <div className={styles.state}>
                             <p>{error}</p>
+                        </div>
+                    )}
+
+                    {/* Si no hay error ni invitacion, mostramos estado de no encontrado */}
+                    {!loading && !error && !invitation && (
+                        <div className={styles.state}>
+                            <p>La invitacion no existe o ha expirado.</p>
                         </div>
                     )}
 
