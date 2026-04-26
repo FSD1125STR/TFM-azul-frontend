@@ -8,26 +8,26 @@ import styles from "./GroupLayout.module.css";
 const navItems = [
     {
         key: "overview",
-        label: "Overview",
+        label: "Dashboard",
         to: ".",
         end: true,
         icon: <IconLayoutDashboard size={18} stroke={1.8} />,
     },
     {
         key: "events",
-        label: "Events",
+        label: "Eventos",
         to: "events",
         icon: <IconCalendarEventFilled size={18} />,
     },
     {
         key: "polls",
-        label: "Polls",
+        label: "Encuestas",
         to: "polls",
         icon: <IconChartBar size={18} stroke={1.8} />,
     },
     {
         key: "members",
-        label: "Members",
+        label: "Miembros",
         to: "members",
         icon: <IconUsers size={18} stroke={1.8} />,
     },
