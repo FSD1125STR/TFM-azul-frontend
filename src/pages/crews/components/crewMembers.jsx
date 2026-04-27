@@ -198,7 +198,7 @@ export default function CrewMembers() {
         () =>
             members.filter((m) => {
                 const matchRole = !roleFilter || m.role === roleFilter;
-                const matchGroup = !groupFilter || m.grupo === groupFilter;
+                const matchGroup = !groupFilter || (m.grupo?.some((g) => g.name === groupFilter) ?? false);
                 const matchSearch =
                     !search ||
                     m.name?.toLowerCase().includes(search.toLowerCase()) ||
