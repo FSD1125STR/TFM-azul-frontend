@@ -144,7 +144,7 @@ export default function CrewInvitations() {
             setIsUpdating(true);
 
             //Llama a la API para actualizar el estado a False
-            const updated = await updateInvitationStatus(invitation._id, invitation.crew._id, false);
+            const updated = await updateInvitationStatus(invitation._id, crewId, false);
             setInvitation(updated); //Actualizamos el estado con la nueva invitacion
             setShowDeactivateConfirm(false);
             //Generamos notificacion Toast
