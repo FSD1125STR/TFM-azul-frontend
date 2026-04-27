@@ -113,6 +113,7 @@
     font-weight: 700;
     color: var(--color-text-secondary);
     flex-shrink: 0;
+    object-fit: cover;
 }
 
 .memberListInfo {

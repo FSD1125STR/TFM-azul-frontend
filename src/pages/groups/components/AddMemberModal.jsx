@@ -93,10 +93,17 @@ export default function AddMemberModal({
                                 onClick={() => handleAdd(m)}
                                 disabled={isAdding}
                             >
-                                {/* Avatar con inicial del nombre o username */}
-                                <span className={styles.memberAvatar}>
-                                    {(m.name || m.username)?.[0]?.toUpperCase() ?? "?"}
-                                </span>
+                                {m.image ? (
+                                    <img
+                                        src={m.image}
+                                        alt={m.name || m.username}
+                                        className={styles.memberAvatar}
+                                    />
+                                ) : (
+                                    <span className={styles.memberAvatar}>
+                                        {(m.name || m.username)?.[0]?.toUpperCase() ?? "?"}
+                                    </span>
+                                )}
                                 <span className={styles.memberListInfo}>
                                     <span className={styles.memberListName}>{m.name || m.username}</span>
                                     <span className={styles.memberListEmail}>{m.email}</span>
